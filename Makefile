@@ -4,17 +4,17 @@ BENCH = rustup run nightly cargo bench
 test:
 	$(TEST)
 
-test_fib:
-	$(TEST) fib
+test_dp:
+	$(TEST) dp
 
-test_coin:
-	$(TEST) coin
+test_math:
+	$(TEST) math
 
 bench:
 	$(BENCH)
 
-bench_fib:
-	$(BENCH) -- fib
+bench_dp:
+	$(BENCH) -- dp
 
-bench_coin:
-	$(BENCH) -- coin
+bench_math:
+	$(BENCH) -- math
