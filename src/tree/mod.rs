@@ -34,6 +34,10 @@ impl Tree {
         self.root = root;
     }
 
+    pub fn get_root(&self) -> Option<TreeIndex> {
+        self.root
+    }
+
     pub fn add_node(&mut self, node: TreeNode) -> TreeIndex {
         let index = self.arena.len();
         self.arena.push(Some(node));
