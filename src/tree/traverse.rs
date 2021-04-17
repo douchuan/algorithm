@@ -1,88 +1,52 @@
 #![allow(unused)]
-use crate::tree::{Tree, TreeNode};
+use crate::tree::{Tree, TreeIndex, TreeNode};
 
-pub struct PreorderIter<'a> {
-    stack: Vec<&'a TreeNode>,
+pub struct PreorderIter {
+    stack: Vec<TreeIndex>,
 }
 
-impl<'a> PreorderIter<'a> {
-    pub fn new(root: Option<&'a TreeNode>) -> Self {
-        if let Some(node) = root {
-            PreorderIter { stack: vec![node] }
+impl PreorderIter {
+    pub fn new(root: Option<TreeIndex>) -> Self {
+        if let Some(index) = root {
+            PreorderIter { stack: vec![index] }
         } else {
             PreorderIter { stack: vec![] }
         }
     }
-}
 
-impl<'a> Iterator for PreorderIter<'a> {
-    type Item = &'a TreeNode;
+    pub fn next(&mut self, tree: &Tree) -> Option<TreeIndex> {
+        while let Some(node_index) = self.stack.pop() {
+            if let Some(node) = tree.node_at(node_index) {
+                if let Some(right) = node.right {
+                    self.stack.push(right)
+                }
 
-    fn next(&mut self) -> Option<Self::Item> {
-        if let Some(node) = self.stack.pop() {
-            if let Some(right) = &node.right {
-                self.stack.push(&right)
+                if let Some(left) = node.left {
+                    self.stack.push(left)
+                }
+
+                return Some(node_index);
             }
-
-            if let Some(left) = &node.left {
-                self.stack.push(&left)
-            }
-
-            return Some(node);
         }
 
         return None;
     }
 }
-
-/*
-cannot borrow `*node` as mutable more than once at a time
-
-pub struct PreorderIterMut<'a> {
-    stack: Vec<&'a mut TreeNode>,
-}
-
-impl<'a> PreorderIterMut<'a> {
-    pub fn new(root: Option<&'a mut TreeNode>) -> Self {
-        if let Some(node) = root {
-            PreorderIterMut { stack: vec![node] }
-        } else {
-            PreorderIterMut { stack: vec![] }
-        }
-    }
-}
-
-impl<'a> Iterator for PreorderIterMut<'a> {
-    type Item = &'a mut TreeNode;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        if let Some(node) = self.stack.pop() {
-            if let Some(right) = &mut node.right {
-                self.stack.push(right)
-            }
-
-            if let Some(left) = &mut node.left {
-                self.stack.push(left)
-            }
-
-            return Some(node);
-        }
-
-        return None;
-    }
-}
-*/
 
 #[test]
 fn basic() {
+    let mut tree = Tree::new();
     let n3 = TreeNode::new(3, None, None);
-    let n2 = TreeNode::new(2, Some(Box::new(n3)), None);
-    let n1 = TreeNode::new(1, None, Some(Box::new(n2)));
-    let tree = Tree::new(Some(n1));
-    let iter = PreorderIter::new(tree.root.as_ref());
+    let n3 = tree.add_node(n3);
+    let n2 = TreeNode::new(2, Some(n3), None);
+    let n2 = tree.add_node(n2);
+    let n1 = TreeNode::new(1, None, Some(n2));
+    let n1 = tree.add_node(n1);
+    let mut iter = PreorderIter::new(Some(n1));
     let mut r = vec![];
-    for it in iter {
-        r.push(it.value);
+    while let Some(i) = iter.next(&tree) {
+        let node = tree.node_at(i).expect("invalid node index");
+        r.push(node.value);
     }
     assert_eq!(vec![1, 2, 3], r);
 }
