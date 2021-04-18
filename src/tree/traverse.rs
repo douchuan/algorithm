@@ -25,21 +25,18 @@ impl PreOrderIter {
     }
 
     pub fn next(&mut self, tree: &Tree) -> Option<TreeIndex> {
-        while let Some(node_index) = self.stack.pop() {
-            if let Some(node) = tree.node_at(node_index) {
-                if let Some(right) = node.right {
-                    self.stack.push(right)
-                }
+        let node_index = self.stack.pop();
+        if let Some(node_index) = node_index {
+            let node = tree.node_at(node_index).expect("invalid node");
+            if let Some(right) = node.right {
+                self.stack.push(right)
+            }
 
-                if let Some(left) = node.left {
-                    self.stack.push(left)
-                }
-
-                return Some(node_index);
+            if let Some(left) = node.left {
+                self.stack.push(left)
             }
         }
-
-        return None;
+        node_index
     }
 }
 
@@ -61,28 +58,25 @@ impl InOrderIter {
 
     pub fn next(&mut self, tree: &Tree) -> Option<TreeIndex> {
         while let Some(&node_index) = self.stack.last() {
-            if let Some(node) = tree.node_at(node_index) {
-                if let Some(left) = node.left {
-                    if let Some(last) = self.last {
-                        if last == left {
-                            break;
-                        }
+            let node = tree.node_at(node_index).expect("invalid node");
+            if let Some(left) = node.left {
+                if let Some(last) = self.last {
+                    if last == left {
+                        break;
                     }
-
-                    self.stack.push(left);
-                    continue;
                 }
+                self.stack.push(left);
+            } else {
+                break;
             }
-            break;
         }
 
         let node = self.stack.pop();
 
         if let Some(node_index) = node {
-            if let Some(node) = tree.node_at(node_index) {
-                if let Some(right) = node.right {
-                    self.stack.push(right);
-                }
+            let node = tree.node_at(node_index).expect("invalid node");
+            if let Some(right) = node.right {
+                self.stack.push(right);
             }
         }
 
