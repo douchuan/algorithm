@@ -6,10 +6,7 @@ pub struct PreOrderVisitor {
     stack: Vec<TreeIndex>,
 }
 
-pub struct InOrderVisitor {
-    stack: Vec<TreeIndex>,
-    last: Option<TreeIndex>,
-}
+pub struct InOrderVisitor;
 
 pub struct PostOrderVisitor {
     stack: Vec<TreeIndex>,
@@ -55,48 +52,29 @@ impl PreOrderVisitor {
 }
 
 impl InOrderVisitor {
-    pub fn new(root: Option<TreeIndex>) -> Self {
-        let last = None;
-        if let Some(index) = root {
-            InOrderVisitor {
-                stack: vec![index],
-                last,
-            }
-        } else {
-            InOrderVisitor {
-                stack: vec![],
-                last,
-            }
-        }
-    }
-
-    pub fn iter_next(&mut self, tree: &Tree) -> Option<TreeIndex> {
-        while let Some(&node_index) = self.stack.last() {
-            let node = tree.node_at(node_index).expect("invalid node");
-            if let Some(left) = node.left {
-                if let Some(last) = self.last {
-                    if last == left {
-                        break;
-                    }
+    fn iter(tree: &Tree) -> Vec<usize> {
+        let mut results = vec![];
+        let mut stack = vec![];
+        let mut p = tree.root;
+        loop {
+            match (p, stack.is_empty()) {
+                (None, true) => break,
+                (Some(node_idx), _) => {
+                    stack.push(node_idx);
+                    let node = tree.node_at(node_idx).expect("invalid node");
+                    p = node.left;
                 }
-                self.stack.push(left);
-            } else {
-                break;
+                (None, false) => {
+                    p = stack.pop();
+                    let node_idx = p.unwrap();
+                    let node = tree.node_at(node_idx).expect("invalid node");
+                    results.push(node.value);
+                    p = node.right;
+                }
             }
         }
 
-        let node = self.stack.pop();
-
-        if let Some(node_index) = node {
-            let node = tree.node_at(node_index).expect("invalid node");
-            if let Some(right) = node.right {
-                self.stack.push(right);
-            }
-        }
-
-        self.last = node;
-
-        node
+        results
     }
 
     fn recursive(tree: &Tree) -> Vec<usize> {
@@ -164,14 +142,9 @@ fn t_pre_order() {
 }
 
 #[test]
-fn t_in_order() {
+fn t_inorder_iter() {
     let tree = t_helper_build_tree();
-    let mut iter = InOrderVisitor::new(tree.get_root());
-    let mut r = vec![];
-    while let Some(i) = iter.iter_next(&tree) {
-        let node = tree.node_at(i).expect("invalid node index");
-        r.push(node.value);
-    }
+    let r = InOrderVisitor::iter(&tree);
     assert_eq!(vec![1, 3, 2], r);
 }
 
