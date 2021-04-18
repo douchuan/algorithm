@@ -38,6 +38,20 @@ impl PreOrderVisitor {
         }
         node_index
     }
+
+    fn recursive(tree: &Tree) -> Vec<usize> {
+        let mut results = vec![];
+        fn visitor(tree: &Tree, p: Option<TreeIndex>, results: &mut Vec<usize>) {
+            if let Some(idx) = p {
+                let node = tree.node_at(idx).expect("invalid node");
+                results.push(node.value);
+                visitor(tree, node.left, results);
+                visitor(tree, node.right, results);
+            }
+        }
+        visitor(tree, tree.get_root(), &mut results);
+        results
+    }
 }
 
 impl InOrderVisitor {
@@ -108,6 +122,20 @@ impl PostOrderVisitor {
     pub fn next(&mut self, tree: &Tree) -> Option<TreeIndex> {
         None
     }
+
+    fn recursive(tree: &Tree) -> Vec<usize> {
+        let mut results = vec![];
+        fn visitor(tree: &Tree, p: Option<TreeIndex>, results: &mut Vec<usize>) {
+            if let Some(idx) = p {
+                let node = tree.node_at(idx).expect("invalid node");
+                visitor(tree, node.left, results);
+                visitor(tree, node.right, results);
+                results.push(node.value);
+            }
+        }
+        visitor(tree, tree.get_root(), &mut results);
+        results
+    }
 }
 
 fn t_helper_build_tree() -> Tree {
@@ -148,10 +176,24 @@ fn t_in_order() {
 }
 
 #[test]
+fn t_preorder_recursive() {
+    let tree = t_helper_build_tree();
+    let r = PreOrderVisitor::recursive(&tree);
+    assert_eq!(vec![1, 2, 3], r);
+}
+
+#[test]
 fn t_inorder_recursive() {
     let tree = t_helper_build_tree();
     let r = InOrderVisitor::recursive(&tree);
     assert_eq!(vec![1, 3, 2], r);
+}
+
+#[test]
+fn t_postorder_recursive() {
+    let tree = t_helper_build_tree();
+    let r = PostOrderVisitor::recursive(&tree);
+    assert_eq!(vec![3, 2, 1], r);
 }
 
 #[test]
