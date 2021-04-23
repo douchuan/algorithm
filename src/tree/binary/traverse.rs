@@ -229,28 +229,29 @@ impl LevelOrderVisitor {
         let mut results = vec![];
         fn visitor(
             tree: &Tree,
-            mut level_nodes: Vec<Option<TreeIndex>>,
+            mut level_nodes: Vec<TreeIndex>,
             results: &mut Vec<Vec<usize>>,
             pos: usize,
         ) {
             let mut next_level_nodes = vec![];
             for p in level_nodes {
-                if let Some(node_idx) = p {
-                    let node = tree.node_at(node_idx).expect("invalid node");
-                    next_level_nodes.push(node.left);
-                    next_level_nodes.push(node.right);
-                    results[pos].push(node.value);
+                let node = tree.node_at(p).expect("invalid node");
+                for child in &[node.left, node.right] {
+                    if let Some(child) = child {
+                        next_level_nodes.push(*child);
+                    }
                 }
+                results[pos].push(node.value);
             }
 
-            if !(next_level_nodes.is_empty() || next_level_nodes.iter().all(|v| v.is_none())) {
+            if !next_level_nodes.is_empty() {
                 results.push(vec![]);
                 visitor(tree, next_level_nodes, results, pos + 1);
             }
         }
-        if tree.get_root().is_some() {
+        if let Some(p) = tree.get_root() {
             results.push(vec![]);
-            visitor(tree, vec![tree.get_root()], &mut results, 0);
+            visitor(tree, vec![p], &mut results, 0);
         }
         results
     }
