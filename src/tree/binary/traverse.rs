@@ -224,6 +224,38 @@ impl PostOrderVisitor {
     }
 }
 
+impl LevelOrderVisitor {
+    fn recursive(tree: &Tree) -> Vec<Vec<usize>> {
+        let mut results = vec![];
+        fn visitor(
+            tree: &Tree,
+            mut level_nodes: Vec<Option<TreeIndex>>,
+            results: &mut Vec<Vec<usize>>,
+            pos: usize,
+        ) {
+            let mut next_level_nodes = vec![];
+            for p in level_nodes {
+                if let Some(node_idx) = p {
+                    let node = tree.node_at(node_idx).expect("invalid node");
+                    next_level_nodes.push(node.left);
+                    next_level_nodes.push(node.right);
+                    results[pos].push(node.value);
+                }
+            }
+
+            if !(next_level_nodes.is_empty() || next_level_nodes.iter().all(|v| v.is_none())) {
+                results.push(vec![]);
+                visitor(tree, next_level_nodes, results, pos + 1);
+            }
+        }
+        if tree.get_root().is_some() {
+            results.push(vec![]);
+            visitor(tree, vec![tree.get_root()], &mut results, 0);
+        }
+        results
+    }
+}
+
 #[test]
 fn t_preorder_iter() {
     let nodes = vec!["1", "#", "2", "3"];
@@ -270,4 +302,12 @@ fn t_postorder_iter() {
     let tree = construct::new_tree(&nodes);
     let r = PostOrderVisitor::iterate(&tree);
     assert_eq!(vec![3, 2, 1], r);
+}
+
+#[test]
+fn t_levelorder_traverse() {
+    let nodes = vec!["3", "9", "20", "#", "#", "15", "7"];
+    let tree = construct::new_tree(&nodes);
+    let r = LevelOrderVisitor::recursive(&tree);
+    assert_eq!(vec![vec![3], vec![9, 20], vec![15, 7]], r);
 }
