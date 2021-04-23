@@ -1,5 +1,9 @@
 TEST = rustup run nightly cargo test
 BENCH = rustup run nightly cargo bench
+BUILD = rustup run nightly cargo build
+
+build:
+	$(BUILD)
 
 test:
 	$(TEST)

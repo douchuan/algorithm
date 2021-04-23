@@ -1,11 +1,94 @@
 #![allow(unused)]
-use crate::tree::{Tree, TreeIndex, TreeNode};
+use crate::tree::binary::construct;
+use crate::tree::binary::{Tree, TreeIndex, TreeNode};
 use std::collections::HashSet;
-use std::ops::Deref;
 
+/// Binary Tree Preorder Traversal
+/// Given a binary tree, return the preorder traversal of its nodes’ values.
+/// For example: Given binary tree {1, #, 2, 3},
+///     1
+///     \
+///      2
+///     /
+///    3
+/// return [1, 2, 3].
+/// Note: Recursive solution is trivial, could you do it iteratively?
 pub struct PreOrderVisitor;
+
+/// Binary Tree Inorder Traversal
+/// Given a binary tree, return the inorder traversal of its nodes’ values.
+/// For example: Given binary tree {1, #, 2, 3},
+///     1
+///     \
+///      2
+///     /
+///    3
+/// return [1, 3, 2].
+/// Note: Recursive solution is trivial, could you do it iteratively?
 pub struct InOrderVisitor;
+
+/// Binary Tree Postorder Traversal
+/// Given a binary tree, return the postorder traversal of its nodes’ values.
+/// For example: Given binary tree {1, #, 2, 3},
+///     1
+///     \
+///      2
+///     /
+///    3
+/// return [3, 2, 1].
+/// Note: Recursive solution is trivial, could you do it iteratively?
 pub struct PostOrderVisitor;
+
+/// Binary Tree Level Order Traversal
+/// Given a binary tree, return the level order traversal of its nodes’
+/// values. (ie, from left to right, level by level).
+/// For example: Given binary tree {3, 9, 20, #, #, 15, 7},
+///     3
+///    / \
+///   9  20
+///     / \
+///    15  7
+/// return its level order traversal as:
+/// [
+///     [3],
+///     [9, 20],
+///     [15, 7]
+/// ]
+pub struct LevelOrderVisitor;
+
+/// Binary Tree Level Order Traversal 2
+/// Given a binary tree, return the level order traversal of its nodes’
+/// values. (ie, from left to right, level by level).
+/// For example: Given binary tree {3,9,20,#,#,15,7},
+///     3
+///    / \
+///   9  20
+///     / \
+///    15  7
+/// return its bottom-up level order traversal as:
+/// [
+///     [15, 7]
+///     [9, 20],
+///     [3],
+/// ]
+pub struct LevelOrderVisitor2;
+
+/// Zigzag Level Order Traversal
+/// Given a binary tree, return the level order traversal of its nodes’
+/// values. (ie, from left to right, level by level).
+/// For example: Given binary tree {3,9,20,#,#,15,7},
+///     3
+///    / \
+///   9  20
+///     / \
+///    15  7
+/// return its zigzag level order traversal as:
+/// [
+///     [3],
+///     [20, 9],
+///     [15, 7]
+/// ]
+pub struct ZigzagOrderVisitor;
 
 impl PreOrderVisitor {
     fn iterate(tree: &Tree) -> Vec<usize> {
@@ -15,16 +98,12 @@ impl PreOrderVisitor {
         let mut p = tree.root;
         while let Some(node_idx) = p {
             let node = tree.node_at(node_idx).expect("invalid node");
-
             results.push(node.value); //visit result
-
-            if let Some(right) = node.right {
-                stack.push(right)
+            for pp in &[node.right, node.left] {
+                if let Some(pp) = pp {
+                    stack.push(*pp);
+                }
             }
-            if let Some(left) = node.left {
-                stack.push(left)
-            }
-
             p = stack.pop();
         }
 
@@ -54,21 +133,21 @@ impl InOrderVisitor {
         let mut p = tree.root;
         loop {
             match (p, stack.is_empty()) {
-                (None, true) => break,
                 (Some(node_idx), _) => {
-                    //traverse left nodes
+                    //switch to left child
                     stack.push(node_idx);
                     let node = tree.node_at(node_idx).expect("invalid node");
                     p = node.left;
                 }
                 (None, false) => {
-                    //visit result & switch to right node
+                    //visit result & switch to right child
                     p = stack.pop();
                     let node_idx = p.unwrap();
                     let node = tree.node_at(node_idx).expect("invalid node");
                     results.push(node.value);
                     p = node.right;
                 }
+                (None, true) => break,
             }
         }
 
@@ -100,22 +179,28 @@ impl PostOrderVisitor {
 
         while let Some(node_idx) = p {
             let node = tree.node_at(node_idx).expect("invalid node");
-            if let Some(left) = node.left {
-                if !visited.contains(&left) {
+
+            //switch to left child
+            match node.left {
+                Some(left) if !visited.contains(&left) => {
                     stack.push(node_idx);
                     p = Some(left);
                     continue;
                 }
+                _ => (),
             }
 
-            if let Some(right) = node.right {
-                if !visited.contains(&right) {
+            //switch to right child
+            match node.right {
+                Some(right) if !visited.contains(&right) => {
                     stack.push(node_idx);
                     p = Some(right);
                     continue;
                 }
+                _ => (),
             }
 
+            //visit & record node
             results.push(node.value);
             visited.insert(node_idx);
             p = stack.pop();
@@ -139,57 +224,50 @@ impl PostOrderVisitor {
     }
 }
 
-fn t_helper_build_tree() -> Tree {
-    let mut tree = Tree::new();
-    let n3 = TreeNode::new(3, None, None);
-    let n3 = tree.add_node(n3);
-    let n2 = TreeNode::new(2, Some(n3), None);
-    let n2 = tree.add_node(n2);
-    let n1 = TreeNode::new(1, None, Some(n2));
-    let n1 = tree.add_node(n1);
-    tree.set_root(Some(n1));
-
-    tree
-}
-
 #[test]
 fn t_preorder_iter() {
-    let tree = t_helper_build_tree();
+    let nodes = vec!["1", "#", "2", "3"];
+    let tree = construct::new_tree(&nodes);
     let r = PreOrderVisitor::iterate(&tree);
     assert_eq!(vec![1, 2, 3], r);
 }
 
 #[test]
 fn t_inorder_iter() {
-    let tree = t_helper_build_tree();
+    let nodes = vec!["1", "#", "2", "3"];
+    let tree = construct::new_tree(&nodes);
     let r = InOrderVisitor::iterate(&tree);
     assert_eq!(vec![1, 3, 2], r);
 }
 
 #[test]
 fn t_preorder_recursive() {
-    let tree = t_helper_build_tree();
+    let nodes = vec!["1", "#", "2", "3"];
+    let tree = construct::new_tree(&nodes);
     let r = PreOrderVisitor::recursive(&tree);
     assert_eq!(vec![1, 2, 3], r);
 }
 
 #[test]
 fn t_inorder_recursive() {
-    let tree = t_helper_build_tree();
+    let nodes = vec!["1", "#", "2", "3"];
+    let tree = construct::new_tree(&nodes);
     let r = InOrderVisitor::recursive(&tree);
     assert_eq!(vec![1, 3, 2], r);
 }
 
 #[test]
 fn t_postorder_recursive() {
-    let tree = t_helper_build_tree();
+    let nodes = vec!["1", "#", "2", "3"];
+    let tree = construct::new_tree(&nodes);
     let r = PostOrderVisitor::recursive(&tree);
     assert_eq!(vec![3, 2, 1], r);
 }
 
 #[test]
 fn t_postorder_iter() {
-    let tree = t_helper_build_tree();
+    let nodes = vec!["1", "#", "2", "3"];
+    let tree = construct::new_tree(&nodes);
     let r = PostOrderVisitor::iterate(&tree);
     assert_eq!(vec![3, 2, 1], r);
 }
