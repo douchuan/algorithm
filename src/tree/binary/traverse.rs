@@ -1,7 +1,7 @@
 #![allow(unused)]
 use crate::tree::binary::construct;
 use crate::tree::binary::{Tree, TreeIndex, TreeNode};
-use std::collections::HashSet;
+use std::collections::{HashSet, LinkedList};
 
 /// Binary Tree Preorder Traversal
 /// Given a binary tree, return the preorder traversal of its nodes’ values.
@@ -225,6 +225,47 @@ impl PostOrderVisitor {
 }
 
 impl LevelOrderVisitor {
+    pub fn iterate(tree: &Tree) -> Vec<Vec<usize>> {
+        let mut results = vec![];
+
+        if let Some(p) = tree.get_root() {
+            let mut nodes = LinkedList::new();
+            let mut next_level_nodes = vec![];
+
+            //root node enqueue
+            nodes.push_back(p);
+            results.push(vec![]);
+
+            loop {
+                match nodes.pop_front() {
+                    Some(p) => {
+                        let node = tree.node_at(p).expect("invalid node");
+                        results
+                            .last_mut()
+                            .expect("empty results container")
+                            .push(node.value);
+                        for child in &[node.left, node.right] {
+                            if let Some(child) = child {
+                                next_level_nodes.push(*child);
+                            }
+                        }
+                    }
+                    None => {
+                        if next_level_nodes.is_empty() {
+                            break;
+                        } else {
+                            results.push(vec![]);
+                            nodes.extend(next_level_nodes.iter());
+                            next_level_nodes.clear();
+                        }
+                    }
+                }
+            }
+        }
+
+        results
+    }
+
     fn recursive(tree: &Tree) -> Vec<Vec<usize>> {
         let mut results = vec![];
         fn visitor(
@@ -305,6 +346,14 @@ fn t_postorder_iter() {
     let tree = construct::new_tree(&nodes);
     let r = PostOrderVisitor::iterate(&tree);
     assert_eq!(vec![3, 2, 1], r);
+}
+
+#[test]
+fn t_levelorder_iter() {
+    let nodes = vec!["3", "9", "20", "#", "#", "15", "7"];
+    let tree = construct::new_tree(&nodes);
+    let r = LevelOrderVisitor::iterate(&tree);
+    assert_eq!(vec![vec![3], vec![9, 20], vec![15, 7]], r);
 }
 
 #[test]
