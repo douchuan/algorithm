@@ -300,6 +300,20 @@ impl LevelOrderVisitor {
     }
 }
 
+impl LevelOrderVisitor2 {
+    pub fn iterate(tree: &Tree) -> Vec<Vec<usize>> {
+        let mut r = LevelOrderVisitor::iterate(tree);
+        r.reverse();
+        r
+    }
+
+    fn recursive(tree: &Tree) -> Vec<Vec<usize>> {
+        let mut r = LevelOrderVisitor::recursive(tree);
+        r.reverse();
+        r
+    }
+}
+
 #[test]
 fn t_preorder_iter() {
     let nodes = vec!["1", "#", "2", "3"];
@@ -362,4 +376,20 @@ fn t_levelorder_traverse() {
     let tree = construct::new_tree(&nodes);
     let r = LevelOrderVisitor::recursive(&tree);
     assert_eq!(vec![vec![3], vec![9, 20], vec![15, 7]], r);
+}
+
+#[test]
+fn t_levelorder2_iter() {
+    let nodes = vec!["3", "9", "20", "#", "#", "15", "7"];
+    let tree = construct::new_tree(&nodes);
+    let r = LevelOrderVisitor2::iterate(&tree);
+    assert_eq!(vec![vec![15, 7], vec![9, 20], vec![3]], r);
+}
+
+#[test]
+fn t_levelorder2_traverse() {
+    let nodes = vec!["3", "9", "20", "#", "#", "15", "7"];
+    let tree = construct::new_tree(&nodes);
+    let r = LevelOrderVisitor2::recursive(&tree);
+    assert_eq!(vec![vec![15, 7], vec![9, 20], vec![3]], r);
 }
