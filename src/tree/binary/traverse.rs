@@ -176,7 +176,6 @@ impl PostOrderVisitor {
         let mut visited = HashSet::new();
         //point current node
         let mut p = tree.root;
-
         while let Some(node_idx) = p {
             let node = tree.node_at(node_idx).expect("invalid node");
 
@@ -227,7 +226,6 @@ impl PostOrderVisitor {
 impl LevelOrderVisitor {
     pub fn iterate(tree: &Tree) -> Vec<Vec<usize>> {
         let mut results = vec![];
-
         if let Some(p) = tree.get_root() {
             let mut nodes = LinkedList::new();
             let mut next_level_nodes = vec![];
@@ -314,6 +312,96 @@ impl LevelOrderVisitor2 {
     }
 }
 
+impl ZigzagOrderVisitor {
+    pub fn iterate(tree: &Tree) -> Vec<Vec<usize>> {
+        let mut results = vec![];
+        if let Some(p) = tree.get_root() {
+            let mut nodes = LinkedList::new();
+            let mut next_level_nodes = vec![];
+            let mut left_to_right = false;
+
+            //root node enqueue
+            nodes.push_back(p);
+            results.push(vec![]);
+
+            loop {
+                match nodes.pop_front() {
+                    Some(p) => {
+                        let node = tree.node_at(p).expect("invalid node");
+                        results
+                            .last_mut()
+                            .expect("empty results container")
+                            .push(node.value);
+
+                        let children = if left_to_right {
+                            vec![node.left, node.right]
+                        } else {
+                            vec![node.right, node.left]
+                        };
+
+                        for child in children {
+                            if let Some(child) = child {
+                                next_level_nodes.push(child);
+                            }
+                        }
+                    }
+                    None => {
+                        if next_level_nodes.is_empty() {
+                            break;
+                        } else {
+                            results.push(vec![]);
+                            nodes.extend(next_level_nodes.iter());
+                            next_level_nodes.clear();
+                            left_to_right = !left_to_right;
+                        }
+                    }
+                }
+            }
+        }
+
+        results
+    }
+
+    fn recursive(tree: &Tree) -> Vec<Vec<usize>> {
+        let mut results = vec![];
+        fn visitor(
+            tree: &Tree,
+            mut level_nodes: Vec<TreeIndex>,
+            results: &mut Vec<Vec<usize>>,
+            pos: usize,
+            left_to_right: bool,
+        ) {
+            if level_nodes.is_empty() {
+                return;
+            }
+
+            results.push(vec![]);
+
+            let mut next_level_nodes = vec![];
+            for p in level_nodes {
+                let node = tree.node_at(p).expect("invalid node");
+                let children = if left_to_right {
+                    vec![node.left, node.right]
+                } else {
+                    vec![node.right, node.left]
+                };
+                for child in children {
+                    if let Some(child) = child {
+                        next_level_nodes.push(child);
+                    }
+                }
+                results[pos].push(node.value);
+            }
+
+            visitor(tree, next_level_nodes, results, pos + 1, !left_to_right);
+        }
+        if let Some(p) = tree.get_root() {
+            visitor(tree, vec![p], &mut results, 0, false);
+        }
+        results
+    }
+}
+
 #[test]
 fn t_preorder_iter() {
     let nodes = vec!["1", "#", "2", "3"];
@@ -392,4 +480,20 @@ fn t_levelorder2_traverse() {
     let tree = construct::new_tree(&nodes);
     let r = LevelOrderVisitor2::recursive(&tree);
     assert_eq!(vec![vec![15, 7], vec![9, 20], vec![3]], r);
+}
+
+#[test]
+fn t_levelorder_zigzag_iter() {
+    let nodes = vec!["3", "9", "20", "#", "#", "15", "7"];
+    let tree = construct::new_tree(&nodes);
+    let r = ZigzagOrderVisitor::iterate(&tree);
+    assert_eq!(vec![vec![3], vec![20, 9], vec![15, 7]], r);
+}
+
+#[test]
+fn t_levelorder_zigzag_traverse() {
+    let nodes = vec!["3", "9", "20", "#", "#", "15", "7"];
+    let tree = construct::new_tree(&nodes);
+    let r = ZigzagOrderVisitor::recursive(&tree);
+    assert_eq!(vec![vec![3], vec![20, 9], vec![15, 7]], r);
 }
