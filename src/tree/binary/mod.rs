@@ -1,6 +1,7 @@
 #![allow(unused)]
 mod construct;
 mod traverse;
+mod visualization;
 
 pub type TreeIndex = usize;
 
@@ -78,5 +79,40 @@ impl Tree {
                 Some(self.add_node(node))
             }
         }
+    }
+
+    pub fn height(&self) -> usize {
+        fn calc(tree: &Tree, parent: Option<usize>) -> usize {
+            match parent {
+                Some(parent) => {
+                    let node = tree.node_at(parent).expect("invalid index");
+                    let lh = calc(tree, node.left);
+                    let rh = calc(tree, node.right);
+                    1 + lh.max(rh)
+                }
+                None => 0,
+            }
+        }
+
+        calc(self, self.root)
+    }
+}
+
+#[test]
+fn t_height() {
+    let test_data = vec![
+        (vec!["1", "#", "2", "3"], 3),
+        (vec!["1", "2", "#", "3", "#", "#", "#", "4"], 4),
+        (vec!["1", "2", "#", "3", "#", "#", "#", "#", "4"], 4),
+        (vec!["1", "2", "#", "3", "4", "#", "#", "5"], 4),
+    ];
+    for (t, expect) in test_data {
+        let tree = construct::new_tree(&t);
+        let r = tree.height();
+        assert_eq!(
+            expect, r,
+            "tree = {:?}, expect = {:?}, r = {:?}",
+            t, expect, r
+        );
     }
 }
