@@ -1,6 +1,7 @@
 use crate::tree::binary::{Tree, TreeIndex, TreeNode};
 use std::collections::LinkedList;
 
+#[derive(Copy, Clone, PartialOrd, PartialEq)]
 enum NodeType {
     Root,
     LeftChild,
@@ -24,49 +25,67 @@ impl NodeType {
 ///      2
 ///     /
 ///    3
-pub fn new_tree(nodes: &[&str]) -> Tree {
+pub fn new_tree(orig: &[&str]) -> Tree {
+    let mut tokens = LinkedList::new();
+    tokens.extend(orig.iter());
+
     let mut tree = Tree::new();
-    if nodes.is_empty() || nodes[0] == "#" {
-        return tree;
-    }
-
-    let mut nodes = nodes.to_vec();
-    nodes.reverse();
-
     let mut records = LinkedList::new();
     let mut nt = NodeType::Root;
-    let mut parent_idx = None;
-    while let Some(value) = nodes.pop() {
-        let node_index = tree.add_value(value);
+    let mut parent = None;
+
+    while let Some(value) = tokens.pop_front() {
+        let cur = tree.add_value(value);
 
         //待处理node入队
-        if let Some(v) = node_index {
-            records.push_back(v);
-        }
+        records.push_back(cur);
 
         match nt {
             NodeType::Root => {
-                assert!(node_index.is_some(), "root node None");
-                tree.set_root(node_index);
-                parent_idx = records.pop_front();
+                tree.set_root(cur);
+                parent = records.pop_front().unwrap();
             }
-            NodeType::LeftChild => {
-                let parent = parent_idx.expect("invalid parent index");
-                let parent_node = tree.node_at_mut(parent).expect("invalid parent node");
-                parent_node.left = node_index;
-            }
+            NodeType::LeftChild => match parent {
+                Some(parent) => {
+                    let parent_node = tree.node_at_mut(parent).expect("invalid parent node");
+                    parent_node.left = cur;
+                }
+                _ => (),
+            },
             NodeType::RightChild => {
-                let parent = parent_idx.expect("invalid parent index");
-                let parent_node = tree.node_at_mut(parent).expect("invalid parent node");
-                parent_node.right = node_index;
+                match parent {
+                    Some(parent) => {
+                        let parent_node = tree.node_at_mut(parent).expect("invalid parent node");
+                        parent_node.right = cur;
+                    }
+                    _ => (),
+                }
 
                 //parent的left&right child node构建完毕，取下一个
-                parent_idx = records.pop_front();
+                if let Some(next) = records.pop_front() {
+                    parent = next;
+                }
             }
+        }
+
+        //无父接收，退货
+        if parent.is_none() && cur.is_some() {
+            tokens.push_front(value);
         }
 
         nt = nt.next();
     }
 
     tree
+}
+
+#[test]
+fn t_empty_tree() {
+    let tree = new_tree(&[]);
+    assert!(tree.arena.is_empty());
+    assert!(tree.root.is_none());
+
+    let tree = new_tree(&["#"]);
+    assert!(tree.arena.is_empty());
+    assert!(tree.root.is_none());
 }
