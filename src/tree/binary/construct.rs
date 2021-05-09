@@ -39,8 +39,15 @@ pub fn new_tree(orig: &[&str]) -> Tree {
         let cur = tree.add_value(value);
         // println!("parent = {:?}, cur = {}", parent, value);
 
-        //待处理node入队
-        records.push_back(cur);
+        match (parent, cur) {
+            (None, Some(cur)) if nt != NodeType::Root => {
+                //无父接收，退货
+                tokens.push_front(value);
+                tree.remove(cur);
+            }
+            //待处理node入队
+            _ => records.push_back(cur),
+        }
 
         match nt {
             NodeType::Root => {
@@ -51,22 +58,12 @@ pub fn new_tree(orig: &[&str]) -> Tree {
                 if let Some(parent) = parent {
                     let parent_node = tree.node_at_mut(parent).expect("invalid parent node");
                     parent_node.left = cur;
-                } else if let Some(cur) = cur {
-                    //无父接收，退货
-                    tokens.push_front(value);
-                    records.pop_back();
-                    tree.remove(cur);
                 }
             }
             NodeType::RightChild => {
                 if let Some(parent) = parent {
                     let parent_node = tree.node_at_mut(parent).expect("invalid parent node");
                     parent_node.right = cur;
-                } else if let Some(cur) = cur {
-                    //无父接收，退货
-                    tokens.push_front(value);
-                    records.pop_back();
-                    tree.remove(cur);
                 }
 
                 //parent的left&right child node构建完毕，取下一个
