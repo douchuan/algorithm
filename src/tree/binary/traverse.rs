@@ -536,6 +536,32 @@ fn t_inorder_iter() {
 }
 
 #[test]
+fn t_inorder_iter2() {
+    let tokens = vec!["1", "2", "#", "3", "4", "#", "#", "5"];
+    let tree = construct::new_tree(&tokens);
+    let p0 = tree.root.expect("invalid p0");
+    let p0 = tree.node_at(p0).expect("invalid p0 node");
+    assert_eq!(p0.value, 1);
+    assert!(p0.right.is_none());
+    let p1 = p0.left.expect("invalid p0 left");
+    let p1 = tree.node_at(p1).expect("invalid p1 node");
+    assert_eq!(p1.value, 2);
+    //p2: '#'
+    let p3 = p1.left.expect("invalid p3");
+    let p3 = tree.node_at(p3).expect("invalid p3 node");
+    assert_eq!(p3.value, 3);
+    let p4 = p1.right.expect("invalid p4");
+    let p4 = tree.node_at(p4).expect("invalid p3 node");
+    assert_eq!(p4.value, 4);
+    //p5: '#'
+    //p6: '#'
+    let p7 = p3.left.expect("invalid p7");
+    let p7 = tree.node_at(p7).expect("invalid p7 node");
+    assert_eq!(p7.value, 5);
+    assert_eq!(tree.arena.len(), 5);
+}
+
+#[test]
 fn t_inorder_recursive() {
     for (t, expect) in inorder_test_data() {
         let tree = construct::new_tree(&t);

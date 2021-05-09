@@ -45,20 +45,16 @@ pub fn new_tree(orig: &[&str]) -> Tree {
                 tree.set_root(cur);
                 parent = records.pop_front().unwrap();
             }
-            NodeType::LeftChild => match parent {
-                Some(parent) => {
+            NodeType::LeftChild => {
+                if let Some(parent) = parent {
                     let parent_node = tree.node_at_mut(parent).expect("invalid parent node");
                     parent_node.left = cur;
                 }
-                _ => (),
-            },
+            }
             NodeType::RightChild => {
-                match parent {
-                    Some(parent) => {
-                        let parent_node = tree.node_at_mut(parent).expect("invalid parent node");
-                        parent_node.right = cur;
-                    }
-                    _ => (),
+                if let Some(parent) = parent {
+                    let parent_node = tree.node_at_mut(parent).expect("invalid parent node");
+                    parent_node.right = cur;
                 }
 
                 //parent的left&right child node构建完毕，取下一个
@@ -68,9 +64,14 @@ pub fn new_tree(orig: &[&str]) -> Tree {
             }
         }
 
-        //无父接收，退货
-        if parent.is_none() && cur.is_some() {
-            tokens.push_front(value);
+        match (parent, cur) {
+            (None, Some(cur)) => {
+                //无父接收，退货
+                tokens.push_front(value);
+                records.pop_back();
+                tree.remove(cur);
+            }
+            _ => (),
         }
 
         nt = nt.next();
