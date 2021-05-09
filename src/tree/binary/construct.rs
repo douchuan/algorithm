@@ -94,7 +94,25 @@ fn t_empty_tree() {
 }
 
 #[test]
-fn t_tree() {
+fn t_tree_topology1() {
+    let tokens = vec!["1", "#", "2", "3"];
+    let tree = new_tree(&tokens);
+    let p0 = tree.root.expect("invalid p0");
+    let p0 = tree.node_at(p0).expect("invalid p0 node");
+    assert_eq!(p0.value, 1);
+    assert!(p0.left.is_none());
+    //p1: '#'
+    let p2 = p0.right.expect("invalid p0 right");
+    let p2 = tree.node_at(p2).expect("invalid p2 node");
+    assert_eq!(p2.value, 2);
+    assert!(p2.right.is_none());
+    let p3 = p2.left.expect("invalid p2 left");
+    let p3 = tree.node_at(p3).expect("invalid p3 node");
+    assert_eq!(p3.value, 3);
+}
+
+#[test]
+fn t_tree_topology2() {
     let tokens = vec!["1", "2", "#", "3", "4", "#", "#", "5"];
     let tree = new_tree(&tokens);
     let p0 = tree.root.expect("invalid p0");
