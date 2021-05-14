@@ -18,6 +18,12 @@
 //! v2：
 //!   对v1的改进，v1的问题是每次merge时需要分配空间存储归并结果
 //!   v2在sort开始处创建一个与待排序数组同样大小的work space
+//!
+//! v3:
+//!   对v2改进，避免分配与待排序数组同样大小的work space
+//!   merge in place
+//!   https://stackoverflow.com/questions/2571049/how-to-sort-in-place-using-the-merge-sort-algorithm
+//!   https://github.com/liuxinyu95/AlgoXY/blob/algoxy/sorting/merge-sort/src/mergesort.c
 
 pub mod v1 {
     use crate::sort::util;
@@ -229,6 +235,152 @@ pub mod v2 {
     }
 }
 
+// ref, https://github.com/liuxinyu95/AlgoXY/blob/algoxy/sorting/merge-sort/src/mergesort.c
 pub mod v3 {
-    
+    use crate::sort::util;
+    use test::Bencher;
+
+    // merge two sorted subs xs[i, m) and xs[j...n) to working area xs[w...]
+    fn wmerge<T: Copy, F>(
+        xs: &mut [T],
+        mut i: usize,
+        m: usize,
+        mut j: usize,
+        n: usize,
+        test: F,
+        mut w: usize,
+    ) where
+        F: Fn(T, T) -> bool + Copy,
+    {
+        while i < m && j < n {
+            if test(xs[i], xs[j]) {
+                xs.swap(w, i);
+                i += 1;
+            } else {
+                xs.swap(w, j);
+                j += 1;
+            }
+            w += 1;
+        }
+
+        while i < m {
+            xs.swap(w, i);
+            i += 1;
+            w += 1;
+        }
+
+        while j < n {
+            xs.swap(w, j);
+            j += 1;
+            w += 1;
+        }
+    }
+
+    /// sort xs[l, u), and put result to working area w.
+    /// constraint, len(w) == u - l
+    fn wsort<T: Copy, F>(xs: &mut [T], mut l: usize, u: usize, test: F, mut w: usize)
+    where
+        F: Fn(T, T) -> bool + Copy,
+    {
+        if u - l > 1 {
+            let m = (u + l) / 2;
+            do_sort(xs, l, m, test);
+            do_sort(xs, m, u, test);
+            wmerge(xs, l, m, m, u, test, w);
+        } else {
+            while l < u {
+                xs.swap(l, w);
+                l += 1;
+                w += 1;
+            }
+        }
+    }
+
+    fn do_sort<T: Copy, F>(a: &mut [T], l: usize, u: usize, test: F)
+    where
+        F: Fn(T, T) -> bool + Copy,
+    {
+        if u - l > 1 {
+            let mut m = (u + l) / 2;
+            let mut w = l + u - m;
+            // the last half contains sorted elements
+            wsort(a, l, m, test, w);
+            while w - l > 2 {
+                let n = w;
+                w = l + (n - l + 1) / 2;
+                // the first half of the previous working area contains sorted elements
+                wsort(a, w, n, test, l);
+                wmerge(a, l, l + n - w, n, u, test, w);
+            }
+
+            // switch to insertion sort
+            let mut n = w;
+            while n > l {
+                m = n;
+                while m < u && test(a[m], a[m - 1]) {
+                    a.swap(m, m - 1);
+                    m += 1;
+                }
+                n -= 1;
+            }
+        }
+    }
+
+    pub fn sort<T: Copy, F>(a: &mut [T], test: F)
+    where
+        F: Fn(T, T) -> bool + Copy,
+    {
+        let len = a.len();
+        do_sort(a, 0, len, test);
+    }
+
+    #[test]
+    fn t() {
+        let test = |x: i32, y: i32| x < y;
+        let data = util::plan_data();
+        for (t, expect) in data {
+            let mut tt = t.clone();
+            sort(&mut tt, test);
+            assert_eq!(tt, expect, "t = {:?}, expect = {:?}", t, expect);
+        }
+    }
+
+    #[bench]
+    fn bench_small(b: &mut Bencher) {
+        b.iter(|| {
+            let mut numbs = [1, 2, 4, 8, 9, 9, 13, 17, 22];
+            let test = |x: i32, y: i32| x > y;
+            sort(&mut numbs, test);
+        });
+    }
+
+    #[bench]
+    fn bench_large(b: &mut Bencher) {
+        let data = util::random_data(util::DATA_LEN);
+        b.iter(|| {
+            let mut numbs = data.clone();
+            let test = |x: i32, y: i32| x > y;
+            sort(&mut numbs, test);
+        });
+    }
+
+    #[bench]
+    fn bench_large_sorted_asc(b: &mut Bencher) {
+        let data = util::sorted_data_asc(util::DATA_LEN);
+        b.iter(|| {
+            let mut numbs = data.clone();
+            let test = |x: i32, y: i32| x > y;
+            sort(&mut numbs, test);
+        });
+    }
+
+    #[bench]
+    fn bench_large_sorted_desc(b: &mut Bencher) {
+        let data = util::sorted_data_desc(util::DATA_LEN);
+        b.iter(|| {
+            let mut numbs = data.clone();
+            let test = |x: i32, y: i32| x > y;
+            sort(&mut numbs, test);
+        });
+    }
 }
