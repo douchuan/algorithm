@@ -14,7 +14,6 @@
 //! 稳定排序算法
 
 use crate::sort::util;
-use test::Bencher;
 
 pub fn sort<T: Copy, F>(a: &mut [T], test: F)
 where
@@ -46,23 +45,4 @@ fn t() {
         sort(&mut tt, test);
         assert_eq!(tt, expect, "t = {:?}, expect = {:?}", t, expect);
     }
-}
-
-#[bench]
-fn bench_small(b: &mut Bencher) {
-    b.iter(|| {
-        let mut numbs = [1, 2, 4, 8, 9, 9, 13, 17, 22];
-        let test = |x: i32, y: i32| x > y;
-        sort(&mut numbs, test);
-    });
-}
-
-#[bench]
-fn bench_large(b: &mut Bencher) {
-    let data = util::random_data(util::DATA_LEN);
-    b.iter(|| {
-        let mut numbs = data.clone();
-        let test = |x: i32, y: i32| x > y;
-        sort(&mut numbs, test);
-    });
 }
