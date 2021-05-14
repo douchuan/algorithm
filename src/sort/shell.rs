@@ -12,27 +12,28 @@ where
     F: Fn(T, T) -> bool + Copy,
 {
     let len = a.len();
-    if len > 1 {
-        let mut gap = len;
-        loop {
-            gap = gap / 2;
+    if len <= 1 {
+        return;
+    }
 
-            for i in 0..gap {
-                let mut j = i + gap;
-                while j < len {
-                    let mut k = j as i32 - gap as i32;
-                    while k >= 0 && !test(a[k as usize], a[k as usize + gap]) {
-                        a.swap(k as usize, k as usize + gap);
-                        k -= gap as i32;
-                    }
+    let mut gap = len;
+    loop {
+        gap = gap / 2;
 
-                    j += gap;
-                }
+        for i in gap..len {
+            let insert_v = a[i];
+            let mut j = i;
+            while j >= gap && test(insert_v, a[j - gap]) {
+                a[j] = a[j - gap];
+                j -= gap;
             }
-
-            if gap == 1 {
-                break;
+            if j != i {
+                a[j] = insert_v;
             }
+        }
+
+        if gap == 1 {
+            break;
         }
     }
 }
