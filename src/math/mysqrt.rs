@@ -42,20 +42,3 @@ pub fn sqrt_newton(x: f32) -> f32 {
         last = iter_v;
     }
 }
-
-static X: f32 = 999999999.0f32;
-
-#[bench]
-fn bench_std_sqrt(b: &mut Bencher) {
-    b.iter(|| X.sqrt());
-}
-
-#[bench]
-fn bench_sqrt_binary_search(b: &mut Bencher) {
-    b.iter(|| sqrt_binary_search(X));
-}
-
-#[bench]
-fn bench_sqrt_newton(b: &mut Bencher) {
-    b.iter(|| sqrt_newton(X));
-}
