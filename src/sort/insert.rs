@@ -2,8 +2,6 @@
 //!
 //! 基本思想是将一个value插入到有序表中
 
-use crate::sort::util;
-
 pub fn sort<T: Copy, F>(a: &mut [T], test: F)
 where
     F: Fn(T, T) -> bool + Copy,

@@ -26,9 +26,6 @@
 //!   https://github.com/liuxinyu95/AlgoXY/blob/algoxy/sorting/merge-sort/src/mergesort.c
 
 pub mod v1 {
-    use crate::sort::util;
-    use test::Bencher;
-
     fn merge<T: Copy, F>(mut l: &[T], mut r: &[T], test: F) -> Vec<T>
     where
         F: Fn(T, T) -> bool + Copy,
@@ -70,62 +67,11 @@ pub mod v1 {
             }
         }
     }
-
-    #[bench]
-    fn bench_small(b: &mut Bencher) {
-        b.iter(|| {
-            let mut numbs = [1, 2, 4, 8, 9, 9, 13, 17, 22];
-            let test = |x: i32, y: i32| x > y;
-            sort(&mut numbs, test);
-        });
-    }
-
-    #[bench]
-    fn bench_large(b: &mut Bencher) {
-        let data = util::random_data(util::DATA_LEN);
-        b.iter(|| {
-            let mut numbs = data.clone();
-            let test = |x: i32, y: i32| x > y;
-            sort(&mut numbs, test);
-        });
-    }
-
-    #[bench]
-    fn bench_large_sorted_asc(b: &mut Bencher) {
-        let data = util::sorted_data_asc(util::DATA_LEN);
-        b.iter(|| {
-            let mut numbs = data.clone();
-            let test = |x: i32, y: i32| x > y;
-            sort(&mut numbs, test);
-        });
-    }
-
-    #[bench]
-    fn bench_large_sorted_desc(b: &mut Bencher) {
-        let data = util::sorted_data_desc(util::DATA_LEN);
-        b.iter(|| {
-            let mut numbs = data.clone();
-            let test = |x: i32, y: i32| x > y;
-            sort(&mut numbs, test);
-        });
-    }
-
-    #[bench]
-    fn bench_eq_data(b: &mut Bencher) {
-        let data = util::eq_data(util::DATA_LEN);
-        b.iter(|| {
-            let mut numbs = data.clone();
-            let test = |x: i32, y: i32| x > y;
-            sort(&mut numbs, test);
-        });
-    }
 }
 
 pub mod v2 {
-    use crate::sort::util;
     use std::fmt::Debug;
     use std::ptr;
-    use test::Bencher;
 
     //ws为辅助space
     fn merge<T: Copy, F>(a: &mut [T], l: usize, mid: usize, u: usize, test: F, ws: &mut [T])
@@ -183,62 +129,10 @@ pub mod v2 {
             do_sort(a, 0, len, test, &mut ws);
         }
     }
-
-    #[bench]
-    fn bench_small(b: &mut Bencher) {
-        b.iter(|| {
-            let mut numbs = [1, 2, 4, 8, 9, 9, 13, 17, 22];
-            let test = |x: i32, y: i32| x > y;
-            sort(&mut numbs, test);
-        });
-    }
-
-    #[bench]
-    fn bench_large(b: &mut Bencher) {
-        let data = util::random_data(util::DATA_LEN);
-        b.iter(|| {
-            let mut numbs = data.clone();
-            let test = |x: i32, y: i32| x > y;
-            sort(&mut numbs, test);
-        });
-    }
-
-    #[bench]
-    fn bench_large_sorted_asc(b: &mut Bencher) {
-        let data = util::sorted_data_asc(util::DATA_LEN);
-        b.iter(|| {
-            let mut numbs = data.clone();
-            let test = |x: i32, y: i32| x > y;
-            sort(&mut numbs, test);
-        });
-    }
-
-    #[bench]
-    fn bench_large_sorted_desc(b: &mut Bencher) {
-        let data = util::sorted_data_desc(util::DATA_LEN);
-        b.iter(|| {
-            let mut numbs = data.clone();
-            let test = |x: i32, y: i32| x > y;
-            sort(&mut numbs, test);
-        });
-    }
-
-    #[bench]
-    fn bench_eq_data(b: &mut Bencher) {
-        let data = util::eq_data(util::DATA_LEN);
-        b.iter(|| {
-            let mut numbs = data.clone();
-            let test = |x: i32, y: i32| x > y;
-            sort(&mut numbs, test);
-        });
-    }
 }
 
 // ref, https://github.com/liuxinyu95/AlgoXY/blob/algoxy/sorting/merge-sort/src/mergesort.c
 pub mod v3 {
-    use crate::sort::util;
-    use test::Bencher;
-
     // merge two sorted subs xs[i, m) and xs[j...n) to working area xs[w...]
     fn wmerge<T: Copy, F>(
         xs: &mut [T],
@@ -331,54 +225,5 @@ pub mod v3 {
     {
         let len = a.len();
         do_sort(a, 0, len, test);
-    }
-
-    #[bench]
-    fn bench_small(b: &mut Bencher) {
-        b.iter(|| {
-            let mut numbs = [1, 2, 4, 8, 9, 9, 13, 17, 22];
-            let test = |x: i32, y: i32| x > y;
-            sort(&mut numbs, test);
-        });
-    }
-
-    #[bench]
-    fn bench_large(b: &mut Bencher) {
-        let data = util::random_data(util::DATA_LEN);
-        b.iter(|| {
-            let mut numbs = data.clone();
-            let test = |x: i32, y: i32| x > y;
-            sort(&mut numbs, test);
-        });
-    }
-
-    #[bench]
-    fn bench_large_sorted_asc(b: &mut Bencher) {
-        let data = util::sorted_data_asc(util::DATA_LEN);
-        b.iter(|| {
-            let mut numbs = data.clone();
-            let test = |x: i32, y: i32| x > y;
-            sort(&mut numbs, test);
-        });
-    }
-
-    #[bench]
-    fn bench_large_sorted_desc(b: &mut Bencher) {
-        let data = util::sorted_data_desc(util::DATA_LEN);
-        b.iter(|| {
-            let mut numbs = data.clone();
-            let test = |x: i32, y: i32| x > y;
-            sort(&mut numbs, test);
-        });
-    }
-
-    #[bench]
-    fn bench_eq_data(b: &mut Bencher) {
-        let data = util::eq_data(util::DATA_LEN);
-        b.iter(|| {
-            let mut numbs = data.clone();
-            let test = |x: i32, y: i32| x > y;
-            sort(&mut numbs, test);
-        });
     }
 }

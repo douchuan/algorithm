@@ -13,8 +13,6 @@
 //! 若初始状态反序，时间复杂度 O(n^2)
 //! 稳定排序算法
 
-use crate::sort::util;
-
 pub fn sort<T: Copy, F>(a: &mut [T], test: F)
 where
     F: Fn(T, T) -> bool + Copy,

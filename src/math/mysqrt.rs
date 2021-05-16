@@ -2,7 +2,7 @@
 
 use test::Bencher;
 
-fn sqrt_binary_search(x: f32) -> f32 {
+pub fn sqrt_binary_search(x: f32) -> f32 {
     assert!(x >= 0.0);
     let mut low = 0.0;
     let mut up = x;
@@ -23,7 +23,7 @@ fn sqrt_binary_search(x: f32) -> f32 {
     }
 }
 
-fn sqrt_newton(x: f32) -> f32 {
+pub fn sqrt_newton(x: f32) -> f32 {
     assert!(x >= 0.0);
     if x == 0.0 {
         return x;
@@ -40,29 +40,6 @@ fn sqrt_newton(x: f32) -> f32 {
             return iter_v;
         }
         last = iter_v;
-    }
-}
-
-#[test]
-fn t_sqrt_binary_search() {
-    let epsilon = 0.01;
-    let valus: Vec<f32> = vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0];
-    for v in valus {
-        assert!((v.sqrt() - sqrt_binary_search(v)) <= epsilon);
-    }
-}
-
-#[test]
-fn t_sqrt_newton() {
-    let epsilon = 0.01;
-    let valus: Vec<f32> = vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0];
-    for v in valus {
-        assert!(
-            (v.sqrt() - sqrt_newton(v)) <= epsilon,
-            "std sqrt = {}, sqrt_newton = {}",
-            v.sqrt(),
-            sqrt_newton(v)
-        );
     }
 }
 

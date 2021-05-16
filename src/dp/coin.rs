@@ -24,7 +24,7 @@ macro_rules! check_inputs {
 }
 
 /// 暴力穷举
-fn make_change_classic(coins: &[i32], amount: i32) -> i32 {
+pub fn make_change_classic(coins: &[i32], amount: i32) -> i32 {
     if amount == 0 {
         return 0;
     }
@@ -53,7 +53,7 @@ fn make_change_classic(coins: &[i32], amount: i32) -> i32 {
 use std::cell::RefCell;
 thread_local!(static MEMO: RefCell<Vec<i32>> = RefCell::new(vec![-1; 1000]));
 /// 缓存最小的目标金额，避免重复计算 (消除重叠子)
-fn make_change_cache(coins: &[i32], amount: i32) -> i32 {
+pub fn make_change_cache(coins: &[i32], amount: i32) -> i32 {
     if amount == 0 {
         return 0;
     }
@@ -84,7 +84,7 @@ fn make_change_cache(coins: &[i32], amount: i32) -> i32 {
     }
 }
 
-fn make_change_iter(coins: &[i32], amount: i32) -> i32 {
+pub fn make_change_iter(coins: &[i32], amount: i32) -> i32 {
     check_inputs!(coins, amount);
     let max_amount = amount + 1;
     // 为啥 dp 数组初始化为 amount + 1 呢，因为凑成 amount 金额的硬币数最多只
@@ -109,61 +109,4 @@ fn make_change_iter(coins: &[i32], amount: i32) -> i32 {
     } else {
         v
     }
-}
-
-//////////testcase & benchmarks
-use test::Bencher;
-
-#[test]
-fn t_basic() {
-    let coins = vec![1, 2, 5];
-    //(min coins, amount)
-    let solutions = vec![
-        (3, 11),
-        (3, 12),
-        (4, 13),
-        (4, 14),
-        (3, 15),
-        (4, 16),
-        (4, 17),
-        (5, 18),
-        (5, 19),
-        (4, 20),
-    ];
-    for (expect, amount) in solutions {
-        assert_eq!(expect, make_change_classic(&coins, amount));
-        assert_eq!(expect, make_change_cache(&coins, amount));
-        assert_eq!(expect, make_change_iter(&coins, amount));
-    }
-}
-
-#[test]
-fn t_basic_fail() {
-    let coins = vec![2, 5];
-    let solutions = vec![(-1, 3)];
-    for (expect, amount) in solutions {
-        assert_eq!(expect, make_change_classic(&coins, amount));
-        assert_eq!(expect, make_change_cache(&coins, amount));
-        assert_eq!(expect, make_change_iter(&coins, amount));
-    }
-}
-
-static AMOUNT: i32 = 20;
-
-#[bench]
-fn bench_classic(b: &mut Bencher) {
-    let coins = vec![1, 2, 5];
-    b.iter(|| make_change_classic(&coins, AMOUNT));
-}
-
-#[bench]
-fn bench_cache(b: &mut Bencher) {
-    let coins = vec![1, 2, 5];
-    b.iter(|| make_change_cache(&coins, AMOUNT));
-}
-
-#[bench]
-fn bench_iter(b: &mut Bencher) {
-    let coins = vec![1, 2, 5];
-    b.iter(|| make_change_iter(&coins, AMOUNT));
 }
