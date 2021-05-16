@@ -77,3 +77,13 @@ fn bench_large_sorted_desc(b: &mut Bencher) {
         sort(&mut numbs, test);
     });
 }
+
+#[bench]
+fn bench_eq_data(b: &mut Bencher) {
+    let data = util::eq_data(util::DATA_LEN);
+    b.iter(|| {
+        let mut numbs = data.clone();
+        let test = |x: i32, y: i32| x > y;
+        sort(&mut numbs, test);
+    });
+}

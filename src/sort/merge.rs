@@ -119,6 +119,16 @@ pub mod v1 {
             sort(&mut numbs, test);
         });
     }
+
+    #[bench]
+    fn bench_eq_data(b: &mut Bencher) {
+        let data = util::eq_data(util::DATA_LEN);
+        b.iter(|| {
+            let mut numbs = data.clone();
+            let test = |x: i32, y: i32| x > y;
+            sort(&mut numbs, test);
+        });
+    }
 }
 
 pub mod v2 {
@@ -227,6 +237,16 @@ pub mod v2 {
     #[bench]
     fn bench_large_sorted_desc(b: &mut Bencher) {
         let data = util::sorted_data_desc(util::DATA_LEN);
+        b.iter(|| {
+            let mut numbs = data.clone();
+            let test = |x: i32, y: i32| x > y;
+            sort(&mut numbs, test);
+        });
+    }
+
+    #[bench]
+    fn bench_eq_data(b: &mut Bencher) {
+        let data = util::eq_data(util::DATA_LEN);
         b.iter(|| {
             let mut numbs = data.clone();
             let test = |x: i32, y: i32| x > y;
@@ -377,6 +397,16 @@ pub mod v3 {
     #[bench]
     fn bench_large_sorted_desc(b: &mut Bencher) {
         let data = util::sorted_data_desc(util::DATA_LEN);
+        b.iter(|| {
+            let mut numbs = data.clone();
+            let test = |x: i32, y: i32| x > y;
+            sort(&mut numbs, test);
+        });
+    }
+
+    #[bench]
+    fn bench_eq_data(b: &mut Bencher) {
+        let data = util::eq_data(util::DATA_LEN);
         b.iter(|| {
             let mut numbs = data.clone();
             let test = |x: i32, y: i32| x > y;

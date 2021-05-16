@@ -49,3 +49,7 @@ pub fn sorted_data_desc(len: usize) -> Vec<i32> {
     data.reverse();
     data
 }
+
+pub fn eq_data(len: usize) -> Vec<i32> {
+    vec![100; len]
+}
