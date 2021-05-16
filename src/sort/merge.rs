@@ -71,16 +71,6 @@ pub mod v1 {
         }
     }
 
-    #[test]
-    fn t() {
-        let test = |x: i32, y: i32| x < y;
-        let data = util::plan_data();
-        for (t, expect) in data {
-            let tt = sort(&t, test);
-            assert_eq!(tt, expect, "t = {:?}, expect = {:?}", t, expect);
-        }
-    }
-
     #[bench]
     fn bench_small(b: &mut Bencher) {
         b.iter(|| {
@@ -191,17 +181,6 @@ pub mod v2 {
             // 分配一个与a同样大小的Vec作为辅助work space
             let mut ws = vec![T::default(); len];
             do_sort(a, 0, len, test, &mut ws);
-        }
-    }
-
-    #[test]
-    fn t() {
-        let test = |x: i32, y: i32| x < y;
-        let data = util::plan_data();
-        for (t, expect) in data {
-            let mut tt = t.clone();
-            sort(&mut tt, test);
-            assert_eq!(tt, expect, "t = {:?}, expect = {:?}", t, expect);
         }
     }
 
@@ -352,17 +331,6 @@ pub mod v3 {
     {
         let len = a.len();
         do_sort(a, 0, len, test);
-    }
-
-    #[test]
-    fn t() {
-        let test = |x: i32, y: i32| x < y;
-        let data = util::plan_data();
-        for (t, expect) in data {
-            let mut tt = t.clone();
-            sort(&mut tt, test);
-            assert_eq!(tt, expect, "t = {:?}, expect = {:?}", t, expect);
-        }
     }
 
     #[bench]

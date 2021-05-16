@@ -29,16 +29,6 @@ where
     }
 }
 
-#[test]
-fn t() {
-    let test = |x: i32, y: i32| x < y;
-    let data = util::plan_data();
-    for (mut t, expect) in data {
-        sort(&mut t, test);
-        assert_eq!(t, expect);
-    }
-}
-
 #[bench]
 fn bench_small(b: &mut Bencher) {
     b.iter(|| {

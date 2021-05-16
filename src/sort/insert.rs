@@ -19,14 +19,3 @@ where
         }
     }
 }
-
-#[test]
-fn t() {
-    let test = |x: i32, y: i32| x < y;
-    let data = util::plan_data();
-    for (t, expect) in data {
-        let mut tt = t.clone();
-        sort(&mut tt, test);
-        assert_eq!(tt, expect, "t = {:?}, expect = {:?}", t, expect);
-    }
-}
