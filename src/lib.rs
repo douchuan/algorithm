@@ -2,7 +2,10 @@
 #![feature(test)]
 extern crate test;
 
+pub mod common;
 pub mod dp;
 pub mod math;
+pub mod other;
+pub mod search;
 pub mod sort;
 pub mod tree;

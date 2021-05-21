@@ -23,6 +23,26 @@ fn insert() {
 }
 
 #[test]
+fn selection() {
+    let data = sort::util::plan_data();
+    for (t, expect) in data {
+        let mut tt = t.clone();
+        sort::selection::sort(&mut tt);
+        assert_eq!(tt, expect, "t = {:?}, expect = {:?}", t, expect);
+    }
+}
+
+#[test]
+fn selection_cocktail() {
+    let data = sort::util::plan_data();
+    for (t, expect) in data {
+        let mut tt = t.clone();
+        sort::selection::sort_cocktail(&mut tt);
+        assert_eq!(tt, expect, "t = {:?}, expect = {:?}", t, expect);
+    }
+}
+
+#[test]
 fn merge_v1() {
     let test = |x: i32, y: i32| x < y;
     let data = sort::util::plan_data();
@@ -71,6 +91,26 @@ fn shell() {
     for (t, expect) in data {
         let mut tt = t.clone();
         sort::shell::sort(&mut tt, test);
+        assert_eq!(tt, expect, "t = {:?}, expect = {:?}", t, expect);
+    }
+}
+
+#[test]
+fn heap_sort() {
+    let test = |x: i32, y: i32| x < y;
+    let data = sort::util::plan_data();
+    for (t, expect) in data {
+        let tt = sort::heap::sort(&t, test);
+        assert_eq!(tt, expect, "t = {:?}, expect = {:?}", t, expect);
+    }
+}
+
+#[test]
+fn heap_sort_floyd() {
+    let data = sort::util::plan_data();
+    for (t, expect) in data {
+        let mut tt = t.clone();
+        sort::heap::floyd_sort(&mut tt);
         assert_eq!(tt, expect, "t = {:?}, expect = {:?}", t, expect);
     }
 }
