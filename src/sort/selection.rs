@@ -14,15 +14,14 @@ pub fn sort<T: Copy + std::cmp::PartialOrd>(a: &mut [T]) {
                 m = j;
             }
         }
-        if m != i {
-            a.swap(i, m);
-        }
+
+        a.swap(i, m);
     }
 }
 
 /// 鸡尾酒排序 (Cock-tail sort)
-/// 每次扫描可以同时查找最小值和最大值，分别将最小值放到开头，
-/// 将最大值放到末尾
+/// 每次扫描可以同时查找最小值和最大值，将最小值放到开头，
+/// 最大值放到末尾
 pub fn sort_cocktail<T: Copy + std::cmp::PartialOrd>(a: &mut [T]) {
     let n = a.len();
     let semi_n = n / 2;
@@ -43,6 +42,7 @@ pub fn sort_cocktail<T: Copy + std::cmp::PartialOrd>(a: &mut [T]) {
                 max = j;
             }
         }
+
         a.swap(i, min);
         a.swap(n - 1 - i, max);
     }

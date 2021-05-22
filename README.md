@@ -12,6 +12,13 @@ Keywords: Algorithm, LeetCode, Rust
 
 All of these features become powerful tools for developing algorithms.
 
+### Running
+
+```
+# setup rust toolchain
+make test
+```
+
 ### References
 
 1. [百度百科](https://baike.baidu.com/)
