@@ -25,7 +25,7 @@ impl NodeType {
 ///      2
 ///     /
 ///    3
-pub fn new_tree(orig: &[&str]) -> Tree {
+pub fn new_tree(orig: &[&str]) -> Tree<usize> {
     let mut tokens = LinkedList::new();
     tokens.extend(orig.iter());
 
@@ -36,7 +36,7 @@ pub fn new_tree(orig: &[&str]) -> Tree {
 
     // println!("tokens = {:?}", tokens);
     while let Some(value) = tokens.pop_front() {
-        let cur = tree.add_value(value);
+        let cur = add_value(&mut tree, value);
         // println!("parent = {:?}, cur = {}", parent, value);
 
         match (parent, cur) {
@@ -77,4 +77,15 @@ pub fn new_tree(orig: &[&str]) -> Tree {
     }
 
     tree
+}
+
+fn parse_token(v: &str) -> Option<usize> {
+    v.parse::<usize>().ok()
+}
+
+fn add_value(tree: &mut Tree<usize>, v: &str) -> Option<TreeIndex> {
+    parse_token(v).and_then(|v| {
+        let node = TreeNode::new(v, None, None);
+        Some(tree.add_node(node))
+    })
 }

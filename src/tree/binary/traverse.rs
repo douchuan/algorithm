@@ -113,7 +113,7 @@ pub struct SameTree;
 
 impl PreOrderVisitor {
     /// 时间复杂度 O(n), 空间复杂度 O(n)
-    pub fn iterate(tree: &Tree) -> Vec<usize> {
+    pub fn iterate<T: Copy>(tree: &Tree<T>) -> Vec<T> {
         let mut results = vec![];
         let mut stack = vec![];
         //point current node
@@ -140,7 +140,7 @@ impl PreOrderVisitor {
     ///
     /// 点评：利用tree本身的node记录回溯指针（避免用栈记录回溯），
     /// 使得空间复杂度由 O(n) => O(1)
-    pub fn morris(tree: &mut Tree) -> Vec<usize> {
+    pub fn morris<T: Copy>(tree: &mut Tree<T>) -> Vec<T> {
         let mut results = vec![];
         let mut cur = tree.root;
 
@@ -191,9 +191,9 @@ impl PreOrderVisitor {
     }
 
     /// 时间复杂度 O(n), 空间复杂度 O(n)
-    pub fn recursive(tree: &Tree) -> Vec<usize> {
+    pub fn recursive<T: Copy>(tree: &Tree<T>) -> Vec<T> {
         let mut results = vec![];
-        fn visitor(tree: &Tree, p: Option<TreeIndex>, results: &mut Vec<usize>) {
+        fn visitor<T: Copy>(tree: &Tree<T>, p: Option<TreeIndex>, results: &mut Vec<T>) {
             if let Some(node_idx) = p {
                 let node = tree.node_at(node_idx).expect("invalid node");
                 results.push(node.value);
@@ -207,7 +207,7 @@ impl PreOrderVisitor {
 }
 
 impl InOrderVisitor {
-    pub fn iterate(tree: &Tree) -> Vec<usize> {
+    pub fn iterate<T: Copy>(tree: &Tree<T>) -> Vec<T> {
         let mut results = vec![];
         let mut stack = vec![];
         //point current node
@@ -235,9 +235,9 @@ impl InOrderVisitor {
         results
     }
 
-    pub fn recursive(tree: &Tree) -> Vec<usize> {
+    pub fn recursive<T: Copy>(tree: &Tree<T>) -> Vec<T> {
         let mut results = vec![];
-        fn visitor(tree: &Tree, p: Option<TreeIndex>, results: &mut Vec<usize>) {
+        fn visitor<T: Copy>(tree: &Tree<T>, p: Option<TreeIndex>, results: &mut Vec<T>) {
             if let Some(node_idx) = p {
                 let node = tree.node_at(node_idx).expect("invalid node");
                 visitor(tree, node.left, results);
@@ -251,7 +251,7 @@ impl InOrderVisitor {
 }
 
 impl PostOrderVisitor {
-    pub fn iterate(tree: &Tree) -> Vec<usize> {
+    pub fn iterate<T: Copy>(tree: &Tree<T>) -> Vec<T> {
         let mut results = vec![];
         let mut stack = vec![];
         let mut visited = HashSet::new();
@@ -289,9 +289,9 @@ impl PostOrderVisitor {
         results
     }
 
-    pub fn recursive(tree: &Tree) -> Vec<usize> {
+    pub fn recursive<T: Copy>(tree: &Tree<T>) -> Vec<T> {
         let mut results = vec![];
-        fn visitor(tree: &Tree, p: Option<TreeIndex>, results: &mut Vec<usize>) {
+        fn visitor<T: Copy>(tree: &Tree<T>, p: Option<TreeIndex>, results: &mut Vec<T>) {
             if let Some(node_idx) = p {
                 let node = tree.node_at(node_idx).expect("invalid node");
                 visitor(tree, node.left, results);
@@ -305,7 +305,7 @@ impl PostOrderVisitor {
 }
 
 impl LevelOrderVisitor {
-    pub fn iterate(tree: &Tree) -> Vec<Vec<usize>> {
+    pub fn iterate<T: Copy>(tree: &Tree<T>) -> Vec<Vec<T>> {
         let mut results = vec![];
         if let Some(p) = tree.get_root() {
             let mut nodes = LinkedList::new();
@@ -345,12 +345,12 @@ impl LevelOrderVisitor {
         results
     }
 
-    pub fn recursive(tree: &Tree) -> Vec<Vec<usize>> {
+    pub fn recursive<T: Copy>(tree: &Tree<T>) -> Vec<Vec<T>> {
         let mut results = vec![];
-        fn visitor(
-            tree: &Tree,
+        fn visitor<T: Copy>(
+            tree: &Tree<T>,
             mut level_nodes: Vec<TreeIndex>,
-            results: &mut Vec<Vec<usize>>,
+            results: &mut Vec<Vec<T>>,
             pos: usize,
         ) {
             if level_nodes.is_empty() {
@@ -380,13 +380,13 @@ impl LevelOrderVisitor {
 }
 
 impl LevelOrderVisitor2 {
-    pub fn iterate(tree: &Tree) -> Vec<Vec<usize>> {
+    pub fn iterate<T: Copy>(tree: &Tree<T>) -> Vec<Vec<T>> {
         let mut r = LevelOrderVisitor::iterate(tree);
         r.reverse();
         r
     }
 
-    pub fn recursive(tree: &Tree) -> Vec<Vec<usize>> {
+    pub fn recursive<T: Copy>(tree: &Tree<T>) -> Vec<Vec<T>> {
         let mut r = LevelOrderVisitor::recursive(tree);
         r.reverse();
         r
@@ -394,7 +394,7 @@ impl LevelOrderVisitor2 {
 }
 
 impl ZigzagOrderVisitor {
-    pub fn iterate(tree: &Tree) -> Vec<Vec<usize>> {
+    pub fn iterate<T: Copy>(tree: &Tree<T>) -> Vec<Vec<T>> {
         let mut results = vec![];
         if let Some(p) = tree.get_root() {
             let mut nodes = LinkedList::new();
@@ -443,12 +443,12 @@ impl ZigzagOrderVisitor {
         results
     }
 
-    pub fn recursive(tree: &Tree) -> Vec<Vec<usize>> {
+    pub fn recursive<T: Copy>(tree: &Tree<T>) -> Vec<Vec<T>> {
         let mut results = vec![];
-        fn visitor(
-            tree: &Tree,
+        fn visitor<T: Copy>(
+            tree: &Tree<T>,
             mut level_nodes: Vec<TreeIndex>,
-            results: &mut Vec<Vec<usize>>,
+            results: &mut Vec<Vec<T>>,
             pos: usize,
             left_to_right: bool,
         ) {
