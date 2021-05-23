@@ -3,100 +3,18 @@
 //! 8.4 本质改进
 //! 对 Selection sort的本质改进
 
+use crate::tree::binary::traverse::PreOrderVisitor;
+use crate::tree::binary::{Tree, TreeIndex, TreeNode};
 use std::cmp::max;
 
-type TreeIndex = usize;
-
-struct TreeNode<T> {
-    value: T,
-    left: Option<TreeIndex>,
-    right: Option<TreeIndex>,
-    parent: Option<TreeIndex>,
-}
-
-impl<T> TreeNode<T> {
-    fn new(
-        value: T,
-        left: Option<TreeIndex>,
-        right: Option<TreeIndex>,
-        parent: Option<TreeIndex>,
-    ) -> Self {
-        TreeNode {
-            value,
-            left,
-            right,
-            parent,
-        }
-    }
-
-    fn new_leaf(value: T) -> Self {
-        TreeNode {
-            value,
-            left: None,
-            right: None,
-            parent: None,
-        }
-    }
-}
-
-/// tree impl based Arena Allocators
-/// https://sachanganesh.com/programming/graph-tree-traversals-in-rust/
-struct Tree<T> {
-    arena: Vec<Option<TreeNode<T>>>,
-    root: Option<TreeIndex>,
-}
-
-impl<T> Tree<T> {
-    fn new() -> Self {
-        Tree {
-            arena: Vec::new(),
-            root: None,
-        }
-    }
-
-    fn set_root(&mut self, root: Option<TreeIndex>) {
-        self.root = root;
-    }
-
-    fn get_root(&self) -> Option<TreeIndex> {
-        self.root
-    }
-
-    fn add_node(&mut self, node: TreeNode<T>) -> TreeIndex {
-        let index = self.arena.len();
-        self.arena.push(Some(node));
-        index
-    }
-
-    fn remove(&mut self, index: TreeIndex) {
-        self.arena.remove(index);
-    }
-
-    fn node_at(&self, index: TreeIndex) -> Option<&TreeNode<T>> {
-        if let Some(node) = self.arena.get(index) {
-            node.as_ref()
-        } else {
-            None
-        }
-    }
-
-    fn node_at_mut(&mut self, index: TreeIndex) -> Option<&mut TreeNode<T>> {
-        if let Some(node) = self.arena.get_mut(index) {
-            node.as_mut()
-        } else {
-            None
-        }
-    }
-}
-
-//build tree, from bottom to top
-fn build_tree<T: Copy + std::cmp::Ord>(a: &[T]) -> Tree<T> {
+//build Tournament tree, from bottom to top
+fn build_tournament_tree<T: Copy + std::cmp::Ord>(a: &[T]) -> Tree<T> {
     let mut tree = Tree::new();
 
     //build leaf
     let mut nodes = Vec::new();
     for v in a {
-        let node = TreeNode::new_leaf(*v);
+        let node = TreeNode::from_value(*v);
         let i = tree.add_node(node);
         nodes.push(i);
     }
@@ -136,20 +54,6 @@ fn build_tree<T: Copy + std::cmp::Ord>(a: &[T]) -> Tree<T> {
     tree
 }
 
-fn preorder_traverse<T: Copy>(tree: &Tree<T>) -> Vec<T> {
-    let mut results = vec![];
-    fn visitor<T: Copy>(tree: &Tree<T>, p: Option<TreeIndex>, results: &mut Vec<T>) {
-        if let Some(node_idx) = p {
-            let node = tree.node_at(node_idx).expect("invalid node");
-            results.push(node.value);
-            visitor(tree, node.left, results);
-            visitor(tree, node.right, results);
-        }
-    }
-    visitor(tree, tree.get_root(), &mut results);
-    results
-}
-
 #[test]
 fn t_build_tree() {
     /*
@@ -165,8 +69,8 @@ fn t_build_tree() {
 
     */
     let a = &[7, 6, 15, 16, 8, 4, 13, 3, 5, 10, 9, 1, 12, 2, 11, 14];
-    let tree = build_tree(a);
-    let r = preorder_traverse(&tree);
+    let tree = build_tournament_tree(a);
+    let r = PreOrderVisitor::recursive(&tree);
     assert_eq!(
         r,
         vec![
