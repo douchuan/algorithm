@@ -3,8 +3,7 @@
 //! 8.4 本质改进
 //! 对 Selection sort的本质改进
 
-use crate::tree::binary::traverse::PreOrderVisitor;
-use crate::tree::binary::{Tree, TreeIndex, TreeNode};
+use crate::tree::binary::{Tree, TreeNode};
 use std::cmp::max;
 
 //build Tournament tree, from bottom to top
@@ -20,31 +19,30 @@ fn build_tournament_tree<T: Copy + std::cmp::Ord>(a: &[T]) -> Tree<T> {
     }
 
     while nodes.len() > 1 {
-        let mut new_nodes = Vec::new();
-        for chunk in nodes.chunks(2) {
-            match chunk {
+        //竞赛开始，比较2个node，取较大者的value构造parent
+        nodes = nodes
+            .chunks(2)
+            .map(|chunk| match chunk {
                 &[t1, t2] => {
                     //create node
-                    let t1_node = tree.node_at(t1).expect("invalid t1");
-                    let t2_node = tree.node_at(t2).expect("invalid t1");
+                    let t1_node = tree.node_at(t1).unwrap();
+                    let t2_node = tree.node_at(t2).unwrap();
                     let value = max(t1_node.value, t2_node.value);
                     let node = TreeNode::new(value, Some(t1), Some(t2), None);
                     let node_i = tree.add_node(node);
 
                     //set parent
-                    let t1_node = tree.node_at_mut(t1).expect("invalid t1");
+                    let t1_node = tree.node_at_mut(t1).unwrap();
                     t1_node.parent = Some(node_i);
-                    let t2_node = tree.node_at_mut(t2).expect("invalid t1");
+                    let t2_node = tree.node_at_mut(t2).unwrap();
                     t2_node.parent = Some(node_i);
 
-                    new_nodes.push(node_i);
+                    node_i
                 }
-                &[t] => new_nodes.push(t),
+                &[t] => t,
                 _ => unreachable!(),
-            }
-        }
-
-        nodes = new_nodes;
+            })
+            .collect();
     }
 
     //tree.arena last is root
@@ -70,7 +68,7 @@ fn t_build_tree() {
     */
     let a = &[7, 6, 15, 16, 8, 4, 13, 3, 5, 10, 9, 1, 12, 2, 11, 14];
     let tree = build_tournament_tree(a);
-    let r = PreOrderVisitor::recursive(&tree);
+    let r = crate::tree::binary::traverse::PreOrderVisitor::recursive(&tree);
     assert_eq!(
         r,
         vec![

@@ -79,13 +79,9 @@ pub fn new_tree(orig: &[&str]) -> Tree<usize> {
     tree
 }
 
-fn parse_token(v: &str) -> Option<usize> {
-    v.parse::<usize>().ok()
-}
-
 fn add_value(tree: &mut Tree<usize>, v: &str) -> Option<TreeIndex> {
-    parse_token(v).and_then(|v| {
-        let node = TreeNode::new(v, None, None, None);
+    v.parse::<usize>().ok().and_then(|v| {
+        let node = TreeNode::from_value(v);
         Some(tree.add_node(node))
     })
 }
