@@ -8,11 +8,31 @@ pub struct TreeNode<T> {
     pub value: T,
     pub left: Option<TreeIndex>,
     pub right: Option<TreeIndex>,
+    pub parent: Option<TreeIndex>,
 }
 
 impl<T> TreeNode<T> {
-    pub fn new(value: T, left: Option<TreeIndex>, right: Option<TreeIndex>) -> Self {
-        TreeNode { value, left, right }
+    pub fn new(
+        value: T,
+        left: Option<TreeIndex>,
+        right: Option<TreeIndex>,
+        parent: Option<TreeIndex>,
+    ) -> Self {
+        TreeNode {
+            value,
+            left,
+            right,
+            parent,
+        }
+    }
+
+    pub fn from_value(value: T) -> Self {
+        Self {
+            value,
+            left: None,
+            right: None,
+            parent: None,
+        }
     }
 }
 

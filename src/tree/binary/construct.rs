@@ -85,7 +85,7 @@ fn parse_token(v: &str) -> Option<usize> {
 
 fn add_value(tree: &mut Tree<usize>, v: &str) -> Option<TreeIndex> {
     parse_token(v).and_then(|v| {
-        let node = TreeNode::new(v, None, None);
+        let node = TreeNode::new(v, None, None, None);
         Some(tree.add_node(node))
     })
 }
