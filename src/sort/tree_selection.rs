@@ -11,12 +11,13 @@ fn build_tournament_tree<T: Copy + std::cmp::Ord>(a: &[T]) -> Tree<T> {
     let mut tree = Tree::new();
 
     //build leaf
-    let mut nodes = Vec::new();
-    for v in a {
-        let node = TreeNode::from_value(*v);
-        let i = tree.add_node(node);
-        nodes.push(i);
-    }
+    let mut nodes: Vec<usize> = a
+        .iter()
+        .map(|v| {
+            let node = TreeNode::from_value(*v);
+            tree.add_node(node)
+        })
+        .collect();
 
     while nodes.len() > 1 {
         //竞赛开始，比较2个node，取较大者的value构造parent
