@@ -11,12 +11,8 @@ where
     F: Fn(T, T) -> bool + Copy,
 {
     let len = a.len();
-    if len <= 1 {
-        return;
-    }
-
     let mut gap = len;
-    loop {
+    while gap > 1 {
         gap = gap / 2;
 
         for i in gap..len {
@@ -26,13 +22,7 @@ where
                 a[j] = a[j - gap];
                 j -= gap;
             }
-            if j != i {
-                a[j] = insert_v;
-            }
-        }
-
-        if gap == 1 {
-            break;
+            a[j] = insert_v;
         }
     }
 }
