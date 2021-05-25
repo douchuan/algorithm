@@ -118,7 +118,7 @@ impl PreOrderVisitor {
         let mut p = tree.root;
         while let Some(node_idx) = p {
             let node = tree.node_at(node_idx).expect("invalid node");
-            results.push(node.value); //visit result
+            results.push(node.key); //visit result
             for pp in &[node.right, node.left] {
                 if let Some(pp) = pp {
                     stack.push(*pp);
@@ -167,7 +167,7 @@ impl PreOrderVisitor {
                             record_node.right = None;
                         }
                         None => {
-                            results.push(node.value);
+                            results.push(node.key);
 
                             //未线索化
                             let record_node =
@@ -178,7 +178,7 @@ impl PreOrderVisitor {
                     }
                 }
                 None => {
-                    results.push(node.value);
+                    results.push(node.key);
                     //无left subtree, 直接跨到right subtree
                     cur = node.right;
                 }
@@ -194,7 +194,7 @@ impl PreOrderVisitor {
         fn visitor<T: Copy>(tree: &Tree<T>, p: Option<TreeIndex>, results: &mut Vec<T>) {
             if let Some(node_idx) = p {
                 let node = tree.node_at(node_idx).expect("invalid node");
-                results.push(node.value);
+                results.push(node.key);
                 visitor(tree, node.left, results);
                 visitor(tree, node.right, results);
             }
@@ -223,7 +223,7 @@ impl InOrderVisitor {
                     p = stack.pop();
                     let node_idx = p.unwrap();
                     let node = tree.node_at(node_idx).expect("invalid node");
-                    results.push(node.value);
+                    results.push(node.key);
                     p = node.right;
                 }
                 (None, true) => break,
@@ -239,7 +239,7 @@ impl InOrderVisitor {
             if let Some(node_idx) = p {
                 let node = tree.node_at(node_idx).expect("invalid node");
                 visitor(tree, node.left, results);
-                results.push(node.value); //visit result
+                results.push(node.key); //visit result
                 visitor(tree, node.right, results);
             }
         }
@@ -279,7 +279,7 @@ impl PostOrderVisitor {
             }
 
             //visit & record node
-            results.push(node.value);
+            results.push(node.key);
             visited.insert(node_idx);
             p = stack.pop();
         }
@@ -294,7 +294,7 @@ impl PostOrderVisitor {
                 let node = tree.node_at(node_idx).expect("invalid node");
                 visitor(tree, node.left, results);
                 visitor(tree, node.right, results);
-                results.push(node.value);
+                results.push(node.key);
             }
         }
         visitor(tree, tree.root, &mut results);
@@ -320,7 +320,7 @@ impl LevelOrderVisitor {
                         results
                             .last_mut()
                             .expect("empty results container")
-                            .push(node.value);
+                            .push(node.key);
                         for child in &[node.left, node.right] {
                             if let Some(child) = child {
                                 next_level_nodes.push(*child);
@@ -365,7 +365,7 @@ impl LevelOrderVisitor {
                         next_level_nodes.push(*child);
                     }
                 }
-                results[pos].push(node.value);
+                results[pos].push(node.key);
             }
 
             visitor(tree, next_level_nodes, results, pos + 1);
@@ -410,7 +410,7 @@ impl ZigzagOrderVisitor {
                         results
                             .last_mut()
                             .expect("empty results container")
-                            .push(node.value);
+                            .push(node.key);
 
                         let children = if left_to_right {
                             vec![node.left, node.right]
@@ -469,7 +469,7 @@ impl ZigzagOrderVisitor {
                         next_level_nodes.push(child);
                     }
                 }
-                results[pos].push(node.value);
+                results[pos].push(node.key);
             }
 
             visitor(tree, next_level_nodes, results, pos + 1, !left_to_right);

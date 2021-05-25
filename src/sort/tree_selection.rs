@@ -11,9 +11,9 @@ use std::cmp::max;
 ///
 /// 构建tree的时间复杂度 O(n)
 /// 每次pop的时间复杂度 O(log2(n))，所以弹出n个元素的的时间复杂度为 O(n * log2(n))
-pub fn sort_desc<T: Copy + std::cmp::Ord + Minimal>(a: &[T]) -> Vec<T> {
-    let mut tree = build_tournament_tree(a);
-    let mut r = Vec::with_capacity(a.len());
+pub fn sort_desc<T: Copy + std::cmp::Ord + Minimal>(data: &[T]) -> Vec<T> {
+    let mut tree = build_tournament_tree(data);
+    let mut r = Vec::with_capacity(data.len());
     while let Some(v) = pop(&mut tree) {
         r.push(v);
     }
@@ -31,14 +31,14 @@ impl Minimal for i32 {
 }
 
 fn pop<T: Copy + std::cmp::Ord + Minimal>(tree: &mut Tree<T>) -> Option<T> {
-    match tree.node_value(tree.root) {
-        Some(root_value) if root_value != T::minimal() => {
+    match tree.node_key(tree.root) {
+        Some(root_key) if root_key != T::minimal() => {
             //每次取出锦标赛树的根节点后，自顶向下将其替换为min
-            let leaf = replace_max_by_min(tree, root_value);
+            let leaf = replace_max_by_min(tree, root_key);
             //由叶子节点的父指针向上回溯，设置新的最大值
             setup_new_max(tree, leaf);
 
-            Some(root_value)
+            Some(root_key)
         }
         _ => None,
     }
@@ -47,25 +47,25 @@ fn pop<T: Copy + std::cmp::Ord + Minimal>(tree: &mut Tree<T>) -> Option<T> {
 // 返回叶子节点的序号
 fn replace_max_by_min<T: Copy + std::cmp::Ord + Minimal>(
     tree: &mut Tree<T>,
-    root_value: T,
+    root_key: T,
 ) -> usize {
     let mut idx = tree.root.unwrap();
-    tree.node_at_mut(idx).unwrap().value = T::minimal();
+    tree.node_at_mut(idx).unwrap().key = T::minimal();
 
     loop {
         match tree.node_at(idx) {
             Some(node) if node.is_leaf() => break,
             Some(node) => {
-                if tree.node_value(node.left) == Some(root_value) {
+                if tree.node_key(node.left) == Some(root_key) {
                     let l = node.left.unwrap();
-                    tree.node_at_mut(l).unwrap().value = T::minimal();
+                    tree.node_at_mut(l).unwrap().key = T::minimal();
                     idx = l;
                     continue;
                 }
 
-                if tree.node_value(node.right) == Some(root_value) {
+                if tree.node_key(node.right) == Some(root_key) {
                     let r = node.right.unwrap();
-                    tree.node_at_mut(r).unwrap().value = T::minimal();
+                    tree.node_at_mut(r).unwrap().key = T::minimal();
                     idx = r;
                 }
             }
@@ -82,14 +82,14 @@ fn setup_new_max<T: Copy + std::cmp::Ord>(tree: &mut Tree<T>, mut idx: usize) {
             Some(node) if node.parent.is_some() => {
                 let parent = node.parent.unwrap();
                 let parent_node = tree.node_at(parent).unwrap();
-                let mut new_max = parent_node.value;
-                if let Some(v) = tree.node_value(parent_node.left) {
-                    new_max = new_max.max(v);
+                let mut new_max = parent_node.key;
+                if let Some(key) = tree.node_key(parent_node.left) {
+                    new_max = new_max.max(key);
                 }
-                if let Some(v) = tree.node_value(parent_node.right) {
-                    new_max = new_max.max(v);
+                if let Some(key) = tree.node_key(parent_node.right) {
+                    new_max = new_max.max(key);
                 }
-                tree.node_at_mut(parent).unwrap().value = new_max;
+                tree.node_at_mut(parent).unwrap().key = new_max;
 
                 idx = parent;
             }
@@ -100,13 +100,13 @@ fn setup_new_max<T: Copy + std::cmp::Ord>(tree: &mut Tree<T>, mut idx: usize) {
 
 // build Tournament tree, from bottom to top
 // a中不能包含T::minimal()这个特殊值，pop需要用到T::minimal()做临界值
-fn build_tournament_tree<T: Copy + std::cmp::Ord>(a: &[T]) -> Tree<T> {
+fn build_tournament_tree<T: Copy + std::cmp::Ord>(data: &[T]) -> Tree<T> {
     let mut tree = Tree::new();
 
     //build leaf
-    let mut nodes: Vec<usize> = a
+    let mut nodes: Vec<usize> = data
         .iter()
-        .map(|v| tree.add_node(TreeNode::from_value(*v)))
+        .map(|v| tree.add_node(TreeNode::from_key(*v)))
         .collect();
 
     while nodes.len() > 1 {
@@ -132,8 +132,8 @@ fn branch<T: Copy + std::cmp::Ord>(tree: &mut Tree<T>, t1: usize, t2: usize) -> 
     //create node
     let t1_node = tree.node_at(t1).unwrap();
     let t2_node = tree.node_at(t2).unwrap();
-    let value = max(t1_node.value, t2_node.value);
-    let node = TreeNode::new(value, Some(t1), Some(t2), None);
+    let key = max(t1_node.key, t2_node.key);
+    let node = TreeNode::new(key, Some(t1), Some(t2), None);
     let node_i = tree.add_node(node);
 
     //set parent

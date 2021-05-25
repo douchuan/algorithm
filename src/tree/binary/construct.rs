@@ -81,7 +81,7 @@ pub fn new_tree(orig: &[&str]) -> Tree<usize> {
 
 fn add_value(tree: &mut Tree<usize>, v: &str) -> Option<TreeIndex> {
     v.parse::<usize>().ok().and_then(|v| {
-        let node = TreeNode::from_value(v);
+        let node = TreeNode::from_key(v);
         Some(tree.add_node(node))
     })
 }

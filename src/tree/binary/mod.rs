@@ -5,31 +5,31 @@ pub mod traverse;
 
 pub type TreeIndex = usize;
 
-pub struct TreeNode<T> {
-    pub value: T,
+pub struct TreeNode<K> {
+    pub key: K,
     pub left: Option<TreeIndex>,
     pub right: Option<TreeIndex>,
     pub parent: Option<TreeIndex>,
 }
 
-impl<T> TreeNode<T> {
+impl<K> TreeNode<K> {
     pub fn new(
-        value: T,
+        key: K,
         left: Option<TreeIndex>,
         right: Option<TreeIndex>,
         parent: Option<TreeIndex>,
     ) -> Self {
         TreeNode {
-            value,
+            key,
             left,
             right,
             parent,
         }
     }
 
-    pub fn from_value(value: T) -> Self {
+    pub fn from_key(key: K) -> Self {
         Self {
-            value,
+            key,
             left: None,
             right: None,
             parent: None,
@@ -49,12 +49,12 @@ impl<T> TreeNode<T> {
 
 /// tree impl based Arena Allocators
 /// https://sachanganesh.com/programming/graph-tree-traversals-in-rust/
-pub struct Tree<T> {
-    pub arena: Vec<Option<TreeNode<T>>>,
+pub struct Tree<K> {
+    pub arena: Vec<Option<TreeNode<K>>>,
     pub root: Option<TreeIndex>,
 }
 
-impl<T> Tree<T> {
+impl<K> Tree<K> {
     pub fn new() -> Self {
         Tree {
             arena: Vec::new(),
@@ -62,7 +62,7 @@ impl<T> Tree<T> {
         }
     }
 
-    pub fn add_node(&mut self, node: TreeNode<T>) -> TreeIndex {
+    pub fn add_node(&mut self, node: TreeNode<K>) -> TreeIndex {
         let index = self.arena.len();
         self.arena.push(Some(node));
         index
@@ -72,11 +72,11 @@ impl<T> Tree<T> {
         self.arena.remove(index);
     }
 
-    pub fn node_at(&self, i: TreeIndex) -> Option<&TreeNode<T>> {
+    pub fn node_at(&self, i: TreeIndex) -> Option<&TreeNode<K>> {
         self.arena.get(i).and_then(|v| v.as_ref())
     }
 
-    pub fn node_at_mut(&mut self, i: TreeIndex) -> Option<&mut TreeNode<T>> {
+    pub fn node_at_mut(&mut self, i: TreeIndex) -> Option<&mut TreeNode<K>> {
         self.arena.get_mut(i).and_then(|v| v.as_mut())
     }
 
@@ -94,8 +94,8 @@ impl<T> Tree<T> {
     }
 }
 
-impl<T: Copy> Tree<T> {
-    pub fn node_value(&self, i: Option<TreeIndex>) -> Option<T> {
-        i.and_then(|i| self.node_at(i).and_then(|node| Some(node.value)))
+impl<K: Copy> Tree<K> {
+    pub fn node_key(&self, i: Option<TreeIndex>) -> Option<K> {
+        i.and_then(|i| self.node_at(i).and_then(|node| Some(node.key)))
     }
 }

@@ -50,7 +50,7 @@ fn set() {
     // data layout:
     //   vec![10];
     heap.set(0, 100);
-    let data = heap.get_data();
+    let data = heap.keys_slice();
     assert_eq!(data, vec![100]);
 
     //set fail
@@ -59,7 +59,7 @@ fn set() {
     // data layout:
     //   vec![10];
     heap.set(0, 9);
-    let data = heap.get_data();
+    let data = heap.keys_slice();
     assert_eq!(data, vec![10]);
 
     //normal
@@ -68,7 +68,7 @@ fn set() {
     // data layout:
     //   vec![16, 14, 10, 8, 7, 9, 3, 2, 4, 1];
     heap.set(3, 100);
-    let data = heap.get_data();
+    let data = heap.keys_slice();
     assert_eq!(data, vec![100, 16, 10, 14, 7, 9, 3, 2, 4, 1])
 }
 
@@ -80,6 +80,6 @@ fn insert() {
     // data layout:
     //   vec![16, 14, 10, 8, 7, 9, 3, 2, 4, 1];
     heap.insert(100);
-    let data = heap.get_data();
+    let data = heap.keys_slice();
     assert_eq!(data, vec![100, 16, 10, 8, 14, 9, 3, 2, 4, 1, 7])
 }

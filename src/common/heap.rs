@@ -30,90 +30,90 @@ macro_rules! parent {
 }
 
 // 用数组实现隐式二叉堆
-pub struct BinaryHeap<T, F> {
-    data: Vec<T>,
+pub struct BinaryHeap<K, F> {
+    keys: Vec<K>,
     test: F,
 }
 
-impl<T, F> BinaryHeap<T, F>
+impl<K, F> BinaryHeap<K, F>
 where
-    T: Copy,
-    F: Fn(T, T) -> bool + Copy,
+    K: Copy,
+    F: Fn(K, K) -> bool + Copy,
 {
-    pub fn new(mut data: Vec<T>, test: F) -> Self {
-        build_heap(&mut data, test);
-        Self { data, test }
+    pub fn new(mut keys: Vec<K>, test: F) -> Self {
+        build_heap(&mut keys, test);
+        Self { keys, test }
     }
 
-    pub fn pop(&mut self) -> Option<T> {
-        let len = self.data.len();
+    pub fn pop(&mut self) -> Option<K> {
+        let len = self.keys.len();
         if len > 0 {
             // 从长度为 n 的数组中删除第一个元素需要线性时间 O(n)。
             // 这是因为我们需要将所有剩余的元素依次向前移动一个位置。
             // 这一操作成为了整个算法的瓶颈，使得算法的复杂度升高了。
             // 为了解决这一问题，我们可以交换数组中的第一个和最后一
             // 个元素，然后将数组的长度减一。
-            self.data.swap(0, len - 1);
-            let v = self.data.pop();
+            self.keys.swap(0, len - 1);
+            let key = self.keys.pop();
             let test = self.test;
-            heapify(&mut self.data, 0, test);
-            v
+            heapify(&mut self.keys, 0, test);
+            key
         } else {
             None
         }
     }
 
-    pub fn set(&mut self, i: usize, vv: T) {
-        match self.data.get(i) {
+    pub fn set(&mut self, i: usize, key: K) {
+        match self.keys.get(i) {
             Some(v) => {
                 let test = self.test;
-                if test(vv, *v) {
-                    self.data[i] = vv;
-                    heap_fix(&mut self.data, i, test);
+                if test(key, *v) {
+                    self.keys[i] = key;
+                    heap_fix(&mut self.keys, i, test);
                 }
             }
             None => (),
         }
     }
 
-    pub fn insert(&mut self, v: T) {
+    pub fn insert(&mut self, key: K) {
         let test = self.test;
-        let i = self.data.len();
-        self.data.push(v);
-        heap_fix(&mut self.data, i, test);
+        let i = self.keys.len();
+        self.keys.push(key);
+        heap_fix(&mut self.keys, i, test);
     }
 
     //for test
-    pub fn get_data(&self) -> &[T] {
-        self.data.as_slice()
+    pub fn keys_slice(&self) -> &[K] {
+        self.keys.as_slice()
     }
 }
 
-pub fn heapify<T, F>(a: &mut [T], mut i: usize, test: F)
+pub fn heapify<K, F>(keys: &mut [K], mut i: usize, test: F)
 where
-    T: Copy,
-    F: Fn(T, T) -> bool + Copy,
+    K: Copy,
+    F: Fn(K, K) -> bool + Copy,
 {
-    let n = a.len();
+    let n = keys.len();
     loop {
         let l = left!(i);
         let r = right!(i);
         let mut m = i;
 
-        if let Some(v) = a.get(l) {
-            if l < n && test(*v, a[i]) {
+        if let Some(v) = keys.get(l) {
+            if l < n && test(*v, keys[i]) {
                 m = l;
             }
         }
 
-        if let Some(v) = a.get(r) {
-            if r < n && test(*v, a[m]) {
+        if let Some(v) = keys.get(r) {
+            if r < n && test(*v, keys[m]) {
                 m = r;
             }
         }
 
         if m != i {
-            a.swap(i, m);
+            keys.swap(i, m);
             i = m;
         } else {
             break;
@@ -121,10 +121,10 @@ where
     }
 }
 
-pub fn build_heap<T, F>(a: &mut [T], test: F)
+pub fn build_heap<K, F>(keys: &mut [K], test: F)
 where
-    T: Copy,
-    F: Fn(T, T) -> bool + Copy,
+    K: Copy,
+    F: Fn(K, K) -> bool + Copy,
 {
     // i以 n / 2作为第一个分支节点，开始构建heap。
     // 因为叶子结点，已经满足堆定义，所以从二叉树倒数第二层最后一个节点
@@ -132,9 +132,9 @@ where
     // (2 ^ 0 + 2 ^ 1 ... 2 ^ (p - 1) = 2 ^ (p - 1) - 1)
     // p为二叉树层数等于log(n)
     // index = 2 ^ (p - 1) - 1 = 2 ^ ( log(n) - 1) - 1 <= n / 2
-    let mut i = a.len() / 2;
+    let mut i = keys.len() / 2;
     loop {
-        heapify(a, i, test);
+        heapify(keys, i, test);
         if i == 0 {
             break;
         } else {
@@ -146,14 +146,14 @@ where
 // 与heapify的区别:
 // heapify 是从i节点开始，调整子树 (向下调整)
 // heap_fix 是从i节点开始，调整父节点（向上调整）
-fn heap_fix<T: Copy, F>(a: &mut [T], mut i: usize, test: F)
+fn heap_fix<K: Copy, F>(keys: &mut [K], mut i: usize, test: F)
 where
-    F: Fn(T, T) -> bool + Copy,
+    F: Fn(K, K) -> bool + Copy,
 {
     while i > 0 {
         let parent = parent!(i);
-        if test(a[i], a[parent]) {
-            a.swap(i, parent);
+        if test(keys[i], keys[parent]) {
+            keys.swap(i, parent);
             i = parent;
         }
     }
