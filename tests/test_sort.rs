@@ -43,6 +43,16 @@ fn selection_cocktail() {
 }
 
 #[test]
+fn tournament_tree() {
+    let data = sort::util::plan_data();
+    for (t, expect) in data {
+        let mut tt = sort::tree_selection::sort_desc(&t);
+        tt.reverse();
+        assert_eq!(tt, expect, "t = {:?}, expect = {:?}", t, expect);
+    }
+}
+
+#[test]
 fn merge_v1() {
     let test = |x: i32, y: i32| x < y;
     let data = sort::util::plan_data();
