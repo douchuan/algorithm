@@ -1,6 +1,4 @@
-#![allow(unused)]
-use crate::tree::binary::construct;
-use crate::tree::binary::{Tree, TreeIndex, TreeNode};
+use crate::tree::binary::{Tree, TreeIndex};
 use std::collections::{HashSet, LinkedList};
 
 /// Binary Tree Preorder Traversal
@@ -161,7 +159,7 @@ impl PreOrderVisitor {
 
                     let record_node = tree.node_at(record).expect("invalid record node");
                     match record_node.right {
-                        Some(r) => {
+                        Some(_r) => {
                             //已线索化
                             cur = node.right;
                             let record_node =
@@ -201,7 +199,7 @@ impl PreOrderVisitor {
                 visitor(tree, node.right, results);
             }
         }
-        visitor(tree, tree.get_root(), &mut results);
+        visitor(tree, tree.root, &mut results);
         results
     }
 }
@@ -245,7 +243,7 @@ impl InOrderVisitor {
                 visitor(tree, node.right, results);
             }
         }
-        visitor(tree, tree.get_root(), &mut results);
+        visitor(tree, tree.root, &mut results);
         results
     }
 }
@@ -299,7 +297,7 @@ impl PostOrderVisitor {
                 results.push(node.value);
             }
         }
-        visitor(tree, tree.get_root(), &mut results);
+        visitor(tree, tree.root, &mut results);
         results
     }
 }
@@ -307,7 +305,7 @@ impl PostOrderVisitor {
 impl LevelOrderVisitor {
     pub fn iterate<T: Copy>(tree: &Tree<T>) -> Vec<Vec<T>> {
         let mut results = vec![];
-        if let Some(p) = tree.get_root() {
+        if let Some(p) = tree.root {
             let mut nodes = LinkedList::new();
             let mut next_level_nodes = vec![];
 
@@ -349,7 +347,7 @@ impl LevelOrderVisitor {
         let mut results = vec![];
         fn visitor<T: Copy>(
             tree: &Tree<T>,
-            mut level_nodes: Vec<TreeIndex>,
+            level_nodes: Vec<TreeIndex>,
             results: &mut Vec<Vec<T>>,
             pos: usize,
         ) {
@@ -372,7 +370,7 @@ impl LevelOrderVisitor {
 
             visitor(tree, next_level_nodes, results, pos + 1);
         }
-        if let Some(p) = tree.get_root() {
+        if let Some(p) = tree.root {
             visitor(tree, vec![p], &mut results, 0);
         }
         results
@@ -396,7 +394,7 @@ impl LevelOrderVisitor2 {
 impl ZigzagOrderVisitor {
     pub fn iterate<T: Copy>(tree: &Tree<T>) -> Vec<Vec<T>> {
         let mut results = vec![];
-        if let Some(p) = tree.get_root() {
+        if let Some(p) = tree.root {
             let mut nodes = LinkedList::new();
             let mut next_level_nodes = vec![];
             let mut left_to_right = false;
@@ -447,7 +445,7 @@ impl ZigzagOrderVisitor {
         let mut results = vec![];
         fn visitor<T: Copy>(
             tree: &Tree<T>,
-            mut level_nodes: Vec<TreeIndex>,
+            level_nodes: Vec<TreeIndex>,
             results: &mut Vec<Vec<T>>,
             pos: usize,
             left_to_right: bool,
@@ -476,7 +474,7 @@ impl ZigzagOrderVisitor {
 
             visitor(tree, next_level_nodes, results, pos + 1, !left_to_right);
         }
-        if let Some(p) = tree.get_root() {
+        if let Some(p) = tree.root {
             visitor(tree, vec![p], &mut results, 0, false);
         }
         results

@@ -51,7 +51,7 @@ pub fn new_tree(orig: &[&str]) -> Tree<usize> {
 
         match nt {
             NodeType::Root => {
-                tree.set_root(cur);
+                tree.root = cur;
                 parent = records.pop_front().unwrap();
             }
             NodeType::LeftChild => {

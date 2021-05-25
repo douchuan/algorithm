@@ -1,4 +1,5 @@
-#![allow(unused)]
+use std::cmp::max;
+
 pub mod construct;
 pub mod traverse;
 
@@ -34,6 +35,16 @@ impl<T> TreeNode<T> {
             parent: None,
         }
     }
+
+    /// 一个节点的左右子树都为空，称之为 叶子节点
+    pub fn is_leaf(&self) -> bool {
+        self.left.is_none() && self.right.is_none()
+    }
+
+    /// 分支节点
+    pub fn is_branch(&self) -> bool {
+        !self.is_leaf()
+    }
 }
 
 /// tree impl based Arena Allocators
@@ -51,14 +62,6 @@ impl<T> Tree<T> {
         }
     }
 
-    pub fn set_root(&mut self, root: Option<TreeIndex>) {
-        self.root = root;
-    }
-
-    pub fn get_root(&self) -> Option<TreeIndex> {
-        self.root
-    }
-
     pub fn add_node(&mut self, node: TreeNode<T>) -> TreeIndex {
         let index = self.arena.len();
         self.arena.push(Some(node));
@@ -69,35 +72,30 @@ impl<T> Tree<T> {
         self.arena.remove(index);
     }
 
-    pub fn node_at(&self, index: TreeIndex) -> Option<&TreeNode<T>> {
-        if let Some(node) = self.arena.get(index) {
-            node.as_ref()
-        } else {
-            None
-        }
+    pub fn node_at(&self, i: TreeIndex) -> Option<&TreeNode<T>> {
+        self.arena.get(i).and_then(|v| v.as_ref())
     }
 
-    pub fn node_at_mut(&mut self, index: TreeIndex) -> Option<&mut TreeNode<T>> {
-        if let Some(node) = self.arena.get_mut(index) {
-            node.as_mut()
-        } else {
-            None
-        }
+    pub fn node_at_mut(&mut self, i: TreeIndex) -> Option<&mut TreeNode<T>> {
+        self.arena.get_mut(i).and_then(|v| v.as_mut())
     }
 
     pub fn height(&self) -> usize {
-        fn calc<T>(tree: &Tree<T>, parent: Option<usize>) -> usize {
-            match parent {
-                Some(parent) => {
-                    let node = tree.node_at(parent).expect("invalid index");
-                    let lh = calc(tree, node.left);
-                    let rh = calc(tree, node.right);
-                    1 + lh.max(rh)
-                }
-                None => 0,
-            }
+        fn calc<T>(tree: &Tree<T>, node: Option<TreeIndex>) -> usize {
+            node.map_or(0, |node| {
+                let node = tree.node_at(node).unwrap();
+                let lh = calc(tree, node.left);
+                let rh = calc(tree, node.right);
+                1 + max(lh, rh)
+            })
         }
 
         calc(self, self.root)
+    }
+}
+
+impl<T: Copy> Tree<T> {
+    pub fn node_value(&self, i: Option<TreeIndex>) -> Option<T> {
+        i.and_then(|i| self.node_at(i).and_then(|node| Some(node.value)))
     }
 }

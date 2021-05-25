@@ -9,7 +9,8 @@ pub fn sort<T: Copy, F>(a: &[T], test: F) -> Vec<T>
 where
     F: Fn(T, T) -> bool + Copy,
 {
-    let mut heap = BinaryHeap::from_slice(a, test);
+    let data = Vec::from(a);
+    let mut heap = BinaryHeap::new(data, test);
     let mut res = Vec::new();
     while let Some(v) = heap.pop() {
         res.push(v);
