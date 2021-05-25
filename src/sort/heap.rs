@@ -11,7 +11,7 @@ where
 {
     let data = Vec::from(a);
     let mut heap = BinaryHeap::new(data, test);
-    let mut res = Vec::new();
+    let mut res = Vec::with_capacity(a.len());
     while let Some(v) = heap.pop() {
         res.push(v);
     }

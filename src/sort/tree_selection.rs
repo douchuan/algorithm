@@ -45,10 +45,7 @@ fn pop<T: Copy + std::cmp::Ord + Minimal>(tree: &mut Tree<T>) -> Option<T> {
 }
 
 // 返回叶子节点的序号
-fn replace_max_by_min<T: Copy + std::cmp::Ord + Minimal>(
-    tree: &mut Tree<T>,
-    root_key: T,
-) -> usize {
+fn replace_max_by_min<T: Copy + std::cmp::Ord + Minimal>(tree: &mut Tree<T>, root_key: T) -> usize {
     let mut idx = tree.root.unwrap();
     tree.node_at_mut(idx).unwrap().key = T::minimal();
 
