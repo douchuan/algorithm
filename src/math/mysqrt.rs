@@ -1,7 +1,3 @@
-#![allow(unused)]
-
-use test::Bencher;
-
 pub fn sqrt_binary_search(x: f32) -> f32 {
     assert!(x >= 0.0);
     let mut low = 0.0;

@@ -1,4 +1,3 @@
-#![allow(unused)]
 //! fib
 
 use std::cell::RefCell;
