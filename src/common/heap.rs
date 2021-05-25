@@ -10,6 +10,25 @@
 //!
 //! 顶部保存最小元素的堆为最小堆，顶部保存最大元素的堆为最大堆
 
+// 索引从 0 开始
+macro_rules! left {
+    ($i:expr) => {
+        ($i << 1) + 1
+    };
+}
+
+macro_rules! right {
+    ($i:expr) => {
+        ($i + 1) << 1
+    };
+}
+
+macro_rules! parent {
+    ($i:expr) => {
+        (($i + 1) >> 1) - 1
+    };
+}
+
 // 用数组实现隐式二叉堆
 pub struct BinaryHeap<T, F> {
     data: Vec<T>,
@@ -26,17 +45,11 @@ where
         Self { data, test }
     }
 
-    pub fn from_slice(a: &[T], test: F) -> Self {
-        let mut data = Vec::new();
-        data.extend_from_slice(a);
-        Self::new(data, test)
-    }
-
     pub fn pop(&mut self) -> Option<T> {
         let len = self.data.len();
         if len > 0 {
-            //从长度为 n 的数组中删除第一个元素需要线性时间 O(n)。
-            // 这是因为我们需要将所有剩余的元素依次 向前移动一位。
+            // 从长度为 n 的数组中删除第一个元素需要线性时间 O(n)。
+            // 这是因为我们需要将所有剩余的元素依次向前移动一个位置。
             // 这一操作成为了整个算法的瓶颈，使得算法的复杂度升高了。
             // 为了解决这一问题，我们可以交换数组中的第一个和最后一
             // 个元素，然后将数组的长度减一。
@@ -51,15 +64,15 @@ where
     }
 
     pub fn set(&mut self, i: usize, vv: T) {
-        if self.data.get(i).is_none() {
-            return;
-        }
-
-        let test = self.test;
-        let v = self.data[i];
-        if test(vv, v) {
-            self.data[i] = vv;
-            heap_fix(&mut self.data, i, test);
+        match self.data.get(i) {
+            Some(v) => {
+                let test = self.test;
+                if test(vv, *v) {
+                    self.data[i] = vv;
+                    heap_fix(&mut self.data, i, test);
+                }
+            }
+            None => (),
         }
     }
 
@@ -76,19 +89,6 @@ where
     }
 }
 
-// 索引从 0 开始
-fn left(i: usize) -> usize {
-    (i << 1) + 1
-}
-
-fn right(i: usize) -> usize {
-    (i + 1) << 1
-}
-
-fn parent(i: usize) -> usize {
-    ((i + 1) >> 1) - 1
-}
-
 pub fn heapify<T, F>(a: &mut [T], mut i: usize, test: F)
 where
     T: Copy,
@@ -96,8 +96,8 @@ where
 {
     let n = a.len();
     loop {
-        let l = left(i);
-        let r = right(i);
+        let l = left!(i);
+        let r = right!(i);
         let mut m = i;
 
         if let Some(v) = a.get(l) {
@@ -126,14 +126,13 @@ where
     T: Copy,
     F: Fn(T, T) -> bool + Copy,
 {
-    let len = a.len();
     // i以 n / 2作为第一个分支节点，开始构建heap。
     // 因为叶子结点，已经满足堆定义，所以从二叉树倒数第二层最后一个节点
     // 开始构建，这个分支节点的index，根据等比数列求和公式得到:
     // (2 ^ 0 + 2 ^ 1 ... 2 ^ (p - 1) = 2 ^ (p - 1) - 1)
     // p为二叉树层数等于log(n)
     // index = 2 ^ (p - 1) - 1 = 2 ^ ( log(n) - 1) - 1 <= n / 2
-    let mut i = len / 2;
+    let mut i = a.len() / 2;
     loop {
         heapify(a, i, test);
         if i == 0 {
@@ -152,7 +151,7 @@ where
     F: Fn(T, T) -> bool + Copy,
 {
     while i > 0 {
-        let parent = parent(i);
+        let parent = parent!(i);
         if test(a[i], a[parent]) {
             a.swap(i, parent);
             i = parent;
