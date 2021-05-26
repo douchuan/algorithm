@@ -72,7 +72,6 @@ pub mod v1 {
 }
 
 pub mod v2 {
-    use std::fmt::Debug;
     use std::ptr;
 
     //ws为辅助space
@@ -124,7 +123,7 @@ pub mod v2 {
 
     pub fn sort<T, F>(a: &mut [T], compare: &F)
     where
-        T: Copy + Default + Debug,
+        T: Copy + Default,
         F: Fn(T, T) -> bool,
     {
         let len = a.len();
@@ -148,11 +147,10 @@ pub mod v3 {
         compare: &F,
         mut w: usize,
     ) where
-        T: Copy,
-        F: Fn(T, T) -> bool,
+        F: Fn(&T, &T) -> bool,
     {
         while i < m && j < n {
-            if compare(xs[i], xs[j]) {
+            if compare(&xs[i], &xs[j]) {
                 xs.swap(w, i);
                 i += 1;
             } else {
@@ -179,8 +177,7 @@ pub mod v3 {
     /// constraint, len(w) == u - l
     fn wsort<T, F>(xs: &mut [T], mut l: usize, u: usize, compare: &F, mut w: usize)
     where
-        T: Copy,
-        F: Fn(T, T) -> bool,
+        F: Fn(&T, &T) -> bool,
     {
         if u - l > 1 {
             let m = (u + l) / 2;
@@ -198,8 +195,7 @@ pub mod v3 {
 
     fn do_sort<T, F>(a: &mut [T], l: usize, u: usize, compare: &F)
     where
-        T: Copy,
-        F: Fn(T, T) -> bool,
+        F: Fn(&T, &T) -> bool,
     {
         if u - l > 1 {
             let mut m = (u + l) / 2;
@@ -218,7 +214,7 @@ pub mod v3 {
             let mut n = w;
             while n > l {
                 m = n;
-                while m < u && compare(a[m], a[m - 1]) {
+                while m < u && compare(&a[m], &a[m - 1]) {
                     a.swap(m, m - 1);
                     m += 1;
                 }
@@ -229,8 +225,7 @@ pub mod v3 {
 
     pub fn sort<T, F>(a: &mut [T], compare: &F)
     where
-        T: Copy,
-        F: Fn(T, T) -> bool,
+        F: Fn(&T, &T) -> bool,
     {
         let len = a.len();
         do_sort(a, 0, len, compare);

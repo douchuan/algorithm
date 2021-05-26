@@ -13,7 +13,7 @@ fn bubble() {
 
 #[test]
 fn insert() {
-    let test = |x: i32, y: i32| x < y;
+    let test = |x: &i32, y: &i32| x < y;
     let data = sort::util::plan_data();
     for (t, expect) in data {
         let mut tt = t.clone();
@@ -75,7 +75,7 @@ fn merge_v2() {
 
 #[test]
 fn merge_v3() {
-    let test = |x: i32, y: i32| x < y;
+    let test = |x: &i32, y: &i32| x < y;
     let data = sort::util::plan_data();
     for (t, expect) in data {
         let mut tt = t.clone();

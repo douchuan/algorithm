@@ -4,11 +4,9 @@
 //! 是直接插入排序算法的一种更高效的改进版本。希尔排序是
 //! 非稳定排序算法。该方法因 D.L.Shell 于 1959 年提出而得名。
 
-use std::fmt::Debug;
-
 pub fn sort<T, F>(a: &mut [T], compare: F)
 where
-    T: Copy + Default + Debug,
+    T: Copy,
     F: Fn(T, T) -> bool,
 {
     let len = a.len();
