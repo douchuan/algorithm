@@ -5,7 +5,10 @@
 //!
 //! 选择排序是不稳定的排序方法
 
-pub fn sort<T: Copy + std::cmp::PartialOrd>(a: &mut [T]) {
+pub fn sort<T>(a: &mut [T])
+where
+    T: Copy + std::cmp::PartialOrd,
+{
     let len = a.len();
     for i in 0..len {
         let mut m = i;
@@ -22,7 +25,10 @@ pub fn sort<T: Copy + std::cmp::PartialOrd>(a: &mut [T]) {
 /// 鸡尾酒排序 (Cock-tail sort)
 /// 每次扫描可以同时查找最小值和最大值，将最小值放到开头，
 /// 最大值放到末尾
-pub fn sort_cocktail<T: Copy + std::cmp::PartialOrd>(a: &mut [T]) {
+pub fn sort_cocktail<T>(a: &mut [T])
+where
+    T: Copy + std::cmp::PartialOrd,
+{
     let n = a.len();
     let semi_n = n / 2;
     // 注意右边界是semi_n

@@ -10,18 +10,18 @@
 //! 经过log2(n)趟划分，便可得到长度为1的子表。这样，整个算法
 //! 的时间复杂度为O(n * log2(n))
 
-pub fn sort<T: Copy, F>(a: &mut [T], test: F)
+pub fn sort<T, F>(a: &mut [T], compare: &F)
 where
-    F: Fn(T, T) -> bool + Copy,
+    F: Fn(&T, &T) -> bool,
 {
     if let Some((pivot, elements)) = a.split_last_mut() {
         let mid = elements
             .iter_mut()
-            .partition_in_place(|it| test(*it, *pivot));
+            .partition_in_place(|it| compare(it, pivot));
         //"pivot"就位
         a.swap(mid, a.len() - 1);
 
-        sort(&mut a[0..mid], test);
-        sort(&mut a[mid + 1..], test);
+        sort(&mut a[0..mid], compare);
+        sort(&mut a[mid + 1..], compare);
     }
 }

@@ -6,9 +6,10 @@
 
 use std::fmt::Debug;
 
-pub fn sort<T: Copy + Default + Debug, F>(a: &mut [T], test: F)
+pub fn sort<T, F>(a: &mut [T], compare: F)
 where
-    F: Fn(T, T) -> bool + Copy,
+    T: Copy + Default + Debug,
+    F: Fn(T, T) -> bool,
 {
     let len = a.len();
     let mut gap = len;
@@ -18,7 +19,7 @@ where
         for i in gap..len {
             let insert_v = a[i];
             let mut j = i;
-            while j >= gap && test(insert_v, a[j - gap]) {
+            while j >= gap && compare(insert_v, a[j - gap]) {
                 a[j] = a[j - gap];
                 j -= gap;
             }

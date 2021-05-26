@@ -11,7 +11,10 @@ use std::cmp::max;
 ///
 /// 构建tree的时间复杂度 O(n)
 /// 每次pop的时间复杂度 O(log2(n))，所以弹出n个元素的的时间复杂度为 O(n * log2(n))
-pub fn sort_desc<T: Copy + std::cmp::Ord + Minimal>(data: &[T]) -> Vec<T> {
+pub fn sort_desc<T>(data: &[T]) -> Vec<T>
+where
+    T: Copy + std::cmp::Ord + Minimal,
+{
     let mut tree = build_tournament_tree(data);
     let mut r = Vec::with_capacity(data.len());
     while let Some(v) = pop(&mut tree) {
@@ -30,7 +33,10 @@ impl Minimal for i32 {
     }
 }
 
-fn pop<T: Copy + std::cmp::Ord + Minimal>(tree: &mut Tree<T>) -> Option<T> {
+fn pop<T>(tree: &mut Tree<T>) -> Option<T>
+where
+    T: Copy + std::cmp::Ord + Minimal,
+{
     match tree.node_key(tree.root) {
         Some(root_key) if root_key != T::minimal() => {
             //每次取出锦标赛树的根节点后，自顶向下将其替换为min
@@ -45,7 +51,10 @@ fn pop<T: Copy + std::cmp::Ord + Minimal>(tree: &mut Tree<T>) -> Option<T> {
 }
 
 // 返回叶子节点的序号
-fn replace_max_by_min<T: Copy + std::cmp::Ord + Minimal>(tree: &mut Tree<T>, root_key: T) -> usize {
+fn replace_max_by_min<T>(tree: &mut Tree<T>, root_key: T) -> usize
+where
+    T: Copy + std::cmp::Ord + Minimal,
+{
     let mut idx = tree.root.unwrap();
     tree.node_at_mut(idx).unwrap().key = T::minimal();
 
@@ -73,7 +82,10 @@ fn replace_max_by_min<T: Copy + std::cmp::Ord + Minimal>(tree: &mut Tree<T>, roo
     idx
 }
 
-fn setup_new_max<T: Copy + std::cmp::Ord>(tree: &mut Tree<T>, mut idx: usize) {
+fn setup_new_max<T>(tree: &mut Tree<T>, mut idx: usize)
+where
+    T: Copy + std::cmp::Ord,
+{
     loop {
         match tree.node_at(idx) {
             Some(node) if node.parent.is_some() => {
@@ -97,7 +109,10 @@ fn setup_new_max<T: Copy + std::cmp::Ord>(tree: &mut Tree<T>, mut idx: usize) {
 
 // build Tournament tree, from bottom to top
 // a中不能包含T::minimal()这个特殊值，pop需要用到T::minimal()做临界值
-fn build_tournament_tree<T: Copy + std::cmp::Ord>(data: &[T]) -> Tree<T> {
+fn build_tournament_tree<T>(data: &[T]) -> Tree<T>
+where
+    T: Copy + std::cmp::Ord,
+{
     let mut tree = Tree::new();
 
     //build leaf
@@ -125,7 +140,10 @@ fn build_tournament_tree<T: Copy + std::cmp::Ord>(data: &[T]) -> Tree<T> {
 }
 
 // 创建分支节点，取t1, t2较大者的value构造parent
-fn branch<T: Copy + std::cmp::Ord>(tree: &mut Tree<T>, t1: usize, t2: usize) -> usize {
+fn branch<T>(tree: &mut Tree<T>, t1: usize, t2: usize) -> usize
+where
+    T: Copy + std::cmp::Ord,
+{
     //create node
     let t1_node = tree.node_at(t1).unwrap();
     let t2_node = tree.node_at(t2).unwrap();

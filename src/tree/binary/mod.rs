@@ -94,7 +94,10 @@ impl<K> Tree<K> {
     }
 }
 
-impl<K: Copy> Tree<K> {
+impl<K> Tree<K>
+where
+    K: Copy,
+{
     pub fn node_key(&self, i: Option<TreeIndex>) -> Option<K> {
         i.and_then(|i| self.node_at(i).and_then(|node| Some(node.key)))
     }

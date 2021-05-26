@@ -5,14 +5,15 @@
 
 use crate::common::heap::{self, BinaryHeap};
 
-pub fn sort<T: Copy, F>(a: &[T], test: F) -> Vec<T>
+pub fn sort<T, F>(a: &[T], compare: &F) -> Vec<T>
 where
-    F: Fn(T, T) -> bool + Copy,
+    T: Copy,
+    F: Fn(T, T) -> bool,
 {
     let data = Vec::from(a);
-    let mut heap = BinaryHeap::new(data, test);
+    let mut heap = BinaryHeap::new(data, compare);
     let mut res = Vec::with_capacity(a.len());
-    while let Some(v) = heap.pop() {
+    while let Some(v) = heap.pop(compare) {
         res.push(v);
     }
     res
@@ -25,15 +26,18 @@ where
 /// 这一算法是原地排序的，无需使用额外的空间来存储结果
 ///
 /// 就地排序，小 -> 大
-pub fn floyd_sort<T: Copy + std::cmp::PartialOrd>(a: &mut [T]) {
+pub fn floyd_sort<T>(a: &mut [T])
+where
+    T: Copy + std::cmp::PartialOrd,
+{
     // 构建最大堆
-    let test = |x: T, y: T| x >= y;
-    heap::build_heap(a, test);
+    let compare = |x: T, y: T| x >= y;
+    heap::build_heap(a, &compare);
 
     let mut i = a.len();
     while i > 1 {
         i -= 1;
         a.swap(0, i);
-        heap::heapify(&mut a[0..i], 0, test);
+        heap::heapify(&mut a[0..i], 0, &compare);
     }
 }
