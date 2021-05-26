@@ -107,7 +107,7 @@ fn shell() {
 
 #[test]
 fn heap_sort() {
-    let test = |x: i32, y: i32| x < y;
+    let test = |x: &i32, y: &i32| x < y;
     let data = sort::util::plan_data();
     for (t, expect) in data {
         let tt = sort::heap::sort(&t, &test);

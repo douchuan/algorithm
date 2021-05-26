@@ -34,13 +34,10 @@ pub struct BinaryHeap<K> {
     keys: Vec<K>,
 }
 
-impl<K> BinaryHeap<K>
-where
-    K: Copy,
-{
+impl<K> BinaryHeap<K> {
     pub fn new<F>(mut keys: Vec<K>, test: &F) -> Self
     where
-        F: Fn(K, K) -> bool,
+        F: Fn(&K, &K) -> bool,
     {
         build_heap(&mut keys, test);
         Self { keys }
@@ -48,7 +45,7 @@ where
 
     pub fn pop<F>(&mut self, test: &F) -> Option<K>
     where
-        F: Fn(K, K) -> bool,
+        F: Fn(&K, &K) -> bool,
     {
         let len = self.keys.len();
         if len > 0 {
@@ -68,11 +65,11 @@ where
 
     pub fn set<F>(&mut self, i: usize, key: K, test: &F)
     where
-        F: Fn(K, K) -> bool,
+        F: Fn(&K, &K) -> bool,
     {
         match self.keys.get(i) {
             Some(v) => {
-                if test(key, *v) {
+                if test(&key, v) {
                     self.keys[i] = key;
                     heap_fix(&mut self.keys, i, test);
                 }
@@ -83,7 +80,7 @@ where
 
     pub fn insert<F>(&mut self, key: K, test: &F)
     where
-        F: Fn(K, K) -> bool,
+        F: Fn(&K, &K) -> bool,
     {
         let i = self.keys.len();
         self.keys.push(key);
@@ -98,8 +95,7 @@ where
 
 pub fn heapify<K, F>(keys: &mut [K], mut i: usize, test: &F)
 where
-    K: Copy,
-    F: Fn(K, K) -> bool,
+    F: Fn(&K, &K) -> bool,
 {
     let n = keys.len();
     loop {
@@ -108,13 +104,13 @@ where
         let mut m = i;
 
         if let Some(v) = keys.get(l) {
-            if l < n && test(*v, keys[i]) {
+            if l < n && test(v, &keys[i]) {
                 m = l;
             }
         }
 
         if let Some(v) = keys.get(r) {
-            if r < n && test(*v, keys[m]) {
+            if r < n && test(v, &keys[m]) {
                 m = r;
             }
         }
@@ -128,10 +124,9 @@ where
     }
 }
 
-pub fn build_heap<K, F>(keys: &mut [K], test: &F)
+pub fn build_heap<K, F>(keys: &mut [K], compare: &F)
 where
-    K: Copy,
-    F: Fn(K, K) -> bool,
+    F: Fn(&K, &K) -> bool,
 {
     // i以 n / 2作为第一个分支节点，开始构建heap。
     // 因为叶子结点，已经满足堆定义，所以从二叉树倒数第二层最后一个节点
@@ -141,7 +136,7 @@ where
     // index = 2 ^ (p - 1) - 1 = 2 ^ ( log(n) - 1) - 1 <= n / 2
     let mut i = keys.len() as i32 / 2;
     while i >= 0 {
-        heapify(keys, i as usize, test);
+        heapify(keys, i as usize, compare);
         i -= 1;
     }
 }
@@ -151,12 +146,11 @@ where
 // heap_fix 是从i节点开始，调整父节点（向上调整）
 fn heap_fix<K, F>(keys: &mut [K], mut i: usize, test: &F)
 where
-    K: Copy,
-    F: Fn(K, K) -> bool,
+    F: Fn(&K, &K) -> bool,
 {
     while i > 0 {
         let parent = parent!(i);
-        if test(keys[i], keys[parent]) {
+        if test(&keys[i], &keys[parent]) {
             keys.swap(i, parent);
             i = parent;
         }

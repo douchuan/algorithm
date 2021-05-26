@@ -8,7 +8,7 @@ use crate::common::heap::{self, BinaryHeap};
 pub fn sort<T, F>(a: &[T], compare: &F) -> Vec<T>
 where
     T: Copy,
-    F: Fn(T, T) -> bool,
+    F: Fn(&T, &T) -> bool,
 {
     let data = Vec::from(a);
     let mut heap = BinaryHeap::new(data, compare);
@@ -28,10 +28,10 @@ where
 /// 就地排序，小 -> 大
 pub fn floyd_sort<T>(a: &mut [T])
 where
-    T: Copy + std::cmp::PartialOrd,
+    T: std::cmp::PartialOrd,
 {
     // 构建最大堆
-    let compare = |x: T, y: T| x >= y;
+    let compare = |x: &T, y: &T| x >= y;
     heap::build_heap(a, &compare);
 
     let mut i = a.len();
