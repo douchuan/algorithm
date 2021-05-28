@@ -1,8 +1,8 @@
+use algo::tree::binary::builder::TreeBuilder;
 use algo::tree::binary::traverse::{
     InOrderVisitor, LevelOrderVisitor, LevelOrderVisitor2, PostOrderVisitor, PreOrderVisitor,
     ZigzagOrderVisitor,
 };
-use algo::tree::binary::builder::TreeBuilder;
 
 #[test]
 fn tree_height() {
