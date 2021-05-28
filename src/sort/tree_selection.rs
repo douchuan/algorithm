@@ -4,7 +4,7 @@
 //!
 //! 构建锦标赛树，复用比较结果，对Selection sort的性能做改进
 
-use crate::tree::binary::builder::tournament::Minimal;
+use crate::tree::binary::builder::tournament::{BuildTournamentTree, Minimal};
 use crate::tree::binary::builder::TreeBuilder;
 use crate::tree::binary::{Tree, TreeNode};
 use std::cmp::max;
@@ -17,9 +17,9 @@ pub fn sort_desc<T>(data: &[T]) -> Vec<T>
 where
     T: Copy + std::cmp::Ord + Minimal,
 {
-    let mut tree = TreeBuilder::by_tournament(data);
+    let mut tree = TreeBuilder::build_tournament_tree(data);
     let mut r = Vec::with_capacity(data.len());
-    while let Some(v) = TreeBuilder::tournament_pop(&mut tree) {
+    while let Some(v) = TreeBuilder::tournament_tree_pop(&mut tree) {
         r.push(v);
     }
     r

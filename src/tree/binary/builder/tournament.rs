@@ -2,18 +2,20 @@ use crate::tree::binary::builder::TreeBuilder;
 use crate::tree::binary::{Tree, TreeNode};
 use std::cmp::max;
 
-impl TreeBuilder {
-    pub fn by_tournament<K>(data: &[K]) -> Tree<K>
-    where
-        K: Copy + std::cmp::Ord,
-    {
+pub trait BuildTournamentTree<K> {
+    fn build_tournament_tree(data: &[K]) -> Tree<K>;
+    fn tournament_tree_pop(tree: &mut Tree<K>) -> Option<K>;
+}
+
+impl<K> BuildTournamentTree<K> for TreeBuilder
+where
+    K: Copy + std::cmp::Ord + Minimal,
+{
+    fn build_tournament_tree(data: &[K]) -> Tree<K> {
         do_build(data)
     }
 
-    pub fn tournament_pop<K>(tree: &mut Tree<K>) -> Option<K>
-    where
-        K: Copy + std::cmp::Ord + Minimal,
-    {
+    fn tournament_tree_pop(tree: &mut Tree<K>) -> Option<K> {
         pop(tree)
     }
 }

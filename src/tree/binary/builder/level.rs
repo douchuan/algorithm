@@ -10,11 +10,15 @@ use crate::tree::binary::builder::TreeBuilder;
 use crate::tree::binary::{Tree, TreeIndex, TreeNode};
 use std::collections::LinkedList;
 
-impl TreeBuilder {
-    pub fn by_level<K>(vec: &[&str]) -> Tree<K>
-    where
-        K: std::str::FromStr,
-    {
+pub trait BuildTreeInLevel<K> {
+    fn build_in_level(vec: &[&str]) -> Tree<K>;
+}
+
+impl<K> BuildTreeInLevel<K> for TreeBuilder
+where
+    K: std::str::FromStr,
+{
+    fn build_in_level(vec: &[&str]) -> Tree<K> {
         build(vec)
     }
 }
