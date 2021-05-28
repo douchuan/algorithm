@@ -1,33 +1,30 @@
+//! 按层建立tree
+//! For example: Given binary tree {1,#,2,3},
+//!     1
+//!     \
+//!      2
+//!     /
+//!    3
+
+use crate::tree::binary::builder::TreeBuilder;
 use crate::tree::binary::{Tree, TreeIndex, TreeNode};
 use std::collections::LinkedList;
 
-#[derive(Copy, Clone, PartialOrd, PartialEq)]
-enum NodeType {
-    Root,
-    LeftChild,
-    RightChild,
-}
-
-impl NodeType {
-    fn next(self) -> Self {
-        match self {
-            NodeType::Root => Self::LeftChild,
-            NodeType::LeftChild => Self::RightChild,
-            NodeType::RightChild => Self::LeftChild,
-        }
+impl TreeBuilder {
+    pub fn by_level<K>(vec: &[&str]) -> Tree<K>
+    where
+        K: std::str::FromStr,
+    {
+        build(vec)
     }
 }
 
-/// 按层建立tree
-/// For example: Given binary tree {1,#,2,3},
-///     1
-///     \
-///      2
-///     /
-///    3
-pub fn new_tree(orig: &[&str]) -> Tree<usize> {
+fn build<K>(vec: &[&str]) -> Tree<K>
+where
+    K: std::str::FromStr,
+{
     let mut tokens = LinkedList::new();
-    tokens.extend(orig.iter());
+    tokens.extend(vec.iter());
 
     let mut tree = Tree::new();
     let mut records = LinkedList::new();
@@ -79,9 +76,29 @@ pub fn new_tree(orig: &[&str]) -> Tree<usize> {
     tree
 }
 
-fn add_value(tree: &mut Tree<usize>, v: &str) -> Option<TreeIndex> {
-    v.parse::<usize>().ok().and_then(|v| {
+fn add_value<K>(tree: &mut Tree<K>, v: &str) -> Option<TreeIndex>
+where
+    K: std::str::FromStr,
+{
+    v.parse().ok().and_then(|v| {
         let node = TreeNode::from_key(v);
         Some(tree.add_node(node))
     })
+}
+
+#[derive(Copy, Clone, PartialOrd, PartialEq)]
+enum NodeType {
+    Root,
+    LeftChild,
+    RightChild,
+}
+
+impl NodeType {
+    fn next(self) -> Self {
+        match self {
+            NodeType::Root => Self::LeftChild,
+            NodeType::LeftChild => Self::RightChild,
+            NodeType::RightChild => Self::LeftChild,
+        }
+    }
 }
