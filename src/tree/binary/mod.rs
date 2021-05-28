@@ -1,6 +1,7 @@
 use std::cmp::max;
 
-pub mod construct;
+pub mod builder;
+pub mod search_tree;
 pub mod traverse;
 
 pub type TreeIndex = usize;
@@ -10,6 +11,13 @@ pub struct TreeNode<K> {
     pub left: Option<TreeIndex>,
     pub right: Option<TreeIndex>,
     pub parent: Option<TreeIndex>,
+}
+
+/// tree impl based Arena Allocators
+/// https://sachanganesh.com/programming/graph-tree-traversals-in-rust/
+pub struct Tree<K> {
+    pub arena: Vec<Option<TreeNode<K>>>,
+    pub root: Option<TreeIndex>,
 }
 
 impl<K> TreeNode<K> {
@@ -45,13 +53,6 @@ impl<K> TreeNode<K> {
     pub fn is_branch(&self) -> bool {
         !self.is_leaf()
     }
-}
-
-/// tree impl based Arena Allocators
-/// https://sachanganesh.com/programming/graph-tree-traversals-in-rust/
-pub struct Tree<K> {
-    pub arena: Vec<Option<TreeNode<K>>>,
-    pub root: Option<TreeIndex>,
 }
 
 impl<K> Tree<K> {
