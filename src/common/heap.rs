@@ -68,13 +68,11 @@ impl<K> BinaryHeap<K> {
         F: Fn(&K, &K) -> bool,
     {
         match self.keys.get(i) {
-            Some(v) => {
-                if test(&key, v) {
-                    self.keys[i] = key;
-                    heap_fix(&mut self.keys, i, test);
-                }
+            Some(v) if test(&key, v) => {
+                self.keys[i] = key;
+                heap_fix(&mut self.keys, i, test);
             }
-            None => (),
+            _ => (),
         }
     }
 
@@ -104,7 +102,7 @@ where
         let mut m = i;
 
         if let Some(v) = keys.get(l) {
-            if l < n && test(v, &keys[i]) {
+            if l < n && test(v, &keys[m]) {
                 m = l;
             }
         }

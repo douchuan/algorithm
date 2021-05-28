@@ -15,7 +15,7 @@ pub fn sort_desc<T>(data: &[T]) -> Vec<T>
 where
     T: Copy + std::cmp::Ord + Minimal,
 {
-    let mut tree = build_tournament_tree(data);
+    let mut tree = do_build(data);
     let mut r = Vec::with_capacity(data.len());
     while let Some(v) = pop(&mut tree) {
         r.push(v);
@@ -43,7 +43,6 @@ where
             let leaf = replace_max_by_min(tree, root_key);
             //由叶子节点的父指针向上回溯，设置新的最大值
             setup_new_max(tree, leaf);
-
             Some(root_key)
         }
         _ => None,
@@ -62,18 +61,12 @@ where
         match tree.node_at(idx) {
             Some(node) if node.is_leaf() => break,
             Some(node) => {
-                if tree.node_key(node.left) == Some(root_key) {
-                    let l = node.left.unwrap();
-                    tree.node_at_mut(l).unwrap().key = T::minimal();
-                    idx = l;
-                    continue;
-                }
-
-                if tree.node_key(node.right) == Some(root_key) {
-                    let r = node.right.unwrap();
-                    tree.node_at_mut(r).unwrap().key = T::minimal();
-                    idx = r;
-                }
+                idx = if tree.node_key(node.left) == Some(root_key) {
+                    node.left.unwrap()
+                } else {
+                    node.right.unwrap()
+                };
+                tree.node_at_mut(idx).unwrap().key = T::minimal();
             }
             None => break,
         }
@@ -98,8 +91,8 @@ where
                 if let Some(key) = tree.node_key(parent_node.right) {
                     new_max = new_max.max(key);
                 }
-                tree.node_at_mut(parent).unwrap().key = new_max;
 
+                tree.node_at_mut(parent).unwrap().key = new_max;
                 idx = parent;
             }
             _ => break,
@@ -107,9 +100,9 @@ where
     }
 }
 
-// build Tournament tree, from bottom to top
-// a中不能包含T::minimal()这个特殊值，pop需要用到T::minimal()做临界值
-fn build_tournament_tree<T>(data: &[T]) -> Tree<T>
+/// 构建锦标赛树, from bottom to top
+/// a中不能包含T::minimal()这个特殊值，pop需要用到T::minimal()做临界值
+fn do_build<T>(data: &[T]) -> Tree<T>
 where
     T: Copy + std::cmp::Ord,
 {
@@ -139,7 +132,7 @@ where
     tree
 }
 
-// 创建分支节点，取t1, t2较大者的value构造parent
+/// 创建分支节点，取t1, t2较大者的value构造parent
 fn branch<T>(tree: &mut Tree<T>, t1: usize, t2: usize) -> usize
 where
     T: Copy + std::cmp::Ord,
@@ -175,7 +168,7 @@ fn t_build_tree() {
 
     */
     let a = &[7, 6, 15, 16, 8, 4, 13, 3, 5, 10, 9, 1, 12, 2, 11, 14];
-    let tree = build_tournament_tree(a);
+    let tree = do_build(a);
     let r = crate::tree::binary::traverse::PreOrderVisitor::recursive(&tree);
     assert_eq!(
         r,
@@ -189,7 +182,7 @@ fn t_build_tree() {
 #[test]
 fn t_pop() {
     let mut a = vec![7, 6, 15, 16, 8, 4, 13, 3, 5, 10, 9, 1, 12, 2, 11, 14];
-    let mut tree = build_tournament_tree(&a);
+    let mut tree = do_build(&a);
 
     //make a desc sorted
     a.sort();
