@@ -203,6 +203,25 @@ fn build_binary_search_tree() {
     assert_eq!(tree.lookup(100), None);
 }
 
+#[test]
+fn binary_search_tree_min_max() {
+    let mut tree = Tree::new();
+    let data = vec![4, 3, 8, 1, 7, 16, 2, 10, 9, 14];
+    for v in &data {
+        tree.insert(*v);
+    }
+
+    //min
+    let idx = tree.min().unwrap();
+    let node = tree.node_at(idx).unwrap();
+    assert_eq!(node.key, 1);
+
+    //max
+    let idx = tree.max().unwrap();
+    let node = tree.node_at(idx).unwrap();
+    assert_eq!(node.key, 16);
+}
+
 fn preorder_test_data() -> Vec<(Vec<&'static str>, Vec<usize>)> {
     vec![
         (vec!["1", "#", "2", "3"], vec![1, 2, 3]),

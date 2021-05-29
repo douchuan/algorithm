@@ -30,11 +30,11 @@ where
     }
 
     fn min(&self) -> Option<usize> {
-        todo!()
+        do_min(self, self.root)
     }
 
     fn max(&self) -> Option<usize> {
-        todo!()
+        do_max(self, self.root)
     }
 
     fn succ(&self, x: K) -> Option<usize> {
@@ -126,5 +126,37 @@ where
                 }
             }
         }
+    }
+}
+
+fn do_min<K>(tree: &Tree<K>, node_idx: Option<TreeIndex>) -> Option<TreeIndex>
+where
+    K: std::cmp::PartialOrd,
+{
+    if let Some(node_idx) = node_idx {
+        let node = tree.node_at(node_idx).unwrap();
+        if let Some(l) = node.left {
+            do_min(tree, Some(l))
+        } else {
+            Some(node_idx)
+        }
+    } else {
+        None
+    }
+}
+
+fn do_max<K>(tree: &Tree<K>, node_idx: Option<TreeIndex>) -> Option<TreeIndex>
+where
+    K: std::cmp::PartialOrd,
+{
+    if let Some(node_idx) = node_idx {
+        let node = tree.node_at(node_idx).unwrap();
+        if let Some(r) = node.right {
+            do_max(tree, Some(r))
+        } else {
+            Some(node_idx)
+        }
+    } else {
+        None
     }
 }
