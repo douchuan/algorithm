@@ -6,8 +6,6 @@
 
 use crate::tree::binary::builder::tournament::{BuildTournamentTree, Minimal};
 use crate::tree::binary::builder::TreeBuilder;
-use crate::tree::binary::{Tree, TreeNode};
-use std::cmp::max;
 
 /// 排序结果：大 -> 小
 ///

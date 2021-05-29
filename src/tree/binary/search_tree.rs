@@ -1,10 +1,13 @@
-use crate::tree::binary::{Tree, TreeIndex};
+use crate::tree::binary::{Tree, TreeIndex, TreeNode};
+use std::cmp::Ordering;
 
 pub trait SearchTree<K>
 where
     K: std::cmp::PartialOrd,
 {
+    /// return true: insert, false: not insert, exist k
     fn insert(&mut self, k: K) -> bool;
+    /// return node index
     fn lookup(&self, x: K) -> Option<TreeIndex>;
     fn min(&self) -> Option<TreeIndex>;
     fn max(&self) -> Option<TreeIndex>;
@@ -19,11 +22,11 @@ where
     K: std::cmp::PartialOrd,
 {
     fn insert(&mut self, k: K) -> bool {
-        todo!()
+        do_insert(self, k, None, self.root)
     }
 
-    fn lookup(&self, x: K) -> Option<usize> {
-        todo!()
+    fn lookup(&self, x: K) -> Option<TreeIndex> {
+        do_lookup(self, x, None, self.root)
     }
 
     fn min(&self) -> Option<usize> {
@@ -40,5 +43,88 @@ where
 
     fn pred(&self, x: K) -> Option<usize> {
         todo!()
+    }
+}
+
+fn do_insert<K>(
+    tree: &mut Tree<K>,
+    k: K,
+    parent: Option<TreeIndex>,
+    node: Option<TreeIndex>,
+) -> bool
+where
+    K: std::cmp::PartialOrd,
+{
+    match (parent, node) {
+        //empty tree
+        (None, None) => {
+            let node = TreeNode::from_key(k);
+            let idx = tree.add_node(node);
+            tree.root = Some(idx);
+            true
+        }
+        (_, Some(node_idx)) => {
+            let node = tree.node_at(node_idx).unwrap();
+            match node.key.partial_cmp(&k) {
+                None => false,
+                Some(Ordering::Less) => {
+                    let r = node.right;
+                    do_insert(tree, k, Some(node_idx), r)
+                }
+                Some(Ordering::Equal) => false,
+                Some(Ordering::Greater) => {
+                    let l = node.left;
+                    do_insert(tree, k, Some(node_idx), l)
+                }
+            }
+        }
+        (Some(parent), None) => {
+            let node = tree.node_at(parent).unwrap();
+            match node.key.partial_cmp(&k) {
+                None => false,
+                Some(Ordering::Less) => {
+                    let child = TreeNode::from_key(k);
+                    let child_idx = tree.add_node(child);
+                    tree.node_at_mut(parent).unwrap().right = Some(child_idx);
+                    true
+                }
+                Some(Ordering::Equal) => false,
+                Some(Ordering::Greater) => {
+                    let child = TreeNode::from_key(k);
+                    let child_idx = tree.add_node(child);
+                    tree.node_at_mut(parent).unwrap().left = Some(child_idx);
+                    true
+                }
+            }
+        }
+    }
+}
+
+fn do_lookup<K>(
+    tree: &Tree<K>,
+    k: K,
+    parent: Option<TreeIndex>,
+    node: Option<TreeIndex>,
+) -> Option<TreeIndex>
+where
+    K: std::cmp::PartialOrd,
+{
+    match (parent, node) {
+        (_, None) => None,
+        (_, Some(node_idx)) => {
+            let node = tree.node_at(node_idx).unwrap();
+            match node.key.partial_cmp(&k) {
+                None => None,
+                Some(Ordering::Less) => {
+                    let r = node.right;
+                    do_lookup(tree, k, Some(node_idx), r)
+                }
+                Some(Ordering::Equal) => Some(node_idx),
+                Some(Ordering::Greater) => {
+                    let l = node.left;
+                    do_lookup(tree, k, Some(node_idx), l)
+                }
+            }
+        }
     }
 }

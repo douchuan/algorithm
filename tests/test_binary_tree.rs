@@ -1,5 +1,6 @@
 use algo::tree::binary::builder::level::BuildTreeInLevel;
 use algo::tree::binary::builder::TreeBuilder;
+use algo::tree::binary::search_tree::SearchTree;
 use algo::tree::binary::traverse::{
     InOrderVisitor, LevelOrderVisitor, LevelOrderVisitor2, PostOrderVisitor, PreOrderVisitor,
     ZigzagOrderVisitor,
@@ -184,6 +185,22 @@ fn t_levelorder_zigzag_traverse() {
     let tree: Tree<usize> = TreeBuilder::build_in_level(nodes.as_slice());
     let r = ZigzagOrderVisitor::recursive(&tree);
     assert_eq!(vec![vec![3], vec![20, 9], vec![15, 7]], r);
+}
+
+#[test]
+fn build_binary_search_tree() {
+    let mut tree = Tree::new();
+    let data = vec![4, 3, 8, 1, 7, 16, 2, 10, 9, 14];
+    for v in &data {
+        tree.insert(*v);
+    }
+    let r = PreOrderVisitor::iterate(&tree);
+    assert_eq!(r, vec![4, 3, 1, 2, 8, 7, 16, 10, 9, 14]);
+
+    for (idx, v) in data.iter().enumerate() {
+        assert_eq!(tree.lookup(*v), Some(idx));
+    }
+    assert_eq!(tree.lookup(100), None);
 }
 
 fn preorder_test_data() -> Vec<(Vec<&'static str>, Vec<usize>)> {
