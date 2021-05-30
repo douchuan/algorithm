@@ -198,9 +198,9 @@ fn build_binary_search_tree() {
     assert_eq!(r, vec![4, 3, 1, 2, 8, 7, 16, 10, 9, 14]);
 
     for (idx, v) in data.iter().enumerate() {
-        assert_eq!(tree.lookup(*v), Some(idx));
+        assert_eq!(tree.find(*v), Some(idx));
     }
-    assert_eq!(tree.lookup(100), None);
+    assert_eq!(tree.find(100), None);
 }
 
 #[test]
@@ -220,6 +220,27 @@ fn binary_search_tree_min_max() {
     let idx = tree.max().unwrap();
     let node = tree.node_at(idx).unwrap();
     assert_eq!(node.key, 16);
+}
+
+#[test]
+fn binary_search_tree_succ_pred() {
+    let mut tree = Tree::new();
+    let data = vec![4, 3, 8, 1, 7, 16, 2, 10, 9, 14];
+    for v in &data {
+        tree.insert(*v);
+    }
+
+    //succ
+    let succ_i = tree.succ(8).unwrap();
+    assert_eq!(tree.node_at(succ_i).unwrap().key, 9);
+    let succ_i = tree.succ(2).unwrap();
+    assert_eq!(tree.node_at(succ_i).unwrap().key, 3);
+
+    //pred
+    let pred_i = tree.pred(9).unwrap();
+    assert_eq!(tree.node_at(pred_i).unwrap().key, 8);
+    let pred_i = tree.pred(3).unwrap();
+    assert_eq!(tree.node_at(pred_i).unwrap().key, 2);
 }
 
 fn preorder_test_data() -> Vec<(Vec<&'static str>, Vec<usize>)> {

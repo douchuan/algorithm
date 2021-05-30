@@ -77,6 +77,28 @@ impl<K> Tree<K> {
         self.arena.get(i).and_then(|v| v.as_ref())
     }
 
+    pub fn left_node_at(&self, i: Option<TreeIndex>) -> Option<&TreeNode<K>> {
+        i.and_then(|i| {
+            self.arena.get(i).and_then(|v| {
+                v.as_ref().and_then(|node| {
+                    node.left
+                        .and_then(|l| self.arena.get(l).and_then(|l| l.as_ref()))
+                })
+            })
+        })
+    }
+
+    pub fn right_node_at(&self, i: Option<TreeIndex>) -> Option<&TreeNode<K>> {
+        i.and_then(|i| {
+            self.arena.get(i).and_then(|v| {
+                v.as_ref().and_then(|node| {
+                    node.right
+                        .and_then(|r| self.arena.get(r).and_then(|r| r.as_ref()))
+                })
+            })
+        })
+    }
+
     pub fn node_at_mut(&mut self, i: TreeIndex) -> Option<&mut TreeNode<K>> {
         self.arena.get_mut(i).and_then(|v| v.as_mut())
     }
