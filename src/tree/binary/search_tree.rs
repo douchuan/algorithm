@@ -26,7 +26,7 @@ where
     }
 
     fn lookup(&self, x: K) -> Option<TreeIndex> {
-        do_lookup(self, x, None, self.root)
+        do_lookup(self, x, self.root)
     }
 
     fn min(&self) -> Option<usize> {
@@ -100,33 +100,19 @@ where
     }
 }
 
-fn do_lookup<K>(
-    tree: &Tree<K>,
-    k: K,
-    parent: Option<TreeIndex>,
-    node: Option<TreeIndex>,
-) -> Option<TreeIndex>
+fn do_lookup<K>(tree: &Tree<K>, k: K, node: Option<TreeIndex>) -> Option<TreeIndex>
 where
     K: std::cmp::PartialOrd,
 {
-    match (parent, node) {
-        (_, None) => None,
-        (_, Some(node_idx)) => {
-            let node = tree.node_at(node_idx).unwrap();
-            match node.key.partial_cmp(&k) {
-                None => None,
-                Some(Ordering::Less) => {
-                    let r = node.right;
-                    do_lookup(tree, k, Some(node_idx), r)
-                }
-                Some(Ordering::Equal) => Some(node_idx),
-                Some(Ordering::Greater) => {
-                    let l = node.left;
-                    do_lookup(tree, k, Some(node_idx), l)
-                }
-            }
+    node.and_then(|idx| {
+        let node = tree.node_at(idx).unwrap();
+        match node.key.partial_cmp(&k) {
+            None => None,
+            Some(Ordering::Less) => do_lookup(tree, k, node.right),
+            Some(Ordering::Equal) => Some(idx),
+            Some(Ordering::Greater) => do_lookup(tree, k, node.left),
         }
-    }
+    })
 }
 
 fn do_min<K>(tree: &Tree<K>, node_idx: Option<TreeIndex>) -> Option<TreeIndex>
