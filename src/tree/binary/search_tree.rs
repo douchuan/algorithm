@@ -5,7 +5,7 @@ pub trait SearchTree<K>
 where
     K: std::cmp::PartialOrd,
 {
-    /// return true: insert, false: not insert, exist k
+    /// return true: insert success, false: not insert, exist k
     fn insert(&mut self, k: K) -> bool;
     /// return node index
     fn find(&self, x: K) -> Option<TreeIndex>;
@@ -147,10 +147,9 @@ where
                             k = p_node.key;
                             p = p_node.parent;
                         }
-                        _ => break,
+                        _ => return p,
                     }
                 }
-                p
             }
         }
     })
@@ -175,10 +174,9 @@ where
                             k = p_node.key;
                             p = p_node.parent;
                         }
-                        _ => break,
+                        _ => return p,
                     }
                 }
-                p
             }
         }
     })
