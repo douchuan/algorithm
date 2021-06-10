@@ -1,7 +1,9 @@
+use crate::tree::binary::rb::Color;
 use std::cmp::max;
 
+pub mod bst;
 pub mod builder;
-pub mod search_tree;
+pub mod rb;
 pub mod traverse;
 
 pub type TreeIndex = usize;
@@ -11,6 +13,7 @@ pub struct TreeNode<K> {
     pub left: Option<TreeIndex>,
     pub right: Option<TreeIndex>,
     pub parent: Option<TreeIndex>,
+    pub color: Option<Color>,
 }
 
 /// tree impl based Arena Allocators
@@ -26,13 +29,19 @@ impl<K> TreeNode<K> {
         left: Option<TreeIndex>,
         right: Option<TreeIndex>,
         parent: Option<TreeIndex>,
+        color: Option<Color>,
     ) -> Self {
         TreeNode {
             key,
             left,
             right,
             parent,
+            color,
         }
+    }
+
+    pub fn new_leaf(k: K, parent: Option<TreeIndex>, color: Option<Color>) -> Self {
+        Self::new(k, None, None, parent, color)
     }
 
     pub fn from_key(key: K) -> Self {
@@ -41,6 +50,7 @@ impl<K> TreeNode<K> {
             left: None,
             right: None,
             parent: None,
+            color: None,
         }
     }
 
@@ -52,6 +62,15 @@ impl<K> TreeNode<K> {
     /// 分支节点
     pub fn is_branch(&self) -> bool {
         !self.is_leaf()
+    }
+
+    /// 直接子节点个数，不包括孙子...
+    pub fn children_count(&self) -> usize {
+        match (self.left, self.right) {
+            (Some(_), Some(_)) => 2,
+            (Some(_), None) | (None, Some(_)) => 1,
+            (None, None) => 0,
+        }
     }
 }
 
@@ -70,7 +89,7 @@ impl<K> Tree<K> {
     }
 
     pub fn remove(&mut self, index: TreeIndex) {
-        self.arena.remove(index);
+        self.arena[index] = None;
     }
 
     pub fn node_at(&self, i: TreeIndex) -> Option<&TreeNode<K>> {

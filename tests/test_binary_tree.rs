@@ -1,6 +1,6 @@
+use algo::tree::binary::bst::BSTree;
 use algo::tree::binary::builder::level::BuildTreeInLevel;
 use algo::tree::binary::builder::TreeBuilder;
-use algo::tree::binary::search_tree::SearchTree;
 use algo::tree::binary::traverse::{
     InOrderVisitor, LevelOrderVisitor, LevelOrderVisitor2, PostOrderVisitor, PreOrderVisitor,
     ZigzagOrderVisitor,
@@ -27,7 +27,7 @@ fn tree_height() {
 }
 
 #[test]
-fn t_empty_tree() {
+fn empty_tree() {
     let vec = vec![];
     let tree: Tree<usize> = TreeBuilder::build_in_level(vec.as_slice());
     assert!(tree.arena.is_empty());
@@ -43,7 +43,7 @@ fn t_empty_tree() {
 }
 
 #[test]
-fn t_tree_topology1() {
+fn tree_topology1() {
     let tokens = vec!["1", "#", "2", "3"];
     let tree: Tree<usize> = TreeBuilder::build_in_level(tokens.as_slice());
     let r = PreOrderVisitor::iterate(&tree);
@@ -51,7 +51,7 @@ fn t_tree_topology1() {
 }
 
 #[test]
-fn t_tree_topology2() {
+fn tree_topology2() {
     let tokens = vec!["1", "2", "#", "3", "4", "#", "#", "5"];
     let tree: Tree<usize> = TreeBuilder::build_in_level(tokens.as_slice());
     let r = PreOrderVisitor::iterate(&tree);
@@ -59,7 +59,7 @@ fn t_tree_topology2() {
 }
 
 #[test]
-fn t_preorder_iter() {
+fn preorder_iter() {
     for (t, expect) in preorder_test_data() {
         let tree: Tree<usize> = TreeBuilder::build_in_level(t.as_slice());
         let r = PreOrderVisitor::iterate(&tree);
@@ -72,7 +72,7 @@ fn t_preorder_iter() {
 }
 
 #[test]
-fn t_preorder_morris() {
+fn preorder_morris() {
     for (t, expect) in preorder_test_data() {
         let mut tree: Tree<usize> = TreeBuilder::build_in_level(t.as_slice());
         let r = PreOrderVisitor::morris(&mut tree);
@@ -85,7 +85,7 @@ fn t_preorder_morris() {
 }
 
 #[test]
-fn t_preorder_recursive() {
+fn preorder_recursive() {
     for (t, expect) in preorder_test_data() {
         let mut tree: Tree<usize> = TreeBuilder::build_in_level(t.as_slice());
         let r = PreOrderVisitor::recursive(&mut tree);
@@ -98,7 +98,7 @@ fn t_preorder_recursive() {
 }
 
 #[test]
-fn t_inorder_iter() {
+fn inorder_iter() {
     for (t, expect) in inorder_test_data() {
         let tree: Tree<usize> = TreeBuilder::build_in_level(t.as_slice());
         let r = InOrderVisitor::iterate(&tree);
@@ -111,7 +111,7 @@ fn t_inorder_iter() {
 }
 
 #[test]
-fn t_inorder_recursive() {
+fn inorder_recursive() {
     for (t, expect) in inorder_test_data() {
         let tree: Tree<usize> = TreeBuilder::build_in_level(t.as_slice());
         let r = InOrderVisitor::recursive(&tree);
@@ -124,7 +124,7 @@ fn t_inorder_recursive() {
 }
 
 #[test]
-fn t_postorder_recursive() {
+fn postorder_recursive() {
     let nodes = vec!["1", "#", "2", "3"];
     let tree: Tree<usize> = TreeBuilder::build_in_level(nodes.as_slice());
     let r = PostOrderVisitor::recursive(&tree);
@@ -132,7 +132,7 @@ fn t_postorder_recursive() {
 }
 
 #[test]
-fn t_postorder_iter() {
+fn postorder_iter() {
     let nodes = vec!["1", "#", "2", "3"];
     let tree: Tree<usize> = TreeBuilder::build_in_level(nodes.as_slice());
     let r = PostOrderVisitor::iterate(&tree);
@@ -140,7 +140,7 @@ fn t_postorder_iter() {
 }
 
 #[test]
-fn t_levelorder_iter() {
+fn levelorder_iter() {
     let nodes = vec!["3", "9", "20", "#", "#", "15", "7"];
     let tree: Tree<usize> = TreeBuilder::build_in_level(nodes.as_slice());
     let r = LevelOrderVisitor::iterate(&tree);
@@ -148,7 +148,7 @@ fn t_levelorder_iter() {
 }
 
 #[test]
-fn t_levelorder_traverse() {
+fn levelorder_traverse() {
     let nodes = vec!["3", "9", "20", "#", "#", "15", "7"];
     let tree: Tree<usize> = TreeBuilder::build_in_level(nodes.as_slice());
     let r = LevelOrderVisitor::recursive(&tree);
@@ -156,7 +156,7 @@ fn t_levelorder_traverse() {
 }
 
 #[test]
-fn t_levelorder2_iter() {
+fn levelorder2_iter() {
     let nodes = vec!["3", "9", "20", "#", "#", "15", "7"];
     let tree: Tree<usize> = TreeBuilder::build_in_level(nodes.as_slice());
     let r = LevelOrderVisitor2::iterate(&tree);
@@ -164,7 +164,7 @@ fn t_levelorder2_iter() {
 }
 
 #[test]
-fn t_levelorder2_traverse() {
+fn levelorder2_traverse() {
     let nodes = vec!["3", "9", "20", "#", "#", "15", "7"];
     let tree: Tree<usize> = TreeBuilder::build_in_level(nodes.as_slice());
     let r = LevelOrderVisitor2::recursive(&tree);
@@ -172,7 +172,7 @@ fn t_levelorder2_traverse() {
 }
 
 #[test]
-fn t_levelorder_zigzag_iter() {
+fn levelorder_zigzag_iter() {
     let nodes = vec!["3", "9", "20", "#", "#", "15", "7"];
     let tree: Tree<usize> = TreeBuilder::build_in_level(nodes.as_slice());
     let r = ZigzagOrderVisitor::iterate(&tree);
@@ -180,7 +180,7 @@ fn t_levelorder_zigzag_iter() {
 }
 
 #[test]
-fn t_levelorder_zigzag_traverse() {
+fn levelorder_zigzag_traverse() {
     let nodes = vec!["3", "9", "20", "#", "#", "15", "7"];
     let tree: Tree<usize> = TreeBuilder::build_in_level(nodes.as_slice());
     let r = ZigzagOrderVisitor::recursive(&tree);
@@ -241,6 +241,24 @@ fn binary_search_tree_succ_pred() {
     assert_eq!(tree.node_at(pred_i).unwrap().key, 8);
     let pred_i = tree.pred(3).unwrap();
     assert_eq!(tree.node_at(pred_i).unwrap().key, 2);
+}
+
+#[test]
+fn delete_binary_search_tree() {
+    let mut tree = Tree::new();
+    for v in vec![4, 3, 8, 1, 7, 16, 2, 10, 9, 14] {
+        tree.insert(v);
+    }
+
+    for (v, expect) in vec![
+        (1, vec![4, 3, 2, 8, 7, 16, 10, 9, 14]),
+        (8, vec![4, 3, 2, 9, 7, 16, 10, 14]),
+        (4, vec![7, 3, 2, 9, 16, 10, 14]),
+    ] {
+        tree.delete(v);
+        let r = PreOrderVisitor::iterate(&tree);
+        assert_eq!(r, expect);
+    }
 }
 
 fn preorder_test_data() -> Vec<(Vec<&'static str>, Vec<usize>)> {

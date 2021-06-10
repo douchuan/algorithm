@@ -1,12 +1,17 @@
+//! 一棵二叉搜索树是一棵满足下面条件的二叉树
+//!   1. 所有左侧分支的值都小于本节点的值
+//!   2. 本节点的值小于所有右侧分支的值
+
 use crate::tree::binary::{Tree, TreeIndex, TreeNode};
 use std::cmp::Ordering;
 
-pub trait SearchTree<K>
+pub trait BSTree<K>
 where
     K: std::cmp::PartialOrd,
 {
     /// return true: insert success, false: not insert, exist k
     fn insert(&mut self, k: K) -> bool;
+    fn delete(&mut self, k: K) -> bool;
     /// return node index
     fn find(&self, x: K) -> Option<TreeIndex>;
     fn min(&self) -> Option<TreeIndex>;
@@ -17,12 +22,16 @@ where
     fn pred(&self, x: K) -> Option<TreeIndex>;
 }
 
-impl<K> SearchTree<K> for Tree<K>
+impl<K> BSTree<K> for Tree<K>
 where
     K: std::cmp::PartialOrd + Copy,
 {
     fn insert(&mut self, k: K) -> bool {
         insert(self, k, None, self.root)
+    }
+
+    fn delete(&mut self, k: K) -> bool {
+        delete(self, k, self.root)
     }
 
     fn find(&self, x: K) -> Option<TreeIndex> {
@@ -76,13 +85,13 @@ where
             let node = tree.node_at(parent).unwrap();
             match node.key.partial_cmp(&k) {
                 Some(Ordering::Less) => {
-                    let child = TreeNode::new(k, None, None, Some(parent));
+                    let child = TreeNode::new_leaf(k, Some(parent), None);
                     let child = tree.add_node(child);
                     tree.node_at_mut(parent).unwrap().right = Some(child);
                     true
                 }
                 Some(Ordering::Greater) => {
-                    let child = TreeNode::new(k, None, None, Some(parent));
+                    let child = TreeNode::new_leaf(k, Some(parent), None);
                     let child = tree.add_node(child);
                     tree.node_at_mut(parent).unwrap().left = Some(child);
                     true
@@ -169,7 +178,7 @@ where
                 let mut p = node.parent;
                 loop {
                     match tree.left_node_at(p) {
-                        Some(r) if r.key == k => {
+                        Some(l) if l.key == k => {
                             let p_node = tree.node_at(p.unwrap()).unwrap();
                             k = p_node.key;
                             p = p_node.parent;
@@ -179,5 +188,62 @@ where
                 }
             }
         }
+    })
+}
+
+/// 从二叉搜索树中删除节点 x 的方法如下:
+///   如果 x 没有子节点，或者只有一个孩子，直接将 x“切下”;
+///   否则，x 有两个孩子，我们用其右子树中的最小值替换掉 x，然后将右子树中的这一最小值“切掉”。
+///
+/// idx, 起始node
+fn delete<K>(tree: &mut Tree<K>, k: K, idx: Option<TreeIndex>) -> bool
+where
+    K: Copy + std::cmp::PartialOrd,
+{
+    find(tree, k, idx).map_or(false, |idx| {
+        let node = tree.node_at(idx).unwrap();
+        match node.children_count() {
+            0 => {
+                let parent = node.parent.unwrap();
+                let parent_node = tree.node_at_mut(parent).unwrap();
+                if parent_node.left == Some(idx) {
+                    parent_node.left = None;
+                } else if parent_node.right == Some(idx) {
+                    parent_node.right = None;
+                }
+                tree.remove(idx);
+            }
+            1 => {
+                //backup node child
+                let node_child = if node.left.is_some() {
+                    node.left
+                } else {
+                    node.right
+                };
+
+                // rm child, setup child node
+                let parent = node.parent.unwrap();
+                let parent_node = tree.node_at_mut(parent).unwrap();
+                if parent_node.left == Some(idx) {
+                    parent_node.left = node_child;
+                } else if parent_node.right == Some(idx) {
+                    parent_node.right = node_child;
+                }
+                tree.remove(idx);
+            }
+            _ => {
+                //我们用其右子树中的最小值替换掉 x
+                let right_min_idx = find_min(tree, node.right).unwrap();
+                let right_min = tree.node_key(Some(right_min_idx)).unwrap();
+                let node = tree.node_at_mut(idx).unwrap();
+                node.key = right_min;
+
+                //右子树中的这一最小值“切掉”
+                let node_right = node.right;
+                return delete(tree, right_min, node_right);
+            }
+        }
+
+        true
     })
 }
