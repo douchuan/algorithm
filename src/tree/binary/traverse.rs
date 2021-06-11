@@ -1,4 +1,4 @@
-use crate::tree::binary::{Tree, TreeIndex};
+use crate::tree::binary::Tree;
 use std::collections::{HashSet, LinkedList};
 
 /// Binary Tree Preorder Traversal
@@ -200,7 +200,7 @@ impl PreOrderVisitor {
         T: Copy,
     {
         let mut results = vec![];
-        fn visitor<T>(tree: &Tree<T>, p: Option<TreeIndex>, results: &mut Vec<T>)
+        fn visitor<T>(tree: &Tree<T>, p: Option<usize>, results: &mut Vec<T>)
         where
             T: Copy,
         {
@@ -253,7 +253,7 @@ impl InOrderVisitor {
         T: Copy,
     {
         let mut results = vec![];
-        fn visitor<T>(tree: &Tree<T>, p: Option<TreeIndex>, results: &mut Vec<T>)
+        fn visitor<T>(tree: &Tree<T>, p: Option<usize>, results: &mut Vec<T>)
         where
             T: Copy,
         {
@@ -316,7 +316,7 @@ impl PostOrderVisitor {
         T: Copy,
     {
         let mut results = vec![];
-        fn visitor<T>(tree: &Tree<T>, p: Option<TreeIndex>, results: &mut Vec<T>)
+        fn visitor<T>(tree: &Tree<T>, p: Option<usize>, results: &mut Vec<T>)
         where
             T: Copy,
         {
@@ -383,7 +383,7 @@ impl LevelOrderVisitor {
         let mut results = vec![];
         fn visitor<T: Copy>(
             tree: &Tree<T>,
-            level_nodes: Vec<TreeIndex>,
+            level_nodes: Vec<usize>,
             results: &mut Vec<Vec<T>>,
             pos: usize,
         ) {
@@ -493,7 +493,7 @@ impl ZigzagOrderVisitor {
         let mut results = vec![];
         fn visitor<T>(
             tree: &Tree<T>,
-            level_nodes: Vec<TreeIndex>,
+            level_nodes: Vec<usize>,
             results: &mut Vec<Vec<T>>,
             pos: usize,
             left_to_right: bool,

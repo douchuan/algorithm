@@ -6,13 +6,11 @@ pub mod builder;
 pub mod rb;
 pub mod traverse;
 
-pub type TreeIndex = usize;
-
 pub struct TreeNode<K> {
     pub key: K,
-    pub left: Option<TreeIndex>,
-    pub right: Option<TreeIndex>,
-    pub parent: Option<TreeIndex>,
+    pub left: Option<usize>,
+    pub right: Option<usize>,
+    pub parent: Option<usize>,
     pub color: Option<Color>,
 }
 
@@ -20,15 +18,15 @@ pub struct TreeNode<K> {
 /// https://sachanganesh.com/programming/graph-tree-traversals-in-rust/
 pub struct Tree<K> {
     pub arena: Vec<Option<TreeNode<K>>>,
-    pub root: Option<TreeIndex>,
+    pub root: Option<usize>,
 }
 
 impl<K> TreeNode<K> {
     pub fn new(
         key: K,
-        left: Option<TreeIndex>,
-        right: Option<TreeIndex>,
-        parent: Option<TreeIndex>,
+        left: Option<usize>,
+        right: Option<usize>,
+        parent: Option<usize>,
         color: Option<Color>,
     ) -> Self {
         TreeNode {
@@ -40,7 +38,7 @@ impl<K> TreeNode<K> {
         }
     }
 
-    pub fn new_leaf(k: K, parent: Option<TreeIndex>, color: Option<Color>) -> Self {
+    pub fn new_leaf(k: K, parent: Option<usize>, color: Option<Color>) -> Self {
         Self::new(k, None, None, parent, color)
     }
 
@@ -82,21 +80,21 @@ impl<K> Tree<K> {
         }
     }
 
-    pub fn add_node(&mut self, node: TreeNode<K>) -> TreeIndex {
+    pub fn add_node(&mut self, node: TreeNode<K>) -> usize {
         let index = self.arena.len();
         self.arena.push(Some(node));
         index
     }
 
-    pub fn remove(&mut self, index: TreeIndex) {
+    pub fn remove(&mut self, index: usize) {
         self.arena[index] = None;
     }
 
-    pub fn node_at(&self, i: TreeIndex) -> Option<&TreeNode<K>> {
+    pub fn node_at(&self, i: usize) -> Option<&TreeNode<K>> {
         self.arena.get(i).and_then(|v| v.as_ref())
     }
 
-    pub fn left_node_at(&self, i: Option<TreeIndex>) -> Option<&TreeNode<K>> {
+    pub fn left_node_at(&self, i: Option<usize>) -> Option<&TreeNode<K>> {
         i.and_then(|i| {
             self.arena.get(i).and_then(|v| {
                 v.as_ref().and_then(|node| {
@@ -107,7 +105,7 @@ impl<K> Tree<K> {
         })
     }
 
-    pub fn right_node_at(&self, i: Option<TreeIndex>) -> Option<&TreeNode<K>> {
+    pub fn right_node_at(&self, i: Option<usize>) -> Option<&TreeNode<K>> {
         i.and_then(|i| {
             self.arena.get(i).and_then(|v| {
                 v.as_ref().and_then(|node| {
@@ -118,12 +116,12 @@ impl<K> Tree<K> {
         })
     }
 
-    pub fn node_at_mut(&mut self, i: TreeIndex) -> Option<&mut TreeNode<K>> {
+    pub fn node_at_mut(&mut self, i: usize) -> Option<&mut TreeNode<K>> {
         self.arena.get_mut(i).and_then(|v| v.as_mut())
     }
 
     pub fn height(&self) -> usize {
-        fn calc<T>(tree: &Tree<T>, node: Option<TreeIndex>) -> usize {
+        fn calc<T>(tree: &Tree<T>, node: Option<usize>) -> usize {
             node.map_or(0, |node| {
                 let node = tree.node_at(node).unwrap();
                 let lh = calc(tree, node.left);
@@ -140,7 +138,7 @@ impl<K> Tree<K>
 where
     K: Copy,
 {
-    pub fn node_key(&self, i: Option<TreeIndex>) -> Option<K> {
+    pub fn node_key(&self, i: Option<usize>) -> Option<K> {
         i.and_then(|i| self.node_at(i).and_then(|node| Some(node.key)))
     }
 }

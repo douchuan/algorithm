@@ -7,7 +7,7 @@
 //!    3
 
 use crate::tree::binary::builder::TreeBuilder;
-use crate::tree::binary::{Tree, TreeIndex, TreeNode};
+use crate::tree::binary::{Tree, TreeNode};
 use std::collections::LinkedList;
 
 pub trait BuildTreeInLevel<K> {
@@ -80,7 +80,7 @@ where
     tree
 }
 
-fn add_value<K>(tree: &mut Tree<K>, v: &str) -> Option<TreeIndex>
+fn add_value<K>(tree: &mut Tree<K>, v: &str) -> Option<usize>
 where
     K: std::str::FromStr,
 {

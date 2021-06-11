@@ -2,7 +2,7 @@
 //!   1. 所有左侧分支的值都小于本节点的值
 //!   2. 本节点的值小于所有右侧分支的值
 
-use crate::tree::binary::{Tree, TreeIndex, TreeNode};
+use crate::tree::binary::{Tree, TreeNode};
 use std::cmp::Ordering;
 
 pub trait BSTree<K>
@@ -13,13 +13,13 @@ where
     fn insert(&mut self, k: K) -> bool;
     fn delete(&mut self, k: K) -> bool;
     /// return node index
-    fn find(&self, x: K) -> Option<TreeIndex>;
-    fn min(&self) -> Option<TreeIndex>;
-    fn max(&self) -> Option<TreeIndex>;
+    fn find(&self, x: K) -> Option<usize>;
+    fn min(&self) -> Option<usize>;
+    fn max(&self) -> Option<usize>;
     /// 查找后继元素
-    fn succ(&self, x: K) -> Option<TreeIndex>;
+    fn succ(&self, x: K) -> Option<usize>;
     /// 寻找前驱元素
-    fn pred(&self, x: K) -> Option<TreeIndex>;
+    fn pred(&self, x: K) -> Option<usize>;
 }
 
 impl<K> BSTree<K> for Tree<K>
@@ -34,28 +34,28 @@ where
         delete(self, k, self.root)
     }
 
-    fn find(&self, x: K) -> Option<TreeIndex> {
+    fn find(&self, x: K) -> Option<usize> {
         find(self, x, self.root)
     }
 
-    fn min(&self) -> Option<TreeIndex> {
+    fn min(&self) -> Option<usize> {
         find_min(self, self.root)
     }
 
-    fn max(&self) -> Option<TreeIndex> {
+    fn max(&self) -> Option<usize> {
         find_max(self, self.root)
     }
 
-    fn succ(&self, x: K) -> Option<TreeIndex> {
+    fn succ(&self, x: K) -> Option<usize> {
         succ(self, x)
     }
 
-    fn pred(&self, x: K) -> Option<TreeIndex> {
+    fn pred(&self, x: K) -> Option<usize> {
         pred(self, x)
     }
 }
 
-fn insert<K>(tree: &mut Tree<K>, k: K, parent: Option<TreeIndex>, node: Option<TreeIndex>) -> bool
+fn insert<K>(tree: &mut Tree<K>, k: K, parent: Option<usize>, node: Option<usize>) -> bool
 where
     K: std::cmp::PartialOrd,
 {
@@ -102,7 +102,7 @@ where
     }
 }
 
-fn find<K>(tree: &Tree<K>, k: K, idx: Option<TreeIndex>) -> Option<TreeIndex>
+fn find<K>(tree: &Tree<K>, k: K, idx: Option<usize>) -> Option<usize>
 where
     K: std::cmp::PartialOrd,
 {
@@ -117,7 +117,7 @@ where
     })
 }
 
-fn find_min<K>(tree: &Tree<K>, node_idx: Option<TreeIndex>) -> Option<TreeIndex>
+fn find_min<K>(tree: &Tree<K>, node_idx: Option<usize>) -> Option<usize>
 where
     K: std::cmp::PartialOrd,
 {
@@ -127,7 +127,7 @@ where
     })
 }
 
-fn find_max<K>(tree: &Tree<K>, node_idx: Option<TreeIndex>) -> Option<TreeIndex>
+fn find_max<K>(tree: &Tree<K>, node_idx: Option<usize>) -> Option<usize>
 where
     K: std::cmp::PartialOrd,
 {
@@ -137,7 +137,7 @@ where
     })
 }
 
-fn succ<K>(tree: &Tree<K>, mut k: K) -> Option<TreeIndex>
+fn succ<K>(tree: &Tree<K>, mut k: K) -> Option<usize>
 where
     K: std::cmp::PartialOrd + Copy,
 {
@@ -164,7 +164,7 @@ where
     })
 }
 
-fn pred<K>(tree: &Tree<K>, mut k: K) -> Option<TreeIndex>
+fn pred<K>(tree: &Tree<K>, mut k: K) -> Option<usize>
 where
     K: std::cmp::PartialOrd + Copy,
 {
@@ -196,7 +196,7 @@ where
 ///   否则，x 有两个孩子，我们用其右子树中的最小值替换掉 x，然后将右子树中的这一最小值“切掉”。
 ///
 /// idx, 起始node
-fn delete<K>(tree: &mut Tree<K>, k: K, idx: Option<TreeIndex>) -> bool
+fn delete<K>(tree: &mut Tree<K>, k: K, idx: Option<usize>) -> bool
 where
     K: Copy + std::cmp::PartialOrd,
 {
