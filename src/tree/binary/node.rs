@@ -1,11 +1,8 @@
-use crate::tree::binary::rb::Color;
-
 pub struct TreeNode<K> {
     pub key: K,
     pub left: Option<usize>,
     pub right: Option<usize>,
     pub parent: Option<usize>,
-    pub color: Color,
 }
 
 impl<K> TreeNode<K> {
@@ -15,7 +12,6 @@ impl<K> TreeNode<K> {
             left,
             right,
             parent,
-            color: Color::Red,
         }
     }
 
