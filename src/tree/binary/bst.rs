@@ -2,7 +2,8 @@
 //!   1. 所有左侧分支的值都小于本节点的值
 //!   2. 本节点的值小于所有右侧分支的值
 
-use crate::tree::binary::{Tree, TreeNode};
+use crate::tree::binary::node::TreeNode;
+use crate::tree::binary::tree::Tree;
 use std::cmp::Ordering;
 
 pub trait BSTree<K>
