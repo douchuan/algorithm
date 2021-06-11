@@ -86,13 +86,13 @@ where
             let node = tree.node_at(parent).unwrap();
             match node.key.partial_cmp(&k) {
                 Some(Ordering::Less) => {
-                    let child = TreeNode::new_leaf(k, Some(parent), None);
+                    let child = TreeNode::new_leaf(k, Some(parent));
                     let child = tree.add_node(child);
                     tree.node_at_mut(parent).unwrap().right = Some(child);
                     true
                 }
                 Some(Ordering::Greater) => {
-                    let child = TreeNode::new_leaf(k, Some(parent), None);
+                    let child = TreeNode::new_leaf(k, Some(parent));
                     let child = tree.add_node(child);
                     tree.node_at_mut(parent).unwrap().left = Some(child);
                     true

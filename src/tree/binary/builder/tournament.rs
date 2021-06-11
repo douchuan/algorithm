@@ -138,7 +138,7 @@ where
     let t1_node = tree.node_at(t1).unwrap();
     let t2_node = tree.node_at(t2).unwrap();
     let key = max(t1_node.key, t2_node.key);
-    let node = TreeNode::new(key, Some(t1), Some(t2), None, None);
+    let node = TreeNode::new(key, Some(t1), Some(t2), None);
     let node_i = tree.add_node(node);
 
     //set parent

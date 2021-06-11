@@ -5,38 +5,26 @@ pub struct TreeNode<K> {
     pub left: Option<usize>,
     pub right: Option<usize>,
     pub parent: Option<usize>,
-    pub color: Option<Color>,
+    pub color: Color,
 }
 
 impl<K> TreeNode<K> {
-    pub fn new(
-        key: K,
-        left: Option<usize>,
-        right: Option<usize>,
-        parent: Option<usize>,
-        color: Option<Color>,
-    ) -> Self {
+    pub fn new(key: K, left: Option<usize>, right: Option<usize>, parent: Option<usize>) -> Self {
         TreeNode {
             key,
             left,
             right,
             parent,
-            color,
+            color: Color::Red,
         }
     }
 
-    pub fn new_leaf(k: K, parent: Option<usize>, color: Option<Color>) -> Self {
-        Self::new(k, None, None, parent, color)
+    pub fn new_leaf(k: K, parent: Option<usize>) -> Self {
+        Self::new(k, None, None, parent)
     }
 
     pub fn from_key(key: K) -> Self {
-        Self {
-            key,
-            left: None,
-            right: None,
-            parent: None,
-            color: None,
-        }
+        Self::new_leaf(key, None)
     }
 
     /// 一个节点的左右子树都为空，称之为 叶子节点
