@@ -11,32 +11,32 @@ where
     T: std::cmp::PartialOrd,
 {
     /// return true: insert success, false: not insert, exist k
-    fn insert(&mut self, k: T) -> bool;
-    fn delete(&mut self, k: T) -> bool;
+    fn insert(&mut self, element: T) -> bool;
+    fn delete(&mut self, element: T) -> bool;
     /// return node index
-    fn find(&self, x: T) -> Option<NonNull<Node<T>>>;
+    fn find(&self, element: T) -> Option<NonNull<Node<T>>>;
     fn min(&self) -> Option<NonNull<Node<T>>>;
     fn max(&self) -> Option<NonNull<Node<T>>>;
     /// 查找后继元素
-    fn succ(&self, x: T) -> Option<NonNull<Node<T>>>;
+    fn succ(&self, element: T) -> Option<NonNull<Node<T>>>;
     /// 寻找前驱元素
-    fn pred(&self, x: T) -> Option<NonNull<Node<T>>>;
+    fn pred(&self, elementx: T) -> Option<NonNull<Node<T>>>;
 }
 
 impl<T> BSTree<T> for Tree<T>
 where
     T: std::cmp::PartialOrd + Copy,
 {
-    fn insert(&mut self, k: T) -> bool {
-        unsafe { insert(self, k, None, self.root) }
+    fn insert(&mut self, element: T) -> bool {
+        unsafe { insert(self, element, None, self.root) }
     }
 
-    fn delete(&mut self, k: T) -> bool {
-        unsafe { delete(k, self.root) }
+    fn delete(&mut self, element: T) -> bool {
+        unsafe { delete(element, self.root) }
     }
 
-    fn find(&self, x: T) -> Option<NonNull<Node<T>>> {
-        unsafe { find(x, self.root) }
+    fn find(&self, element: T) -> Option<NonNull<Node<T>>> {
+        unsafe { find(element, self.root) }
     }
 
     fn min(&self) -> Option<NonNull<Node<T>>> {
@@ -47,18 +47,18 @@ where
         unsafe { find_max(self.root) }
     }
 
-    fn succ(&self, x: T) -> Option<NonNull<Node<T>>> {
-        unsafe { succ(self.root, x) }
+    fn succ(&self, element: T) -> Option<NonNull<Node<T>>> {
+        unsafe { succ(self.root, element) }
     }
 
-    fn pred(&self, x: T) -> Option<NonNull<Node<T>>> {
-        unsafe { pred(self.root, x) }
+    fn pred(&self, element: T) -> Option<NonNull<Node<T>>> {
+        unsafe { pred(self.root, element) }
     }
 }
 
 unsafe fn insert<T>(
     tree: &mut Tree<T>,
-    k: T,
+    element: T,
     parent: Option<NonNull<Node<T>>>,
     node: Option<NonNull<Node<T>>>,
 ) -> bool
@@ -68,29 +68,29 @@ where
     match (parent, node) {
         //empty tree
         (None, None) => {
-            let node = Node::from_element(k);
+            let node = Node::from_element(element);
             tree.root = Some(node);
             true
         }
-        (_, Some(node)) => match (*node.as_ptr()).element.partial_cmp(&k) {
+        (_, Some(node)) => match (*node.as_ptr()).element.partial_cmp(&element) {
             Some(Ordering::Less) => {
                 let r = (*node.as_ptr()).right;
-                insert(tree, k, Some(node), r)
+                insert(tree, element, Some(node), r)
             }
             Some(Ordering::Greater) => {
                 let l = (*node.as_ptr()).left;
-                insert(tree, k, Some(node), l)
+                insert(tree, element, Some(node), l)
             }
             _ => false,
         },
-        (Some(node), None) => match (*node.as_ptr()).element.partial_cmp(&k) {
+        (Some(node), None) => match (*node.as_ptr()).element.partial_cmp(&element) {
             Some(Ordering::Less) => {
-                let child = Node::new_leaf(k, Some(node));
+                let child = Node::new_leaf(element, Some(node));
                 (*node.as_ptr()).right = Some(child);
                 true
             }
             Some(Ordering::Greater) => {
-                let child = Node::new_leaf(k, Some(node));
+                let child = Node::new_leaf(element, Some(node));
                 (*node.as_ptr()).left = Some(child);
                 true
             }
@@ -99,16 +99,18 @@ where
     }
 }
 
-unsafe fn find<T>(k: T, node: Option<NonNull<Node<T>>>) -> Option<NonNull<Node<T>>>
+unsafe fn find<T>(element: T, node: Option<NonNull<Node<T>>>) -> Option<NonNull<Node<T>>>
 where
     T: std::cmp::PartialOrd,
 {
-    node.and_then(|node| match (*node.as_ptr()).element.partial_cmp(&k) {
-        Some(Ordering::Less) => find(k, (*node.as_ptr()).right),
-        Some(Ordering::Greater) => find(k, (*node.as_ptr()).left),
-        Some(Ordering::Equal) => Some(node),
-        None => None,
-    })
+    node.and_then(
+        |node| match (*node.as_ptr()).element.partial_cmp(&element) {
+            Some(Ordering::Less) => find(element, (*node.as_ptr()).right),
+            Some(Ordering::Greater) => find(element, (*node.as_ptr()).left),
+            Some(Ordering::Equal) => Some(node),
+            None => None,
+        },
+    )
 }
 
 unsafe fn find_min<T>(node: Option<NonNull<Node<T>>>) -> Option<NonNull<Node<T>>>
@@ -133,11 +135,11 @@ where
     })
 }
 
-unsafe fn succ<T>(node: Option<NonNull<Node<T>>>, mut k: T) -> Option<NonNull<Node<T>>>
+unsafe fn succ<T>(node: Option<NonNull<Node<T>>>, mut element: T) -> Option<NonNull<Node<T>>>
 where
     T: std::cmp::PartialOrd + Copy,
 {
-    find(k, node).and_then(|node| {
+    find(element, node).and_then(|node| {
         match (*node.as_ptr()).right {
             //右分支的最小值
             Some(r) => find_min(Some(r)),
@@ -145,10 +147,10 @@ where
                 //右分支为空，向上找
                 let mut p = (*node.as_ptr()).parent;
                 loop {
-                    match right_node(p) {
-                        Some(r) if (*r.as_ptr()).element == k => {
+                    match Node::right_node(p) {
+                        Some(r) if (*r.as_ptr()).element == element => {
                             let p_node = p.unwrap();
-                            k = (*p_node.as_ptr()).element;
+                            element = (*p_node.as_ptr()).element;
                             p = (*p_node.as_ptr()).parent;
                         }
                         _ => return p,
@@ -159,11 +161,11 @@ where
     })
 }
 
-unsafe fn pred<T>(node: Option<NonNull<Node<T>>>, mut k: T) -> Option<NonNull<Node<T>>>
+unsafe fn pred<T>(node: Option<NonNull<Node<T>>>, mut element: T) -> Option<NonNull<Node<T>>>
 where
     T: std::cmp::PartialOrd + Copy,
 {
-    find(k, node).and_then(|node| {
+    find(element, node).and_then(|node| {
         match (*node.as_ptr()).left {
             //左分支的最大值
             Some(l) => find_max(Some(l)),
@@ -171,10 +173,10 @@ where
                 //左分支为空，向上找
                 let mut p = (*node.as_ptr()).parent;
                 loop {
-                    match left_node(p) {
-                        Some(l) if (*l.as_ptr()).element == k => {
+                    match Node::left_node(p) {
+                        Some(l) if (*l.as_ptr()).element == element => {
                             let p_node = p.unwrap();
-                            k = (*p_node.as_ptr()).element;
+                            element = (*p_node.as_ptr()).element;
                             p = (*p_node.as_ptr()).parent;
                         }
                         _ => return p,
@@ -190,12 +192,12 @@ where
 ///   否则，x 有两个孩子，我们用其右子树中的最小值替换掉 x，然后将右子树中的这一最小值“切掉”。
 ///
 /// idx, 起始node
-unsafe fn delete<T>(k: T, node: Option<NonNull<Node<T>>>) -> bool
+unsafe fn delete<T>(element: T, node: Option<NonNull<Node<T>>>) -> bool
 where
     T: Copy + std::cmp::PartialOrd,
 {
-    find(k, node).map_or(false, |node| {
-        match children_count(node) {
+    find(element, node).map_or(false, |node| {
+        match Node::children_count(node) {
             0 => {
                 let parent = (*node.as_ptr()).parent.unwrap();
                 if (*parent.as_ptr()).left == Some(node) {
@@ -238,20 +240,4 @@ where
 
         true
     })
-}
-
-unsafe fn left_node<T>(node: Option<NonNull<Node<T>>>) -> Option<NonNull<Node<T>>> {
-    node.and_then(|node| (*node.as_ptr()).left)
-}
-
-unsafe fn right_node<T>(node: Option<NonNull<Node<T>>>) -> Option<NonNull<Node<T>>> {
-    node.and_then(|node| (*node.as_ptr()).right)
-}
-
-unsafe fn children_count<T>(node: NonNull<Node<T>>) -> usize {
-    match ((*node.as_ptr()).left, (*node.as_ptr()).right) {
-        (Some(_), Some(_)) => 2,
-        (Some(_), None) | (None, Some(_)) => 1,
-        (None, None) => 0,
-    }
 }

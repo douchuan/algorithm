@@ -38,22 +38,26 @@ impl<T> Node<T> {
     }
 
     /// 一个节点的左右子树都为空，称之为 叶子节点
-    pub fn is_leaf(&self) -> bool {
-        self.left.is_none() && self.right.is_none()
+    pub fn is_leaf(node: NonNull<Self>) -> bool {
+        Self::children_count(node) == 0
     }
 
     /// 分支节点
-    pub fn is_branch(&self) -> bool {
-        !self.is_leaf()
+    pub fn is_branch(node: NonNull<Self>) -> bool {
+        !Self::is_leaf(node)
     }
 
     /// 直接子节点个数，不包括孙子...
-    pub fn children_count(&self) -> usize {
-        match (self.left, self.right) {
-            (Some(_), Some(_)) => 2,
-            (Some(_), None) | (None, Some(_)) => 1,
-            (None, None) => 0,
-        }
+    pub fn children_count(node: NonNull<Self>) -> usize {
+        unsafe { (*node.as_ptr()).left.map_or(0, |_| 1) + (*node.as_ptr()).right.map_or(0, |_| 1) }
+    }
+
+    pub fn left_node(node: Option<NonNull<Self>>) -> Option<NonNull<Self>> {
+        unsafe { node.and_then(|node| (*node.as_ptr()).left) }
+    }
+
+    pub fn right_node(node: Option<NonNull<Self>>) -> Option<NonNull<Self>> {
+        unsafe { node.and_then(|node| (*node.as_ptr()).right) }
     }
 }
 

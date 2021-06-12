@@ -39,10 +39,12 @@ where
     let element = tree.root.map(|root| unsafe { (*root.as_ptr()).element });
     match element {
         Some(element) if element != T::minimal() => {
-            //每次取出锦标赛树的根节点后，自顶向下将其替换为min
-            let leaf = replace_max_by_min(tree.root.unwrap(), element);
-            //由叶子节点向上回溯，设置新的最大值
-            setup_new_max(leaf);
+            unsafe {
+                //每次取出锦标赛树的根节点后，自顶向下将其替换为min
+                let leaf = replace_max_by_min(tree.root.unwrap(), element);
+                //由叶子节点向上回溯，设置新的最大值
+                setup_new_max(leaf);
+            }
             Some(element)
         }
         _ => None,
@@ -50,46 +52,42 @@ where
 }
 
 // 返回叶子节点的序号
-fn replace_max_by_min<T>(mut node: NonNull<Node<T>>, root_element: T) -> NonNull<Node<T>>
+unsafe fn replace_max_by_min<T>(mut node: NonNull<Node<T>>, root_element: T) -> NonNull<Node<T>>
 where
     T: Copy + std::cmp::Ord + Minimal,
 {
-    unsafe {
+    (*node.as_ptr()).element = T::minimal();
+
+    while !Node::is_leaf(node) {
+        node = match (*node.as_ptr()).left {
+            Some(left) if (*left.as_ptr()).element == root_element => left,
+            _ => (*node.as_ptr()).right.unwrap(),
+        };
+
         (*node.as_ptr()).element = T::minimal();
-
-        while !(*node.as_ptr()).is_leaf() {
-            node = match (*node.as_ptr()).left {
-                Some(left) if (*left.as_ptr()).element == root_element => left,
-                _ => (*node.as_ptr()).right.unwrap(),
-            };
-
-            (*node.as_ptr()).element = T::minimal();
-        }
     }
 
     node
 }
 
-fn setup_new_max<T>(mut node: NonNull<Node<T>>)
+unsafe fn setup_new_max<T>(mut node: NonNull<Node<T>>)
 where
     T: Copy + std::cmp::Ord,
 {
-    unsafe {
-        loop {
-            match (*node.as_ptr()).parent {
-                Some(parent) => {
-                    let mut new_max = (*parent.as_ptr()).element;
-                    if let Some(l) = (*parent.as_ptr()).left {
-                        new_max = new_max.max((*l.as_ptr()).element);
-                    }
-                    if let Some(r) = (*parent.as_ptr()).right {
-                        new_max = new_max.max((*r.as_ptr()).element);
-                    }
-                    (*parent.as_ptr()).element = new_max;
-                    node = parent;
+    loop {
+        match (*node.as_ptr()).parent {
+            Some(parent) => {
+                let mut new_max = (*parent.as_ptr()).element;
+                if let Some(l) = (*parent.as_ptr()).left {
+                    new_max = new_max.max((*l.as_ptr()).element);
                 }
-                _ => break,
+                if let Some(r) = (*parent.as_ptr()).right {
+                    new_max = new_max.max((*r.as_ptr()).element);
+                }
+                (*parent.as_ptr()).element = new_max;
+                node = parent;
             }
+            _ => break,
         }
     }
 }
