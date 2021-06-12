@@ -1,26 +1,40 @@
-pub struct TreeNode<K> {
-    pub key: K,
-    pub left: Option<usize>,
-    pub right: Option<usize>,
-    pub parent: Option<usize>,
+use std::ptr::NonNull;
+
+pub struct Node<T> {
+    pub element: T,
+    pub left: Option<NonNull<Node<T>>>,
+    pub right: Option<NonNull<Node<T>>>,
+    pub parent: Option<NonNull<Node<T>>>,
 }
 
-impl<K> TreeNode<K> {
-    pub fn new(key: K, left: Option<usize>, right: Option<usize>, parent: Option<usize>) -> Self {
-        TreeNode {
-            key,
+impl<T> Node<T> {
+    pub fn new(
+        element: T,
+        left: Option<NonNull<Node<T>>>,
+        right: Option<NonNull<Node<T>>>,
+        parent: Option<NonNull<Node<T>>>,
+    ) -> NonNull<Self> {
+        let v = Box::new(Node {
+            element,
             left,
             right,
             parent,
+        });
+        Box::leak(v).into()
+    }
+
+    pub fn new_leaf(element: T, parent: Option<NonNull<Node<T>>>) -> NonNull<Self> {
+        Self::new(element, None, None, parent)
+    }
+
+    pub fn from_element(element: T) -> NonNull<Self> {
+        Self::new_leaf(element, None)
+    }
+
+    pub fn release(node: NonNull<Node<T>>) {
+        unsafe {
+            let _ = Box::from_raw(node.as_ptr());
         }
-    }
-
-    pub fn new_leaf(k: K, parent: Option<usize>) -> Self {
-        Self::new(k, None, None, parent)
-    }
-
-    pub fn from_key(key: K) -> Self {
-        Self::new_leaf(key, None)
     }
 
     /// 一个节点的左右子树都为空，称之为 叶子节点
@@ -40,5 +54,14 @@ impl<K> TreeNode<K> {
             (Some(_), None) | (None, Some(_)) => 1,
             (None, None) => 0,
         }
+    }
+}
+
+impl<T> Node<T>
+where
+    T: std::str::FromStr,
+{
+    pub fn from_str(v: &str) -> Option<NonNull<Node<T>>> {
+        v.parse().ok().and_then(|v| Some(Self::from_element(v)))
     }
 }

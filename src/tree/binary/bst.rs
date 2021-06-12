@@ -2,160 +2,154 @@
 //!   1. 所有左侧分支的值都小于本节点的值
 //!   2. 本节点的值小于所有右侧分支的值
 
-use crate::tree::binary::node::TreeNode;
-use crate::tree::binary::tree::Tree;
+use crate::tree::binary::{Node, Tree2};
 use std::cmp::Ordering;
+use std::ptr::NonNull;
 
-pub trait BSTree<K>
+pub trait BSTree<T>
 where
-    K: std::cmp::PartialOrd,
+    T: std::cmp::PartialOrd,
 {
     /// return true: insert success, false: not insert, exist k
-    fn insert(&mut self, k: K) -> bool;
-    fn delete(&mut self, k: K) -> bool;
+    fn insert(&mut self, k: T) -> bool;
+    fn delete(&mut self, k: T) -> bool;
     /// return node index
-    fn find(&self, x: K) -> Option<usize>;
-    fn min(&self) -> Option<usize>;
-    fn max(&self) -> Option<usize>;
+    fn find(&self, x: T) -> Option<NonNull<Node<T>>>;
+    fn min(&self) -> Option<NonNull<Node<T>>>;
+    fn max(&self) -> Option<NonNull<Node<T>>>;
     /// 查找后继元素
-    fn succ(&self, x: K) -> Option<usize>;
+    fn succ(&self, x: T) -> Option<NonNull<Node<T>>>;
     /// 寻找前驱元素
-    fn pred(&self, x: K) -> Option<usize>;
+    fn pred(&self, x: T) -> Option<NonNull<Node<T>>>;
 }
 
-impl<K> BSTree<K> for Tree<K>
+impl<T> BSTree<T> for Tree2<T>
 where
-    K: std::cmp::PartialOrd + Copy,
+    T: std::cmp::PartialOrd + Copy,
 {
-    fn insert(&mut self, k: K) -> bool {
-        insert(self, k, None, self.root)
+    fn insert(&mut self, k: T) -> bool {
+        unsafe { insert(self, k, None, self.root) }
     }
 
-    fn delete(&mut self, k: K) -> bool {
-        delete(self, k, self.root)
+    fn delete(&mut self, k: T) -> bool {
+        unsafe { delete(k, self.root) }
     }
 
-    fn find(&self, x: K) -> Option<usize> {
-        find(self, x, self.root)
+    fn find(&self, x: T) -> Option<NonNull<Node<T>>> {
+        unsafe { find(x, self.root) }
     }
 
-    fn min(&self) -> Option<usize> {
-        find_min(self, self.root)
+    fn min(&self) -> Option<NonNull<Node<T>>> {
+        unsafe { find_min(self.root) }
     }
 
-    fn max(&self) -> Option<usize> {
-        find_max(self, self.root)
+    fn max(&self) -> Option<NonNull<Node<T>>> {
+        unsafe { find_max(self.root) }
     }
 
-    fn succ(&self, x: K) -> Option<usize> {
-        succ(self, x)
+    fn succ(&self, x: T) -> Option<NonNull<Node<T>>> {
+        unsafe { succ(self.root, x) }
     }
 
-    fn pred(&self, x: K) -> Option<usize> {
-        pred(self, x)
+    fn pred(&self, x: T) -> Option<NonNull<Node<T>>> {
+        unsafe { pred(self.root, x) }
     }
 }
 
-fn insert<K>(tree: &mut Tree<K>, k: K, parent: Option<usize>, node: Option<usize>) -> bool
+unsafe fn insert<T>(
+    tree: &mut Tree2<T>,
+    k: T,
+    parent: Option<NonNull<Node<T>>>,
+    node: Option<NonNull<Node<T>>>,
+) -> bool
 where
-    K: std::cmp::PartialOrd,
+    T: std::cmp::PartialOrd,
 {
     match (parent, node) {
         //empty tree
         (None, None) => {
-            let node = TreeNode::from_key(k);
-            let idx = tree.add_node(node);
-            tree.root = Some(idx);
+            let node = Node::from_element(k);
+            tree.root = Some(node);
             true
         }
-        (_, Some(node_idx)) => {
-            let node = tree.node_at(node_idx).unwrap();
-            match node.key.partial_cmp(&k) {
-                Some(Ordering::Less) => {
-                    let r = node.right;
-                    insert(tree, k, Some(node_idx), r)
-                }
-                Some(Ordering::Greater) => {
-                    let l = node.left;
-                    insert(tree, k, Some(node_idx), l)
-                }
-                _ => false,
+        (_, Some(node)) => match (*node.as_ptr()).element.partial_cmp(&k) {
+            Some(Ordering::Less) => {
+                let r = (*node.as_ptr()).right;
+                insert(tree, k, Some(node), r)
             }
-        }
-        (Some(parent), None) => {
-            let node = tree.node_at(parent).unwrap();
-            match node.key.partial_cmp(&k) {
-                Some(Ordering::Less) => {
-                    let child = TreeNode::new_leaf(k, Some(parent));
-                    let child = tree.add_node(child);
-                    tree.node_at_mut(parent).unwrap().right = Some(child);
-                    true
-                }
-                Some(Ordering::Greater) => {
-                    let child = TreeNode::new_leaf(k, Some(parent));
-                    let child = tree.add_node(child);
-                    tree.node_at_mut(parent).unwrap().left = Some(child);
-                    true
-                }
-                _ => false,
+            Some(Ordering::Greater) => {
+                let l = (*node.as_ptr()).left;
+                insert(tree, k, Some(node), l)
             }
-        }
+            _ => false,
+        },
+        (Some(node), None) => match (*node.as_ptr()).element.partial_cmp(&k) {
+            Some(Ordering::Less) => {
+                let child = Node::new_leaf(k, Some(node));
+                (*node.as_ptr()).right = Some(child);
+                true
+            }
+            Some(Ordering::Greater) => {
+                let child = Node::new_leaf(k, Some(node));
+                (*node.as_ptr()).left = Some(child);
+                true
+            }
+            _ => false,
+        },
     }
 }
 
-fn find<K>(tree: &Tree<K>, k: K, idx: Option<usize>) -> Option<usize>
+unsafe fn find<T>(k: T, node: Option<NonNull<Node<T>>>) -> Option<NonNull<Node<T>>>
 where
-    K: std::cmp::PartialOrd,
+    T: std::cmp::PartialOrd,
 {
-    idx.and_then(|idx| {
-        let node = tree.node_at(idx).unwrap();
-        match node.key.partial_cmp(&k) {
-            Some(Ordering::Less) => find(tree, k, node.right),
-            Some(Ordering::Greater) => find(tree, k, node.left),
-            Some(Ordering::Equal) => Some(idx),
-            None => None,
-        }
+    node.and_then(|node| match (*node.as_ptr()).element.partial_cmp(&k) {
+        Some(Ordering::Less) => find(k, (*node.as_ptr()).right),
+        Some(Ordering::Greater) => find(k, (*node.as_ptr()).left),
+        Some(Ordering::Equal) => Some(node),
+        None => None,
     })
 }
 
-fn find_min<K>(tree: &Tree<K>, node_idx: Option<usize>) -> Option<usize>
+unsafe fn find_min<T>(node: Option<NonNull<Node<T>>>) -> Option<NonNull<Node<T>>>
 where
-    K: std::cmp::PartialOrd,
+    T: std::cmp::PartialOrd,
 {
-    node_idx.and_then(|idx| {
-        let node = tree.node_at(idx).unwrap();
-        node.left.map_or(Some(idx), |l| find_min(tree, Some(l)))
+    node.and_then(|node| {
+        (*node.as_ptr())
+            .left
+            .map_or(Some(node), |l| find_min(Some(l)))
     })
 }
 
-fn find_max<K>(tree: &Tree<K>, node_idx: Option<usize>) -> Option<usize>
+unsafe fn find_max<T>(node: Option<NonNull<Node<T>>>) -> Option<NonNull<Node<T>>>
 where
-    K: std::cmp::PartialOrd,
+    T: std::cmp::PartialOrd,
 {
-    node_idx.and_then(|idx| {
-        let node = tree.node_at(idx).unwrap();
-        node.right.map_or(Some(idx), |r| find_max(tree, Some(r)))
+    node.and_then(|node| {
+        (*node.as_ptr())
+            .right
+            .map_or(Some(node), |r| find_max(Some(r)))
     })
 }
 
-fn succ<K>(tree: &Tree<K>, mut k: K) -> Option<usize>
+unsafe fn succ<T>(node: Option<NonNull<Node<T>>>, mut k: T) -> Option<NonNull<Node<T>>>
 where
-    K: std::cmp::PartialOrd + Copy,
+    T: std::cmp::PartialOrd + Copy,
 {
-    find(tree, k, tree.root).and_then(|idx| {
-        let node = tree.node_at(idx).unwrap();
-        match node.right {
+    find(k, node).and_then(|node| {
+        match (*node.as_ptr()).right {
             //右分支的最小值
-            Some(r) => find_min(tree, Some(r)),
+            Some(r) => find_min(Some(r)),
             None => {
                 //右分支为空，向上找
-                let mut p = node.parent;
+                let mut p = (*node.as_ptr()).parent;
                 loop {
-                    match tree.right_node_at(p) {
-                        Some(r) if r.key == k => {
-                            let p_node = tree.node_at(p.unwrap()).unwrap();
-                            k = p_node.key;
-                            p = p_node.parent;
+                    match right_node(p) {
+                        Some(r) if (*r.as_ptr()).element == k => {
+                            let p_node = p.unwrap();
+                            k = (*p_node.as_ptr()).element;
+                            p = (*p_node.as_ptr()).parent;
                         }
                         _ => return p,
                     }
@@ -165,24 +159,23 @@ where
     })
 }
 
-fn pred<K>(tree: &Tree<K>, mut k: K) -> Option<usize>
+unsafe fn pred<T>(node: Option<NonNull<Node<T>>>, mut k: T) -> Option<NonNull<Node<T>>>
 where
-    K: std::cmp::PartialOrd + Copy,
+    T: std::cmp::PartialOrd + Copy,
 {
-    find(tree, k, tree.root).and_then(|idx| {
-        let node = tree.node_at(idx).unwrap();
-        match node.left {
+    find(k, node).and_then(|node| {
+        match (*node.as_ptr()).left {
             //左分支的最大值
-            Some(l) => find_max(tree, Some(l)),
+            Some(l) => find_max(Some(l)),
             None => {
                 //左分支为空，向上找
-                let mut p = node.parent;
+                let mut p = (*node.as_ptr()).parent;
                 loop {
-                    match tree.left_node_at(p) {
-                        Some(l) if l.key == k => {
-                            let p_node = tree.node_at(p.unwrap()).unwrap();
-                            k = p_node.key;
-                            p = p_node.parent;
+                    match left_node(p) {
+                        Some(l) if (*l.as_ptr()).element == k => {
+                            let p_node = p.unwrap();
+                            k = (*p_node.as_ptr()).element;
+                            p = (*p_node.as_ptr()).parent;
                         }
                         _ => return p,
                     }
@@ -197,54 +190,68 @@ where
 ///   否则，x 有两个孩子，我们用其右子树中的最小值替换掉 x，然后将右子树中的这一最小值“切掉”。
 ///
 /// idx, 起始node
-fn delete<K>(tree: &mut Tree<K>, k: K, idx: Option<usize>) -> bool
+unsafe fn delete<T>(k: T, node: Option<NonNull<Node<T>>>) -> bool
 where
-    K: Copy + std::cmp::PartialOrd,
+    T: Copy + std::cmp::PartialOrd,
 {
-    find(tree, k, idx).map_or(false, |idx| {
-        let node = tree.node_at(idx).unwrap();
-        match node.children_count() {
+    find(k, node).map_or(false, |node| {
+        match children_count(node) {
             0 => {
-                let parent = node.parent.unwrap();
-                let parent_node = tree.node_at_mut(parent).unwrap();
-                if parent_node.left == Some(idx) {
-                    parent_node.left = None;
-                } else if parent_node.right == Some(idx) {
-                    parent_node.right = None;
+                let parent = (*node.as_ptr()).parent.unwrap();
+                if (*parent.as_ptr()).left == Some(node) {
+                    (*parent.as_ptr()).left = None;
+                } else if (*parent.as_ptr()).right == Some(node) {
+                    (*parent.as_ptr()).right = None;
                 }
-                tree.remove(idx);
+
+                Node::release(node);
             }
             1 => {
                 //backup node child
-                let node_child = if node.left.is_some() {
-                    node.left
+                let node_child = if (*node.as_ptr()).left.is_some() {
+                    (*node.as_ptr()).left
                 } else {
-                    node.right
+                    (*node.as_ptr()).right
                 };
 
                 // rm child, setup child node
-                let parent = node.parent.unwrap();
-                let parent_node = tree.node_at_mut(parent).unwrap();
-                if parent_node.left == Some(idx) {
-                    parent_node.left = node_child;
-                } else if parent_node.right == Some(idx) {
-                    parent_node.right = node_child;
+                let parent = (*node.as_ptr()).parent.unwrap();
+                if (*parent.as_ptr()).left == Some(node) {
+                    (*parent.as_ptr()).left = node_child;
+                } else if (*parent.as_ptr()).right == Some(node) {
+                    (*parent.as_ptr()).right = node_child;
                 }
-                tree.remove(idx);
+
+                Node::release(node);
             }
             _ => {
                 //我们用其右子树中的最小值替换掉 x
-                let right_min_idx = find_min(tree, node.right).unwrap();
-                let right_min = tree.node_key(Some(right_min_idx)).unwrap();
-                let node = tree.node_at_mut(idx).unwrap();
-                node.key = right_min;
+                let right_min_node = find_min((*node.as_ptr()).right).unwrap();
+                let right_min = (*right_min_node.as_ptr()).element;
+                (*node.as_ptr()).element = right_min;
 
                 //右子树中的这一最小值“切掉”
-                let node_right = node.right;
-                return delete(tree, right_min, node_right);
+                let node_right = (*node.as_ptr()).right;
+                return delete(right_min, node_right);
             }
         }
 
         true
     })
+}
+
+unsafe fn left_node<T>(node: Option<NonNull<Node<T>>>) -> Option<NonNull<Node<T>>> {
+    node.and_then(|node| (*node.as_ptr()).left)
+}
+
+unsafe fn right_node<T>(node: Option<NonNull<Node<T>>>) -> Option<NonNull<Node<T>>> {
+    node.and_then(|node| (*node.as_ptr()).right)
+}
+
+unsafe fn children_count<T>(node: NonNull<Node<T>>) -> usize {
+    match ((*node.as_ptr()).left, (*node.as_ptr()).right) {
+        (Some(_), Some(_)) => 2,
+        (Some(_), None) | (None, Some(_)) => 1,
+        (None, None) => 0,
+    }
 }

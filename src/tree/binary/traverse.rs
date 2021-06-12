@@ -1,5 +1,7 @@
-use crate::tree::binary::Tree;
+use crate::tree::binary::node::Node;
+use crate::tree::binary::tree::Tree2;
 use std::collections::{HashSet, LinkedList};
+use std::ptr::NonNull;
 
 /// Binary Tree Preorder Traversal
 /// Given a binary tree, return the preorder traversal of its nodes’ values.
@@ -111,7 +113,7 @@ pub struct SameTree;
 
 impl PreOrderVisitor {
     /// 时间复杂度 O(n), 空间复杂度 O(n)
-    pub fn iterate<T>(tree: &Tree<T>) -> Vec<T>
+    pub unsafe fn iterate<T>(tree: &Tree2<T>) -> Vec<T>
     where
         T: Copy,
     {
@@ -119,14 +121,14 @@ impl PreOrderVisitor {
         let mut stack = vec![];
         //point current node
         let mut p = tree.root;
-        while let Some(node_idx) = p {
-            let node = tree.node_at(node_idx).expect("invalid node");
-            results.push(node.key); //visit result
-            for pp in &[node.right, node.left] {
+        while let Some(node) = p {
+            results.push((*node.as_ptr()).element); //visit result
+            for pp in &[(*node.as_ptr()).right, (*node.as_ptr()).left] {
                 if let Some(pp) = pp {
                     stack.push(*pp);
                 }
             }
+
             p = stack.pop();
         }
 
@@ -141,52 +143,45 @@ impl PreOrderVisitor {
     ///
     /// 点评：利用tree本身的node记录回溯指针（避免用栈记录回溯），
     /// 使得空间复杂度由 O(n) => O(1)
-    pub fn morris<T>(tree: &mut Tree<T>) -> Vec<T>
+    pub unsafe fn morris<T>(tree: &mut Tree2<T>) -> Vec<T>
     where
         T: Copy,
     {
         let mut results = vec![];
         let mut cur = tree.root;
 
-        while let Some(p) = cur {
-            let node = tree.node_at(p).expect("invalid cur node");
-            match node.left {
+        while let Some(node) = cur {
+            match (*node.as_ptr()).left {
                 Some(left) => {
                     let mut record = left;
 
                     //traverse right subtree, find前驱node
                     loop {
-                        let record_node = tree.node_at(record).expect("invalid record node");
-                        match record_node.right {
-                            Some(r) if r != p => record = r,
+                        match (*record.as_ptr()).right {
+                            Some(r) if r != node => record = r,
                             _ => break,
                         }
                     }
 
-                    let record_node = tree.node_at(record).expect("invalid record node");
-                    match record_node.right {
+                    match (*record.as_ptr()).right {
                         Some(_r) => {
                             //已线索化
-                            cur = node.right;
-                            let record_node =
-                                tree.node_at_mut(record).expect("invalid record node");
-                            record_node.right = None;
+                            cur = (*node.as_ptr()).right;
+                            (*record.as_ptr()).right = None;
                         }
                         None => {
-                            results.push(node.key);
+                            results.push((*node.as_ptr()).element);
 
                             //未线索化
-                            let record_node =
-                                tree.node_at_mut(record).expect("invalid record node");
-                            record_node.right = cur;
+                            (*record.as_ptr()).right = cur;
                             cur = Some(left);
                         }
                     }
                 }
                 None => {
-                    results.push(node.key);
+                    results.push((*node.as_ptr()).element);
                     //无left subtree, 直接跨到right subtree
-                    cur = node.right;
+                    cur = (*node.as_ptr()).right;
                 }
             }
         }
@@ -195,29 +190,28 @@ impl PreOrderVisitor {
     }
 
     /// 时间复杂度 O(n), 空间复杂度 O(n)
-    pub fn recursive<T>(tree: &Tree<T>) -> Vec<T>
+    pub unsafe fn recursive<T>(tree: &Tree2<T>) -> Vec<T>
     where
         T: Copy,
     {
         let mut results = vec![];
-        fn visitor<T>(tree: &Tree<T>, p: Option<usize>, results: &mut Vec<T>)
+        unsafe fn visitor<T>(p: Option<NonNull<Node<T>>>, results: &mut Vec<T>)
         where
             T: Copy,
         {
-            if let Some(node_idx) = p {
-                let node = tree.node_at(node_idx).expect("invalid node");
-                results.push(node.key);
-                visitor(tree, node.left, results);
-                visitor(tree, node.right, results);
+            if let Some(node) = p {
+                results.push((*node.as_ptr()).element);
+                visitor((*node.as_ptr()).left, results);
+                visitor((*node.as_ptr()).right, results);
             }
         }
-        visitor(tree, tree.root, &mut results);
+        visitor(tree.root, &mut results);
         results
     }
 }
 
 impl InOrderVisitor {
-    pub fn iterate<T>(tree: &Tree<T>) -> Vec<T>
+    pub unsafe fn iterate<T>(tree: &Tree2<T>) -> Vec<T>
     where
         T: Copy,
     {
@@ -227,19 +221,17 @@ impl InOrderVisitor {
         let mut p = tree.root;
         loop {
             match (p, stack.is_empty()) {
-                (Some(node_idx), _) => {
+                (Some(node), _) => {
                     //switch to left child
-                    stack.push(node_idx);
-                    let node = tree.node_at(node_idx).expect("invalid node");
-                    p = node.left;
+                    stack.push(node);
+                    p = (*node.as_ptr()).left;
                 }
                 (None, false) => {
                     //visit result & switch to right child
                     p = stack.pop();
-                    let node_idx = p.unwrap();
-                    let node = tree.node_at(node_idx).expect("invalid node");
-                    results.push(node.key);
-                    p = node.right;
+                    let node = p.unwrap();
+                    results.push((*node.as_ptr()).element);
+                    p = (*node.as_ptr()).right;
                 }
                 (None, true) => break,
             }
@@ -248,29 +240,28 @@ impl InOrderVisitor {
         results
     }
 
-    pub fn recursive<T>(tree: &Tree<T>) -> Vec<T>
+    pub unsafe fn recursive<T>(tree: &Tree2<T>) -> Vec<T>
     where
         T: Copy,
     {
         let mut results = vec![];
-        fn visitor<T>(tree: &Tree<T>, p: Option<usize>, results: &mut Vec<T>)
+        unsafe fn visitor<T>(p: Option<NonNull<Node<T>>>, results: &mut Vec<T>)
         where
             T: Copy,
         {
-            if let Some(node_idx) = p {
-                let node = tree.node_at(node_idx).expect("invalid node");
-                visitor(tree, node.left, results);
-                results.push(node.key); //visit result
-                visitor(tree, node.right, results);
+            if let Some(node) = p {
+                visitor((*node.as_ptr()).left, results);
+                results.push((*node.as_ptr()).element); //visit result
+                visitor((*node.as_ptr()).right, results);
             }
         }
-        visitor(tree, tree.root, &mut results);
+        visitor(tree.root, &mut results);
         results
     }
 }
 
 impl PostOrderVisitor {
-    pub fn iterate<T>(tree: &Tree<T>) -> Vec<T>
+    pub unsafe fn iterate<T>(tree: &Tree2<T>) -> Vec<T>
     where
         T: Copy,
     {
@@ -279,13 +270,11 @@ impl PostOrderVisitor {
         let mut visited = HashSet::new();
         //point current node
         let mut p = tree.root;
-        while let Some(node_idx) = p {
-            let node = tree.node_at(node_idx).expect("invalid node");
-
+        while let Some(node) = p {
             //switch to left child
-            match node.left {
+            match (*node.as_ptr()).left {
                 Some(left) if !visited.contains(&left) => {
-                    stack.push(node_idx);
+                    stack.push(node);
                     p = Some(left);
                     continue;
                 }
@@ -293,9 +282,9 @@ impl PostOrderVisitor {
             }
 
             //switch to right child
-            match node.right {
+            match (*node.as_ptr()).right {
                 Some(right) if !visited.contains(&right) => {
-                    stack.push(node_idx);
+                    stack.push(node);
                     p = Some(right);
                     continue;
                 }
@@ -303,37 +292,36 @@ impl PostOrderVisitor {
             }
 
             //visit & record node
-            results.push(node.key);
-            visited.insert(node_idx);
+            results.push((*node.as_ptr()).element);
+            visited.insert(node);
             p = stack.pop();
         }
 
         results
     }
 
-    pub fn recursive<T>(tree: &Tree<T>) -> Vec<T>
+    pub unsafe fn recursive<T>(tree: &Tree2<T>) -> Vec<T>
     where
         T: Copy,
     {
         let mut results = vec![];
-        fn visitor<T>(tree: &Tree<T>, p: Option<usize>, results: &mut Vec<T>)
+        unsafe fn visitor<T>(p: Option<NonNull<Node<T>>>, results: &mut Vec<T>)
         where
             T: Copy,
         {
-            if let Some(node_idx) = p {
-                let node = tree.node_at(node_idx).expect("invalid node");
-                visitor(tree, node.left, results);
-                visitor(tree, node.right, results);
-                results.push(node.key);
+            if let Some(node) = p {
+                visitor((*node.as_ptr()).left, results);
+                visitor((*node.as_ptr()).right, results);
+                results.push((*node.as_ptr()).element);
             }
         }
-        visitor(tree, tree.root, &mut results);
+        visitor(tree.root, &mut results);
         results
     }
 }
 
 impl LevelOrderVisitor {
-    pub fn iterate<T>(tree: &Tree<T>) -> Vec<Vec<T>>
+    pub unsafe fn iterate<T>(tree: &Tree2<T>) -> Vec<Vec<T>>
     where
         T: Copy,
     {
@@ -348,13 +336,12 @@ impl LevelOrderVisitor {
 
             loop {
                 match nodes.pop_front() {
-                    Some(p) => {
-                        let node = tree.node_at(p).expect("invalid node");
+                    Some(node) => {
                         results
                             .last_mut()
                             .expect("empty results container")
-                            .push(node.key);
-                        for child in &[node.left, node.right] {
+                            .push((*node.as_ptr()).element);
+                        for child in &[(*node.as_ptr()).left, (*node.as_ptr()).right] {
                             if let Some(child) = child {
                                 next_level_nodes.push(*child);
                             }
@@ -376,14 +363,13 @@ impl LevelOrderVisitor {
         results
     }
 
-    pub fn recursive<T>(tree: &Tree<T>) -> Vec<Vec<T>>
+    pub unsafe fn recursive<T>(tree: &Tree2<T>) -> Vec<Vec<T>>
     where
         T: Copy,
     {
         let mut results = vec![];
-        fn visitor<T: Copy>(
-            tree: &Tree<T>,
-            level_nodes: Vec<usize>,
+        unsafe fn visitor<T: Copy>(
+            level_nodes: Vec<NonNull<Node<T>>>,
             results: &mut Vec<Vec<T>>,
             pos: usize,
         ) {
@@ -394,27 +380,26 @@ impl LevelOrderVisitor {
             results.push(vec![]);
 
             let mut next_level_nodes = vec![];
-            for p in level_nodes {
-                let node = tree.node_at(p).expect("invalid node");
-                for child in &[node.left, node.right] {
+            for node in level_nodes {
+                for child in &[(*node.as_ptr()).left, (*node.as_ptr()).right] {
                     if let Some(child) = child {
                         next_level_nodes.push(*child);
                     }
                 }
-                results[pos].push(node.key);
+                results[pos].push((*node.as_ptr()).element);
             }
 
-            visitor(tree, next_level_nodes, results, pos + 1);
+            visitor(next_level_nodes, results, pos + 1);
         }
         if let Some(p) = tree.root {
-            visitor(tree, vec![p], &mut results, 0);
+            visitor(vec![p], &mut results, 0);
         }
         results
     }
 }
 
 impl LevelOrderVisitor2 {
-    pub fn iterate<T>(tree: &Tree<T>) -> Vec<Vec<T>>
+    pub unsafe fn iterate<T>(tree: &Tree2<T>) -> Vec<Vec<T>>
     where
         T: Copy,
     {
@@ -423,7 +408,7 @@ impl LevelOrderVisitor2 {
         r
     }
 
-    pub fn recursive<T>(tree: &Tree<T>) -> Vec<Vec<T>>
+    pub unsafe fn recursive<T>(tree: &Tree2<T>) -> Vec<Vec<T>>
     where
         T: Copy,
     {
@@ -434,7 +419,7 @@ impl LevelOrderVisitor2 {
 }
 
 impl ZigzagOrderVisitor {
-    pub fn iterate<T>(tree: &Tree<T>) -> Vec<Vec<T>>
+    pub unsafe fn iterate<T>(tree: &Tree2<T>) -> Vec<Vec<T>>
     where
         T: Copy,
     {
@@ -450,17 +435,16 @@ impl ZigzagOrderVisitor {
 
             loop {
                 match nodes.pop_front() {
-                    Some(p) => {
-                        let node = tree.node_at(p).expect("invalid node");
+                    Some(node) => {
                         results
                             .last_mut()
                             .expect("empty results container")
-                            .push(node.key);
+                            .push((*node.as_ptr()).element);
 
                         let children = if left_to_right {
-                            vec![node.left, node.right]
+                            vec![(*node.as_ptr()).left, (*node.as_ptr()).right]
                         } else {
-                            vec![node.right, node.left]
+                            vec![(*node.as_ptr()).right, (*node.as_ptr()).left]
                         };
 
                         for child in children {
@@ -486,14 +470,13 @@ impl ZigzagOrderVisitor {
         results
     }
 
-    pub fn recursive<T>(tree: &Tree<T>) -> Vec<Vec<T>>
+    pub unsafe fn recursive<T>(tree: &Tree2<T>) -> Vec<Vec<T>>
     where
         T: Copy,
     {
         let mut results = vec![];
-        fn visitor<T>(
-            tree: &Tree<T>,
-            level_nodes: Vec<usize>,
+        unsafe fn visitor<T>(
+            level_nodes: Vec<NonNull<Node<T>>>,
             results: &mut Vec<Vec<T>>,
             pos: usize,
             left_to_right: bool,
@@ -507,25 +490,24 @@ impl ZigzagOrderVisitor {
             results.push(vec![]);
 
             let mut next_level_nodes = vec![];
-            for p in level_nodes {
-                let node = tree.node_at(p).expect("invalid node");
+            for node in level_nodes {
                 let children = if left_to_right {
-                    vec![node.left, node.right]
+                    vec![(*node.as_ptr()).left, (*node.as_ptr()).right]
                 } else {
-                    vec![node.right, node.left]
+                    vec![(*node.as_ptr()).right, (*node.as_ptr()).left]
                 };
                 for child in children {
                     if let Some(child) = child {
                         next_level_nodes.push(child);
                     }
                 }
-                results[pos].push(node.key);
+                results[pos].push((*node.as_ptr()).element);
             }
 
-            visitor(tree, next_level_nodes, results, pos + 1, !left_to_right);
+            visitor(next_level_nodes, results, pos + 1, !left_to_right);
         }
         if let Some(p) = tree.root {
-            visitor(tree, vec![p], &mut results, 0, false);
+            visitor(vec![p], &mut results, 0, false);
         }
         results
     }

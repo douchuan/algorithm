@@ -1,21 +1,23 @@
 use crate::tree::binary::builder::TreeBuilder;
-use crate::tree::binary::{Tree, TreeNode};
+use crate::tree::binary::node::Node;
+use crate::tree::binary::tree::Tree2;
 use std::cmp::max;
+use std::ptr::NonNull;
 
 pub trait BuildTournamentTree<K> {
-    fn build_tournament_tree(data: &[K]) -> Tree<K>;
-    fn tournament_tree_pop(tree: &mut Tree<K>) -> Option<K>;
+    fn build_tournament_tree(data: &[K]) -> Tree2<K>;
+    fn tournament_tree_pop(tree: &mut Tree2<K>) -> Option<K>;
 }
 
 impl<K> BuildTournamentTree<K> for TreeBuilder
 where
     K: Copy + std::cmp::Ord + Minimal,
 {
-    fn build_tournament_tree(data: &[K]) -> Tree<K> {
+    fn build_tournament_tree(data: &[K]) -> Tree2<K> {
         do_build(data)
     }
 
-    fn tournament_tree_pop(tree: &mut Tree<K>) -> Option<K> {
+    fn tournament_tree_pop(tree: &mut Tree2<K>) -> Option<K> {
         pop(tree)
     }
 }
@@ -30,124 +32,106 @@ impl Minimal for i32 {
     }
 }
 
-fn pop<T>(tree: &mut Tree<T>) -> Option<T>
+fn pop<T>(tree: &mut Tree2<T>) -> Option<T>
 where
     T: Copy + std::cmp::Ord + Minimal,
 {
-    match tree.node_key(tree.root) {
-        Some(root_key) if root_key != T::minimal() => {
+    let element = tree.root.map(|root| unsafe { (*root.as_ptr()).element });
+    match element {
+        Some(element) if element != T::minimal() => {
             //每次取出锦标赛树的根节点后，自顶向下将其替换为min
-            let leaf = replace_max_by_min(tree, root_key);
-            //由叶子节点的父指针向上回溯，设置新的最大值
-            setup_new_max(tree, leaf);
-            Some(root_key)
+            let leaf = replace_max_by_min(tree.root.unwrap(), element);
+            //由叶子节点向上回溯，设置新的最大值
+            setup_new_max(leaf);
+            Some(element)
         }
         _ => None,
     }
 }
 
 // 返回叶子节点的序号
-fn replace_max_by_min<T>(tree: &mut Tree<T>, root_key: T) -> usize
+fn replace_max_by_min<T>(mut node: NonNull<Node<T>>, root_element: T) -> NonNull<Node<T>>
 where
     T: Copy + std::cmp::Ord + Minimal,
 {
-    let mut idx = tree.root.unwrap();
-    tree.node_at_mut(idx).unwrap().key = T::minimal();
+    unsafe {
+        (*node.as_ptr()).element = T::minimal();
 
-    loop {
-        match tree.node_at(idx) {
-            Some(node) if node.is_leaf() => break,
-            Some(node) => {
-                idx = if tree.node_key(node.left) == Some(root_key) {
-                    node.left.unwrap()
-                } else {
-                    node.right.unwrap()
-                };
-                tree.node_at_mut(idx).unwrap().key = T::minimal();
-            }
-            None => break,
+        while !(*node.as_ptr()).is_leaf() {
+            node = match (*node.as_ptr()).left {
+                Some(left) if (*left.as_ptr()).element == root_element => left,
+                _ => (*node.as_ptr()).right.unwrap(),
+            };
+
+            (*node.as_ptr()).element = T::minimal();
         }
     }
 
-    idx
+    node
 }
 
-fn setup_new_max<T>(tree: &mut Tree<T>, mut idx: usize)
+fn setup_new_max<T>(mut node: NonNull<Node<T>>)
 where
     T: Copy + std::cmp::Ord,
 {
-    loop {
-        match tree.node_at(idx) {
-            Some(node) if node.parent.is_some() => {
-                let parent = node.parent.unwrap();
-                let parent_node = tree.node_at(parent).unwrap();
-                let mut new_max = parent_node.key;
-                if let Some(key) = tree.node_key(parent_node.left) {
-                    new_max = new_max.max(key);
+    unsafe {
+        loop {
+            match (*node.as_ptr()).parent {
+                Some(parent) => {
+                    let mut new_max = (*parent.as_ptr()).element;
+                    if let Some(l) = (*parent.as_ptr()).left {
+                        new_max = new_max.max((*l.as_ptr()).element);
+                    }
+                    if let Some(r) = (*parent.as_ptr()).right {
+                        new_max = new_max.max((*r.as_ptr()).element);
+                    }
+                    (*parent.as_ptr()).element = new_max;
+                    node = parent;
                 }
-                if let Some(key) = tree.node_key(parent_node.right) {
-                    new_max = new_max.max(key);
-                }
-
-                tree.node_at_mut(parent).unwrap().key = new_max;
-                idx = parent;
+                _ => break,
             }
-            _ => break,
         }
     }
 }
 
 /// 构建锦标赛树, from bottom to top
 /// a中不能包含T::minimal()这个特殊值，pop需要用到T::minimal()做临界值
-fn do_build<T>(data: &[T]) -> Tree<T>
+fn do_build<T>(data: &[T]) -> Tree2<T>
 where
     T: Copy + std::cmp::Ord,
 {
-    let mut tree = Tree::new();
+    let mut tree = Tree2::default();
 
     //build leaf
-    let mut nodes: Vec<usize> = data
-        .iter()
-        .map(|v| tree.add_node(TreeNode::from_key(*v)))
-        .collect();
+    let mut nodes: Vec<NonNull<Node<T>>> = data.iter().map(|v| Node::from_element(*v)).collect();
 
     while nodes.len() > 1 {
         nodes = nodes
             .chunks(2)
             .map(|chunk| match chunk {
-                &[t1, t2] => branch(&mut tree, t1, t2),
+                &[t1, t2] => branch(t1, t2),
                 &[t] => t,
                 _ => unreachable!(),
             })
             .collect();
     }
 
-    //tree.arena last is root
-    let root = tree.arena.len().saturating_sub(1);
-    tree.root = Some(root);
-
+    tree.root = nodes.get(0).cloned();
     tree
 }
 
 /// 创建分支节点，取t1, t2较大者的value构造parent
-fn branch<T>(tree: &mut Tree<T>, t1: usize, t2: usize) -> usize
+fn branch<T>(n1: NonNull<Node<T>>, n2: NonNull<Node<T>>) -> NonNull<Node<T>>
 where
     T: Copy + std::cmp::Ord,
 {
-    //create node
-    let t1_node = tree.node_at(t1).unwrap();
-    let t2_node = tree.node_at(t2).unwrap();
-    let key = max(t1_node.key, t2_node.key);
-    let node = TreeNode::new(key, Some(t1), Some(t2), None);
-    let node_i = tree.add_node(node);
-
-    //set parent
-    let t1_node = tree.node_at_mut(t1).unwrap();
-    t1_node.parent = Some(node_i);
-    let t2_node = tree.node_at_mut(t2).unwrap();
-    t2_node.parent = Some(node_i);
-
-    node_i
+    let v = unsafe { max((*n1.as_ptr()).element, (*n2.as_ptr()).element) };
+    let node = Node::new(v, Some(n1), Some(n2), None);
+    unsafe {
+        (*n1.as_ptr()).parent = Some(node);
+        (*n2.as_ptr()).parent = Some(node);
+    }
+    node
 }
 
 #[test]
@@ -166,7 +150,7 @@ fn t_build_tree() {
     */
     let a = &[7, 6, 15, 16, 8, 4, 13, 3, 5, 10, 9, 1, 12, 2, 11, 14];
     let tree = do_build(a);
-    let r = crate::tree::binary::traverse::PreOrderVisitor::recursive(&tree);
+    let r = unsafe { crate::tree::binary::traverse::PreOrderVisitor::recursive(&tree) };
     assert_eq!(
         r,
         vec![
