@@ -10,8 +10,10 @@ pub trait BSTree<T>
 where
     T: std::cmp::PartialOrd,
 {
-    /// return true: insert success, false: not insert, exist k
-    fn insert(&mut self, element: T) -> bool;
+    /// return
+    ///   Some(NonNull<Node<T>>): insert success and return inserted node,
+    ///   None: not insert, exist
+    fn insert(&mut self, element: T) -> Option<NonNull<Node<T>>>;
     fn delete(&mut self, element: T) -> bool;
     /// return node index
     fn find(&self, element: T) -> Option<NonNull<Node<T>>>;
@@ -27,7 +29,7 @@ impl<T> BSTree<T> for Tree<T>
 where
     T: std::cmp::PartialOrd + Copy,
 {
-    fn insert(&mut self, element: T) -> bool {
+    fn insert(&mut self, element: T) -> Option<NonNull<Node<T>>> {
         unsafe { insert(self, element, None, self.root) }
     }
 
@@ -61,7 +63,7 @@ unsafe fn insert<T>(
     element: T,
     parent: Option<NonNull<Node<T>>>,
     node: Option<NonNull<Node<T>>>,
-) -> bool
+) -> Option<NonNull<Node<T>>>
 where
     T: std::cmp::PartialOrd,
 {
@@ -70,7 +72,7 @@ where
         (None, None) => {
             let node = Node::from_element(element);
             tree.root = Some(node);
-            true
+            Some(node)
         }
         (_, Some(node)) => match (*node.as_ptr()).element.partial_cmp(&element) {
             Some(Ordering::Less) => {
@@ -81,20 +83,20 @@ where
                 let l = (*node.as_ptr()).left;
                 insert(tree, element, Some(node), l)
             }
-            _ => false,
+            _ => None,
         },
         (Some(node), None) => match (*node.as_ptr()).element.partial_cmp(&element) {
             Some(Ordering::Less) => {
                 let child = Node::new_leaf(element, Some(node));
                 (*node.as_ptr()).right = Some(child);
-                true
+                Some(child)
             }
             Some(Ordering::Greater) => {
                 let child = Node::new_leaf(element, Some(node));
                 (*node.as_ptr()).left = Some(child);
-                true
+                Some(child)
             }
-            _ => false,
+            _ => None,
         },
     }
 }
@@ -207,6 +209,7 @@ where
                 }
 
                 Node::release(node);
+                true
             }
             1 => {
                 //backup node child
@@ -225,6 +228,7 @@ where
                 }
 
                 Node::release(node);
+                true
             }
             _ => {
                 //我们用其右子树中的最小值替换掉 x
@@ -234,10 +238,8 @@ where
 
                 //右子树中的这一最小值“切掉”
                 let node_right = (*node.as_ptr()).right;
-                return delete(right_min, node_right);
+                delete(right_min, node_right)
             }
         }
-
-        true
     })
 }

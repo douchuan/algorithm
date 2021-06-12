@@ -20,11 +20,6 @@
 //! 序(中序遍历结果不变)的前提下，改变树的结构，因此可以用来提高平衡性。
 //!
 
-pub enum Color {
-    Red,
-    Black,
-}
-
 pub trait RedBlackTree<K>
 where
     K: std::cmp::PartialOrd,

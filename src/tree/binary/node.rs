@@ -1,10 +1,16 @@
 use std::ptr::NonNull;
 
+pub enum Color {
+    Red,
+    Black,
+}
+
 pub struct Node<T> {
     pub element: T,
     pub left: Option<NonNull<Node<T>>>,
     pub right: Option<NonNull<Node<T>>>,
     pub parent: Option<NonNull<Node<T>>>,
+    pub color: Color,
 }
 
 impl<T> Node<T> {
@@ -19,6 +25,7 @@ impl<T> Node<T> {
             left,
             right,
             parent,
+            color: Color::Red,
         });
         Box::leak(v).into()
     }
