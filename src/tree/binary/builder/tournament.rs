@@ -1,23 +1,23 @@
 use crate::tree::binary::builder::TreeBuilder;
 use crate::tree::binary::node::Node;
-use crate::tree::binary::tree::Tree2;
+use crate::tree::binary::tree::Tree;
 use std::cmp::max;
 use std::ptr::NonNull;
 
 pub trait BuildTournamentTree<K> {
-    fn build_tournament_tree(data: &[K]) -> Tree2<K>;
-    fn tournament_tree_pop(tree: &mut Tree2<K>) -> Option<K>;
+    fn build_tournament_tree(data: &[K]) -> Tree<K>;
+    fn tournament_tree_pop(tree: &mut Tree<K>) -> Option<K>;
 }
 
 impl<K> BuildTournamentTree<K> for TreeBuilder
 where
     K: Copy + std::cmp::Ord + Minimal,
 {
-    fn build_tournament_tree(data: &[K]) -> Tree2<K> {
+    fn build_tournament_tree(data: &[K]) -> Tree<K> {
         do_build(data)
     }
 
-    fn tournament_tree_pop(tree: &mut Tree2<K>) -> Option<K> {
+    fn tournament_tree_pop(tree: &mut Tree<K>) -> Option<K> {
         pop(tree)
     }
 }
@@ -32,7 +32,7 @@ impl Minimal for i32 {
     }
 }
 
-fn pop<T>(tree: &mut Tree2<T>) -> Option<T>
+fn pop<T>(tree: &mut Tree<T>) -> Option<T>
 where
     T: Copy + std::cmp::Ord + Minimal,
 {
@@ -96,11 +96,11 @@ where
 
 /// 构建锦标赛树, from bottom to top
 /// a中不能包含T::minimal()这个特殊值，pop需要用到T::minimal()做临界值
-fn do_build<T>(data: &[T]) -> Tree2<T>
+fn do_build<T>(data: &[T]) -> Tree<T>
 where
     T: Copy + std::cmp::Ord,
 {
-    let mut tree = Tree2::default();
+    let mut tree = Tree::default();
 
     //build leaf
     let mut nodes: Vec<NonNull<Node<T>>> = data.iter().map(|v| Node::from_element(*v)).collect();

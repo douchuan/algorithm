@@ -8,30 +8,30 @@
 
 use crate::tree::binary::builder::TreeBuilder;
 use crate::tree::binary::node::Node;
-use crate::tree::binary::tree::Tree2;
+use crate::tree::binary::tree::Tree;
 use std::collections::LinkedList;
 
 pub trait BuildTreeInLevel<K> {
-    fn build_in_level(vec: &[&str]) -> Tree2<K>;
+    fn build_in_level(vec: &[&str]) -> Tree<K>;
 }
 
 impl<K> BuildTreeInLevel<K> for TreeBuilder
 where
     K: std::str::FromStr,
 {
-    fn build_in_level(vec: &[&str]) -> Tree2<K> {
+    fn build_in_level(vec: &[&str]) -> Tree<K> {
         build(vec)
     }
 }
 
-fn build<K>(vec: &[&str]) -> Tree2<K>
+fn build<K>(vec: &[&str]) -> Tree<K>
 where
     K: std::str::FromStr,
 {
     let mut tokens = LinkedList::new();
     tokens.extend(vec.iter());
 
-    let mut tree = Tree2::default();
+    let mut tree = Tree::default();
     let mut records = LinkedList::new();
     let mut nt = NodeType::Root;
     let mut parent = None;

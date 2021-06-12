@@ -1,11 +1,11 @@
 use crate::tree::binary::node::Node;
 use std::ptr::NonNull;
 
-pub struct Tree2<T> {
+pub struct Tree<T> {
     pub root: Option<NonNull<Node<T>>>,
 }
 
-impl<T> Tree2<T> {
+impl<T> Tree<T> {
     pub fn height(&self) -> usize {
         fn calc<T>(node: Option<NonNull<Node<T>>>) -> usize {
             node.map_or(0, |node| unsafe {
@@ -19,13 +19,13 @@ impl<T> Tree2<T> {
     }
 }
 
-impl<T> Default for Tree2<T> {
+impl<T> Default for Tree<T> {
     fn default() -> Self {
-        Tree2 { root: None }
+        Tree { root: None }
     }
 }
 
-impl<T> Drop for Tree2<T> {
+impl<T> Drop for Tree<T> {
     fn drop(&mut self) {
         fn visitor<T>(p: Option<NonNull<Node<T>>>) {
             p.map(|p| {

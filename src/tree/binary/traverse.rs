@@ -1,5 +1,5 @@
 use crate::tree::binary::node::Node;
-use crate::tree::binary::tree::Tree2;
+use crate::tree::binary::tree::Tree;
 use std::collections::{HashSet, LinkedList};
 use std::ptr::NonNull;
 
@@ -113,7 +113,7 @@ pub struct SameTree;
 
 impl PreOrderVisitor {
     /// 时间复杂度 O(n), 空间复杂度 O(n)
-    pub unsafe fn iterate<T>(tree: &Tree2<T>) -> Vec<T>
+    pub unsafe fn iterate<T>(tree: &Tree<T>) -> Vec<T>
     where
         T: Copy,
     {
@@ -143,7 +143,7 @@ impl PreOrderVisitor {
     ///
     /// 点评：利用tree本身的node记录回溯指针（避免用栈记录回溯），
     /// 使得空间复杂度由 O(n) => O(1)
-    pub unsafe fn morris<T>(tree: &mut Tree2<T>) -> Vec<T>
+    pub unsafe fn morris<T>(tree: &mut Tree<T>) -> Vec<T>
     where
         T: Copy,
     {
@@ -190,7 +190,7 @@ impl PreOrderVisitor {
     }
 
     /// 时间复杂度 O(n), 空间复杂度 O(n)
-    pub unsafe fn recursive<T>(tree: &Tree2<T>) -> Vec<T>
+    pub unsafe fn recursive<T>(tree: &Tree<T>) -> Vec<T>
     where
         T: Copy,
     {
@@ -211,7 +211,7 @@ impl PreOrderVisitor {
 }
 
 impl InOrderVisitor {
-    pub unsafe fn iterate<T>(tree: &Tree2<T>) -> Vec<T>
+    pub unsafe fn iterate<T>(tree: &Tree<T>) -> Vec<T>
     where
         T: Copy,
     {
@@ -240,7 +240,7 @@ impl InOrderVisitor {
         results
     }
 
-    pub unsafe fn recursive<T>(tree: &Tree2<T>) -> Vec<T>
+    pub unsafe fn recursive<T>(tree: &Tree<T>) -> Vec<T>
     where
         T: Copy,
     {
@@ -261,7 +261,7 @@ impl InOrderVisitor {
 }
 
 impl PostOrderVisitor {
-    pub unsafe fn iterate<T>(tree: &Tree2<T>) -> Vec<T>
+    pub unsafe fn iterate<T>(tree: &Tree<T>) -> Vec<T>
     where
         T: Copy,
     {
@@ -300,7 +300,7 @@ impl PostOrderVisitor {
         results
     }
 
-    pub unsafe fn recursive<T>(tree: &Tree2<T>) -> Vec<T>
+    pub unsafe fn recursive<T>(tree: &Tree<T>) -> Vec<T>
     where
         T: Copy,
     {
@@ -321,7 +321,7 @@ impl PostOrderVisitor {
 }
 
 impl LevelOrderVisitor {
-    pub unsafe fn iterate<T>(tree: &Tree2<T>) -> Vec<Vec<T>>
+    pub unsafe fn iterate<T>(tree: &Tree<T>) -> Vec<Vec<T>>
     where
         T: Copy,
     {
@@ -363,7 +363,7 @@ impl LevelOrderVisitor {
         results
     }
 
-    pub unsafe fn recursive<T>(tree: &Tree2<T>) -> Vec<Vec<T>>
+    pub unsafe fn recursive<T>(tree: &Tree<T>) -> Vec<Vec<T>>
     where
         T: Copy,
     {
@@ -399,7 +399,7 @@ impl LevelOrderVisitor {
 }
 
 impl LevelOrderVisitor2 {
-    pub unsafe fn iterate<T>(tree: &Tree2<T>) -> Vec<Vec<T>>
+    pub unsafe fn iterate<T>(tree: &Tree<T>) -> Vec<Vec<T>>
     where
         T: Copy,
     {
@@ -408,7 +408,7 @@ impl LevelOrderVisitor2 {
         r
     }
 
-    pub unsafe fn recursive<T>(tree: &Tree2<T>) -> Vec<Vec<T>>
+    pub unsafe fn recursive<T>(tree: &Tree<T>) -> Vec<Vec<T>>
     where
         T: Copy,
     {
@@ -419,7 +419,7 @@ impl LevelOrderVisitor2 {
 }
 
 impl ZigzagOrderVisitor {
-    pub unsafe fn iterate<T>(tree: &Tree2<T>) -> Vec<Vec<T>>
+    pub unsafe fn iterate<T>(tree: &Tree<T>) -> Vec<Vec<T>>
     where
         T: Copy,
     {
@@ -470,7 +470,7 @@ impl ZigzagOrderVisitor {
         results
     }
 
-    pub unsafe fn recursive<T>(tree: &Tree2<T>) -> Vec<Vec<T>>
+    pub unsafe fn recursive<T>(tree: &Tree<T>) -> Vec<Vec<T>>
     where
         T: Copy,
     {

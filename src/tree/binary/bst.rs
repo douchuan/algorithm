@@ -2,7 +2,7 @@
 //!   1. 所有左侧分支的值都小于本节点的值
 //!   2. 本节点的值小于所有右侧分支的值
 
-use crate::tree::binary::{Node, Tree2};
+use crate::tree::binary::{Node, Tree};
 use std::cmp::Ordering;
 use std::ptr::NonNull;
 
@@ -23,7 +23,7 @@ where
     fn pred(&self, x: T) -> Option<NonNull<Node<T>>>;
 }
 
-impl<T> BSTree<T> for Tree2<T>
+impl<T> BSTree<T> for Tree<T>
 where
     T: std::cmp::PartialOrd + Copy,
 {
@@ -57,7 +57,7 @@ where
 }
 
 unsafe fn insert<T>(
-    tree: &mut Tree2<T>,
+    tree: &mut Tree<T>,
     k: T,
     parent: Option<NonNull<Node<T>>>,
     node: Option<NonNull<Node<T>>>,
