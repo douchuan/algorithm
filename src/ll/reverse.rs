@@ -3,7 +3,8 @@ use std::ptr::NonNull;
 
 pub fn reverse<T>(l: &mut LinkedList<T>) {
     let head = l.head;
-    l.head = unsafe { do_reverse(head) };
+    let new_head = unsafe { do_reverse(head) };
+    l.head = new_head;
     l.tail = head;
 }
 
