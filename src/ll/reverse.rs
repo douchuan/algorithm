@@ -1,8 +1,10 @@
-use crate::ll::Node;
+use crate::ll::{LinkedList, Node};
 use std::ptr::NonNull;
 
-pub fn reverse<T>(node: Option<NonNull<Node<T>>>) -> Option<NonNull<Node<T>>> {
-    unsafe { do_reverse(node) }
+pub fn reverse<T>(l: &mut LinkedList<T>) {
+    let head = l.head;
+    l.head = unsafe { do_reverse(head) };
+    l.tail = head;
 }
 
 unsafe fn do_reverse<T>(node: Option<NonNull<Node<T>>>) -> Option<NonNull<Node<T>>> {
