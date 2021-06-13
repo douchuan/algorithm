@@ -20,10 +20,10 @@
 //! 序(中序遍历结果不变)的前提下，改变树的结构，因此可以用来提高平衡性。
 //!
 
-pub trait RedBlackTree<K>
+pub trait RedBlackTree<T>
 where
-    K: std::cmp::PartialOrd,
+    T: std::cmp::PartialOrd,
 {
     /// return true: insert success, false: not insert, exist k
-    fn insert(&mut self, k: K) -> bool;
+    fn insert(&mut self, element: T) -> bool;
 }
