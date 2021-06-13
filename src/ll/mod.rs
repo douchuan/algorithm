@@ -1,4 +1,4 @@
-pub mod k_node;
+pub mod kth2tail;
 mod linked_list;
 mod node;
 pub mod reverse;

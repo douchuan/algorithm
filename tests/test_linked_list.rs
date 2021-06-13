@@ -37,6 +37,23 @@ fn tail2head_print() {
     assert_eq!(rev_ll, data);
 }
 
+#[test]
+fn find_kth2tail() {
+    let data = vec![1, 2, 3, 4, 5, 6, 7, 8, 9];
+    let ll = create_ll(&data);
+
+    let p = ll::kth2tail::find(&ll, 2);
+    assert!(p.is_some());
+    assert_eq!(unsafe { p.unwrap().as_ref().element }, 8);
+
+    let p = ll::kth2tail::find(&ll, 5);
+    assert!(p.is_some());
+    assert_eq!(unsafe { p.unwrap().as_ref().element }, 5);
+
+    let p = ll::kth2tail::find(&ll, 10);
+    assert!(p.is_none());
+}
+
 fn create_ll<T>(data: &[T]) -> LinkedList<T>
 where
     T: Copy,
