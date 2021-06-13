@@ -1,5 +1,5 @@
 [package]
-name = "myleetcode"
+name = "algorithm"
 version = "0.1.0"
 authors = ["Dou Chuan <1843657913@qq.com>"]
 edition = "2018"

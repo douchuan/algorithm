@@ -147,15 +147,15 @@ where
             Some(r) => find_min(Some(r)),
             None => {
                 //右分支为空，向上找
-                let mut p = (*node.as_ptr()).parent;
+                let mut parent = (*node.as_ptr()).parent;
                 loop {
-                    match Node::right_node(p) {
+                    match Node::right_node(parent) {
                         Some(r) if (*r.as_ptr()).element == element => {
-                            let p_node = p.unwrap();
-                            element = (*p_node.as_ptr()).element;
-                            p = (*p_node.as_ptr()).parent;
+                            let the_parent = parent.unwrap();
+                            element = (*the_parent.as_ptr()).element;
+                            parent = (*the_parent.as_ptr()).parent;
                         }
-                        _ => return p,
+                        _ => return parent,
                     }
                 }
             }
@@ -173,15 +173,15 @@ where
             Some(l) => find_max(Some(l)),
             None => {
                 //左分支为空，向上找
-                let mut p = (*node.as_ptr()).parent;
+                let mut parent = (*node.as_ptr()).parent;
                 loop {
-                    match Node::left_node(p) {
+                    match Node::left_node(parent) {
                         Some(l) if (*l.as_ptr()).element == element => {
-                            let p_node = p.unwrap();
-                            element = (*p_node.as_ptr()).element;
-                            p = (*p_node.as_ptr()).parent;
+                            let the_parent = parent.unwrap();
+                            element = (*the_parent.as_ptr()).element;
+                            parent = (*the_parent.as_ptr()).parent;
                         }
-                        _ => return p,
+                        _ => return parent,
                     }
                 }
             }
@@ -213,7 +213,7 @@ where
             }
             1 => {
                 //backup node child
-                let node_child = if (*node.as_ptr()).left.is_some() {
+                let child = if (*node.as_ptr()).left.is_some() {
                     (*node.as_ptr()).left
                 } else {
                     (*node.as_ptr()).right
@@ -222,9 +222,9 @@ where
                 // rm child, setup child node
                 let parent = (*node.as_ptr()).parent.unwrap();
                 if (*parent.as_ptr()).left == Some(node) {
-                    (*parent.as_ptr()).left = node_child;
+                    (*parent.as_ptr()).left = child;
                 } else if (*parent.as_ptr()).right == Some(node) {
-                    (*parent.as_ptr()).right = node_child;
+                    (*parent.as_ptr()).right = child;
                 }
 
                 Node::release(node);
@@ -232,13 +232,13 @@ where
             }
             _ => {
                 //我们用其右子树中的最小值替换掉 x
-                let right_min_node = find_min((*node.as_ptr()).right).unwrap();
-                let right_min = (*right_min_node.as_ptr()).element;
-                (*node.as_ptr()).element = right_min;
+                let right = (*node.as_ptr()).right;
+                let min_node = find_min(right).unwrap();
+                let min = (*min_node.as_ptr()).element;
+                (*node.as_ptr()).element = min;
 
                 //右子树中的这一最小值“切掉”
-                let node_right = (*node.as_ptr()).right;
-                delete(right_min, node_right)
+                delete(min, right)
             }
         }
     })
