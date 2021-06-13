@@ -24,12 +24,12 @@ impl<T> LinkedList<T> {
         self.len
     }
 
-    pub fn push_back(&mut self, node: NonNull<Node<T>>) {
+    pub fn push_back(&mut self, mut node: NonNull<Node<T>>) {
         unsafe {
-            (*node.as_ptr()).next = None;
+            node.as_mut().next = None;
 
             match self.tail {
-                Some(tail) => (*tail.as_ptr()).next = Some(node),
+                Some(mut tail) => tail.as_mut().next = Some(node),
                 None => self.head = Some(node),
             }
 

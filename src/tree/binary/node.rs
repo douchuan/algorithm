@@ -56,15 +56,15 @@ impl<T> Node<T> {
 
     /// 直接子节点个数，不包括孙子...
     pub fn children_count(node: NonNull<Self>) -> usize {
-        unsafe { (*node.as_ptr()).left.map_or(0, |_| 1) + (*node.as_ptr()).right.map_or(0, |_| 1) }
+        unsafe { node.as_ref().left.map_or(0, |_| 1) + node.as_ref().right.map_or(0, |_| 1) }
     }
 
     pub fn left_node(node: Option<NonNull<Self>>) -> Option<NonNull<Self>> {
-        unsafe { node.and_then(|node| (*node.as_ptr()).left) }
+        unsafe { node.and_then(|node| node.as_ref().left) }
     }
 
     pub fn right_node(node: Option<NonNull<Self>>) -> Option<NonNull<Self>> {
-        unsafe { node.and_then(|node| (*node.as_ptr()).right) }
+        unsafe { node.and_then(|node| node.as_ref().right) }
     }
 }
 

@@ -122,8 +122,8 @@ impl PreOrderVisitor {
         //point current node
         let mut p = tree.root;
         while let Some(node) = p {
-            results.push((*node.as_ptr()).element); //visit result
-            for pp in &[(*node.as_ptr()).right, (*node.as_ptr()).left] {
+            results.push(node.as_ref().element); //visit result
+            for pp in &[node.as_ref().right, node.as_ref().left] {
                 if let Some(pp) = pp {
                     stack.push(*pp);
                 }
@@ -151,37 +151,37 @@ impl PreOrderVisitor {
         let mut cur = tree.root;
 
         while let Some(node) = cur {
-            match (*node.as_ptr()).left {
+            match node.as_ref().left {
                 Some(left) => {
                     let mut record = left;
 
                     //traverse right subtree, find前驱node
                     loop {
-                        match (*record.as_ptr()).right {
+                        match record.as_ref().right {
                             Some(r) if r != node => record = r,
                             _ => break,
                         }
                     }
 
-                    match (*record.as_ptr()).right {
+                    match record.as_ref().right {
                         Some(_r) => {
                             //已线索化
-                            cur = (*node.as_ptr()).right;
-                            (*record.as_ptr()).right = None;
+                            cur = node.as_ref().right;
+                            record.as_mut().right = None;
                         }
                         None => {
-                            results.push((*node.as_ptr()).element);
+                            results.push(node.as_ref().element);
 
                             //未线索化
-                            (*record.as_ptr()).right = cur;
+                            record.as_mut().right = cur;
                             cur = Some(left);
                         }
                     }
                 }
                 None => {
-                    results.push((*node.as_ptr()).element);
+                    results.push(node.as_ref().element);
                     //无left subtree, 直接跨到right subtree
-                    cur = (*node.as_ptr()).right;
+                    cur = node.as_ref().right;
                 }
             }
         }
@@ -200,9 +200,9 @@ impl PreOrderVisitor {
             T: Copy,
         {
             if let Some(node) = p {
-                results.push((*node.as_ptr()).element);
-                visitor((*node.as_ptr()).left, results);
-                visitor((*node.as_ptr()).right, results);
+                results.push(node.as_ref().element);
+                visitor(node.as_ref().left, results);
+                visitor(node.as_ref().right, results);
             }
         }
         visitor(tree.root, &mut results);
@@ -224,14 +224,14 @@ impl InOrderVisitor {
                 (Some(node), _) => {
                     //switch to left child
                     stack.push(node);
-                    p = (*node.as_ptr()).left;
+                    p = node.as_ref().left;
                 }
                 (None, false) => {
                     //visit result & switch to right child
                     p = stack.pop();
                     let node = p.unwrap();
-                    results.push((*node.as_ptr()).element);
-                    p = (*node.as_ptr()).right;
+                    results.push(node.as_ref().element);
+                    p = node.as_ref().right;
                 }
                 (None, true) => break,
             }
@@ -250,9 +250,9 @@ impl InOrderVisitor {
             T: Copy,
         {
             if let Some(node) = p {
-                visitor((*node.as_ptr()).left, results);
-                results.push((*node.as_ptr()).element); //visit result
-                visitor((*node.as_ptr()).right, results);
+                visitor(node.as_ref().left, results);
+                results.push(node.as_ref().element); //visit result
+                visitor(node.as_ref().right, results);
             }
         }
         visitor(tree.root, &mut results);
@@ -272,7 +272,7 @@ impl PostOrderVisitor {
         let mut p = tree.root;
         while let Some(node) = p {
             //switch to left child
-            match (*node.as_ptr()).left {
+            match node.as_ref().left {
                 Some(left) if !visited.contains(&left) => {
                     stack.push(node);
                     p = Some(left);
@@ -282,7 +282,7 @@ impl PostOrderVisitor {
             }
 
             //switch to right child
-            match (*node.as_ptr()).right {
+            match node.as_ref().right {
                 Some(right) if !visited.contains(&right) => {
                     stack.push(node);
                     p = Some(right);
@@ -292,7 +292,7 @@ impl PostOrderVisitor {
             }
 
             //visit & record node
-            results.push((*node.as_ptr()).element);
+            results.push(node.as_ref().element);
             visited.insert(node);
             p = stack.pop();
         }
@@ -310,9 +310,9 @@ impl PostOrderVisitor {
             T: Copy,
         {
             if let Some(node) = p {
-                visitor((*node.as_ptr()).left, results);
-                visitor((*node.as_ptr()).right, results);
-                results.push((*node.as_ptr()).element);
+                visitor(node.as_ref().left, results);
+                visitor(node.as_ref().right, results);
+                results.push(node.as_ref().element);
             }
         }
         visitor(tree.root, &mut results);
@@ -341,7 +341,7 @@ impl LevelOrderVisitor {
                             .last_mut()
                             .expect("empty results container")
                             .push((*node.as_ptr()).element);
-                        for child in &[(*node.as_ptr()).left, (*node.as_ptr()).right] {
+                        for child in &[node.as_ref().left, node.as_ref().right] {
                             if let Some(child) = child {
                                 next_level_nodes.push(*child);
                             }
@@ -381,12 +381,12 @@ impl LevelOrderVisitor {
 
             let mut next_level_nodes = vec![];
             for node in level_nodes {
-                for child in &[(*node.as_ptr()).left, (*node.as_ptr()).right] {
+                for child in &[node.as_ref().left, node.as_ref().right] {
                     if let Some(child) = child {
                         next_level_nodes.push(*child);
                     }
                 }
-                results[pos].push((*node.as_ptr()).element);
+                results[pos].push(node.as_ref().element);
             }
 
             visitor(next_level_nodes, results, pos + 1);
@@ -439,12 +439,12 @@ impl ZigzagOrderVisitor {
                         results
                             .last_mut()
                             .expect("empty results container")
-                            .push((*node.as_ptr()).element);
+                            .push(node.as_ref().element);
 
                         let children = if left_to_right {
-                            vec![(*node.as_ptr()).left, (*node.as_ptr()).right]
+                            vec![node.as_ref().left, node.as_ref().right]
                         } else {
-                            vec![(*node.as_ptr()).right, (*node.as_ptr()).left]
+                            vec![node.as_ref().right, node.as_ref().left]
                         };
 
                         for child in children {
@@ -492,16 +492,16 @@ impl ZigzagOrderVisitor {
             let mut next_level_nodes = vec![];
             for node in level_nodes {
                 let children = if left_to_right {
-                    vec![(*node.as_ptr()).left, (*node.as_ptr()).right]
+                    vec![node.as_ref().left, node.as_ref().right]
                 } else {
-                    vec![(*node.as_ptr()).right, (*node.as_ptr()).left]
+                    vec![node.as_ref().right, node.as_ref().left]
                 };
                 for child in children {
                     if let Some(child) = child {
                         next_level_nodes.push(child);
                     }
                 }
-                results[pos].push((*node.as_ptr()).element);
+                results[pos].push(node.as_ref().element);
             }
 
             visitor(next_level_nodes, results, pos + 1, !left_to_right);

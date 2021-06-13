@@ -9,11 +9,11 @@ pub fn reverse<T>(l: &mut LinkedList<T>) {
 }
 
 unsafe fn do_reverse<T>(node: Option<NonNull<Node<T>>>) -> Option<NonNull<Node<T>>> {
-    node.and_then(|node| match (*node.as_ptr()).next.take() {
+    node.and_then(|mut node| match node.as_mut().next.take() {
         None => Some(node), // new_head, origin tail
-        Some(next) => {
+        Some(mut next) => {
             let new_head = do_reverse(Some(next));
-            (*next.as_ptr()).next = Some(node);
+            next.as_mut().next = Some(node);
             new_head
         }
     })

@@ -74,26 +74,26 @@ where
             tree.root = Some(node);
             Some(node)
         }
-        (_, Some(node)) => match (*node.as_ptr()).element.partial_cmp(&element) {
+        (_, Some(node)) => match node.as_ref().element.partial_cmp(&element) {
             Some(Ordering::Less) => {
-                let r = (*node.as_ptr()).right;
+                let r = node.as_ref().right;
                 insert(tree, element, Some(node), r)
             }
             Some(Ordering::Greater) => {
-                let l = (*node.as_ptr()).left;
+                let l = node.as_ref().left;
                 insert(tree, element, Some(node), l)
             }
             _ => None,
         },
-        (Some(node), None) => match (*node.as_ptr()).element.partial_cmp(&element) {
+        (Some(mut node), None) => match node.as_ref().element.partial_cmp(&element) {
             Some(Ordering::Less) => {
                 let child = Node::new_leaf(element, Some(node));
-                (*node.as_ptr()).right = Some(child);
+                node.as_mut().right = Some(child);
                 Some(child)
             }
             Some(Ordering::Greater) => {
                 let child = Node::new_leaf(element, Some(node));
-                (*node.as_ptr()).left = Some(child);
+                node.as_mut().left = Some(child);
                 Some(child)
             }
             _ => None,
@@ -105,25 +105,19 @@ unsafe fn find<T>(element: T, node: Option<NonNull<Node<T>>>) -> Option<NonNull<
 where
     T: std::cmp::PartialOrd,
 {
-    node.and_then(
-        |node| match (*node.as_ptr()).element.partial_cmp(&element) {
-            Some(Ordering::Less) => find(element, (*node.as_ptr()).right),
-            Some(Ordering::Greater) => find(element, (*node.as_ptr()).left),
-            Some(Ordering::Equal) => Some(node),
-            None => None,
-        },
-    )
+    node.and_then(|node| match node.as_ref().element.partial_cmp(&element) {
+        Some(Ordering::Less) => find(element, node.as_ref().right),
+        Some(Ordering::Greater) => find(element, node.as_ref().left),
+        Some(Ordering::Equal) => Some(node),
+        None => None,
+    })
 }
 
 unsafe fn find_min<T>(node: Option<NonNull<Node<T>>>) -> Option<NonNull<Node<T>>>
 where
     T: std::cmp::PartialOrd,
 {
-    node.and_then(|node| {
-        (*node.as_ptr())
-            .left
-            .map_or(Some(node), |l| find_min(Some(l)))
-    })
+    node.and_then(|node| node.as_ref().left.map_or(Some(node), |l| find_min(Some(l))))
 }
 
 unsafe fn find_max<T>(node: Option<NonNull<Node<T>>>) -> Option<NonNull<Node<T>>>
@@ -131,7 +125,7 @@ where
     T: std::cmp::PartialOrd,
 {
     node.and_then(|node| {
-        (*node.as_ptr())
+        node.as_ref()
             .right
             .map_or(Some(node), |r| find_max(Some(r)))
     })
@@ -142,18 +136,18 @@ where
     T: std::cmp::PartialOrd + Copy,
 {
     find(element, node).and_then(|node| {
-        match (*node.as_ptr()).right {
+        match node.as_ref().right {
             //右分支的最小值
             Some(r) => find_min(Some(r)),
             None => {
                 //右分支为空，向上找
-                let mut parent = (*node.as_ptr()).parent;
+                let mut parent = node.as_ref().parent;
                 loop {
                     match Node::right_node(parent) {
                         Some(r) if (*r.as_ptr()).element == element => {
                             let the_parent = parent.unwrap();
-                            element = (*the_parent.as_ptr()).element;
-                            parent = (*the_parent.as_ptr()).parent;
+                            element = the_parent.as_ref().element;
+                            parent = the_parent.as_ref().parent;
                         }
                         _ => return parent,
                     }
@@ -173,13 +167,13 @@ where
             Some(l) => find_max(Some(l)),
             None => {
                 //左分支为空，向上找
-                let mut parent = (*node.as_ptr()).parent;
+                let mut parent = node.as_ref().parent;
                 loop {
                     match Node::left_node(parent) {
-                        Some(l) if (*l.as_ptr()).element == element => {
+                        Some(l) if l.as_ref().element == element => {
                             let the_parent = parent.unwrap();
-                            element = (*the_parent.as_ptr()).element;
-                            parent = (*the_parent.as_ptr()).parent;
+                            element = the_parent.as_ref().element;
+                            parent = the_parent.as_ref().parent;
                         }
                         _ => return parent,
                     }
@@ -201,11 +195,11 @@ where
     find(element, node).map_or(false, |node| {
         match Node::children_count(node) {
             0 => {
-                let parent = (*node.as_ptr()).parent.unwrap();
-                if (*parent.as_ptr()).left == Some(node) {
-                    (*parent.as_ptr()).left = None;
-                } else if (*parent.as_ptr()).right == Some(node) {
-                    (*parent.as_ptr()).right = None;
+                let mut parent = node.as_ref().parent.unwrap();
+                if parent.as_ref().left == Some(node) {
+                    parent.as_mut().left = None;
+                } else if parent.as_ref().right == Some(node) {
+                    parent.as_mut().right = None;
                 }
 
                 Node::release(node);
@@ -213,18 +207,18 @@ where
             }
             1 => {
                 //backup node child
-                let child = if (*node.as_ptr()).left.is_some() {
-                    (*node.as_ptr()).left
+                let child = if node.as_ref().left.is_some() {
+                    node.as_ref().left
                 } else {
-                    (*node.as_ptr()).right
+                    node.as_ref().right
                 };
 
                 // rm child, setup child node
-                let parent = (*node.as_ptr()).parent.unwrap();
-                if (*parent.as_ptr()).left == Some(node) {
-                    (*parent.as_ptr()).left = child;
-                } else if (*parent.as_ptr()).right == Some(node) {
-                    (*parent.as_ptr()).right = child;
+                let mut parent = node.as_ref().parent.unwrap();
+                if parent.as_ref().left == Some(node) {
+                    parent.as_mut().left = child;
+                } else if parent.as_ref().right == Some(node) {
+                    parent.as_mut().right = child;
                 }
 
                 Node::release(node);
@@ -232,9 +226,9 @@ where
             }
             _ => {
                 //我们用其右子树中的最小值替换掉 x
-                let right = (*node.as_ptr()).right;
+                let right = node.as_ref().right;
                 let min_node = find_min(right).unwrap();
-                let min = (*min_node.as_ptr()).element;
+                let min = min_node.as_ref().element;
                 (*node.as_ptr()).element = min;
 
                 //右子树中的这一最小值“切掉”

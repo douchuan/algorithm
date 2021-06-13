@@ -57,16 +57,16 @@ where
                 parent = records.pop_front().unwrap();
             }
             NodeType::LeftChild => {
-                if let Some(parent) = parent {
+                if let Some(mut parent) = parent {
                     unsafe {
-                        (*parent.as_ptr()).left = cur;
+                        parent.as_mut().left = cur;
                     }
                 }
             }
             NodeType::RightChild => {
-                if let Some(parent) = parent {
+                if let Some(mut parent) = parent {
                     unsafe {
-                        (*parent.as_ptr()).right = cur;
+                        parent.as_mut().right = cur;
                     }
                 }
 
