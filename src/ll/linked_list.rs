@@ -62,6 +62,14 @@ impl<T> LinkedList<T> {
             marker: PhantomData,
         }
     }
+
+    pub fn first(&self) -> Option<&T> {
+        unsafe { self.head.map(|node| &node.as_ref().element) }
+    }
+
+    pub fn last(&self) -> Option<&T> {
+        unsafe { self.tail.map(|node| &node.as_ref().element) }
+    }
 }
 
 impl<T> IntoIterator for LinkedList<T> {
