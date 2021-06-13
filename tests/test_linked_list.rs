@@ -27,7 +27,9 @@ fn reverse() {
     }
 
     //reverse
+    let head = ll.head;
     ll.head = ll::reverse::reverse(ll.head);
+    ll.tail = head;
     let ll_data: Vec<i32> = ll.into_iter().collect();
     assert_eq!(ll_data, vec![5, 4, 3, 2, 1]);
 }

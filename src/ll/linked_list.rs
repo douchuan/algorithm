@@ -4,7 +4,7 @@ use std::ptr::NonNull;
 
 pub struct LinkedList<T> {
     pub head: Option<NonNull<Node<T>>>,
-    tail: Option<NonNull<Node<T>>>,
+    pub tail: Option<NonNull<Node<T>>>,
     len: usize,
 }
 
