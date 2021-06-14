@@ -10,6 +10,10 @@ pub fn find<T>(l: &LinkedList<T>, k: usize) -> Option<NonNull<Node<T>>> {
     unsafe { do_find(l.head, k) }
 }
 
+/// 设链表的长度为 N。设置两个指针 P1 和 P2，先让 P1 移动 K 个节点，
+/// 则还有 N - K 个节点可以移动。此时让 P1 和 P2 同时移动，可以知道
+/// 当 P1 移动到链表结尾时，P2 移动到第 N - K 个节点处，该位置就是
+/// 倒数第 K 个节点。
 unsafe fn do_find<T>(node: Option<NonNull<Node<T>>>, mut k: usize) -> Option<NonNull<Node<T>>> {
     let mut p1 = node;
     loop {

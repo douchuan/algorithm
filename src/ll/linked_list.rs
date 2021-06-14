@@ -10,7 +10,7 @@ pub struct LinkedList<T> {
 
 pub struct Iter<'a, T: 'a> {
     head: Option<NonNull<Node<T>>>,
-    tail: Option<NonNull<Node<T>>>,
+    // tail: Option<NonNull<Node<T>>>,
     len: usize,
     marker: PhantomData<&'a Node<T>>,
 }
@@ -57,7 +57,7 @@ impl<T> LinkedList<T> {
     pub fn iter(&self) -> Iter<'_, T> {
         Iter {
             head: self.head,
-            tail: self.tail,
+            // tail: self.tail,
             len: self.len,
             marker: PhantomData,
         }

@@ -1,3 +1,4 @@
+pub mod cycle;
 pub mod kth2tail;
 mod linked_list;
 mod node;
