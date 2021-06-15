@@ -142,7 +142,7 @@ where
                 //右分支为空，向上找
                 let mut parent = node.as_ref().parent;
                 loop {
-                    match Node::right_node(parent) {
+                    match Node::right(parent) {
                         Some(r) if (*r.as_ptr()).element == element => {
                             let the_parent = parent.unwrap();
                             element = the_parent.as_ref().element;
@@ -168,7 +168,7 @@ where
                 //左分支为空，向上找
                 let mut parent = node.as_ref().parent;
                 loop {
-                    match Node::left_node(parent) {
+                    match Node::left(parent) {
                         Some(l) if l.as_ref().element == element => {
                             let the_parent = parent.unwrap();
                             element = the_parent.as_ref().element;

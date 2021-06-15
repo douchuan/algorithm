@@ -47,6 +47,7 @@
 //! balance的四种情况都把红色向上移动一层。如果进行自底向上的递归修复，可能会把根节点染成红色。
 //! 根据性质2，最后需要把根节点变回黑色。
 
+use crate::tree::binary::node::Color;
 use crate::tree::binary::Node;
 use std::ptr::NonNull;
 

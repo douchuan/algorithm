@@ -70,13 +70,24 @@ impl<T> Node<T> {
     pub fn children_count(node: NonNull<Self>) -> usize {
         unsafe { node.as_ref().left.map_or(0, |_| 1) + node.as_ref().right.map_or(0, |_| 1) }
     }
+}
 
-    pub fn left_node(node: Option<NonNull<Self>>) -> Option<NonNull<Self>> {
+// relation
+impl<T> Node<T> {
+    pub fn left(node: Option<NonNull<Self>>) -> Option<NonNull<Self>> {
         unsafe { node.and_then(|node| node.as_ref().left) }
     }
 
-    pub fn right_node(node: Option<NonNull<Self>>) -> Option<NonNull<Self>> {
+    pub fn right(node: Option<NonNull<Self>>) -> Option<NonNull<Self>> {
         unsafe { node.and_then(|node| node.as_ref().right) }
+    }
+
+    pub fn parent(node: Option<NonNull<Self>>) -> Option<NonNull<Self>> {
+        unsafe { node.and_then(|node| node.as_ref().parent) }
+    }
+
+    pub fn grandparent(node: NonNull<Self>) -> Option<NonNull<Self>> {
+        Self::parent(Self::parent(Some(node)))
     }
 
     pub fn sibling(node: NonNull<Self>) -> Option<NonNull<Self>> {
@@ -104,17 +115,12 @@ impl<T> Node<T> {
             })
         }
     }
+}
 
-    pub fn grandparent(node: NonNull<Self>) -> Option<NonNull<Self>> {
-        unsafe {
-            node.as_ref()
-                .parent
-                .and_then(|parent| parent.as_ref().parent)
-        }
-    }
-
+// obtain color
+impl<T> Node<T> {
     pub fn parent_color(node: NonNull<Self>) -> Option<Color> {
-        unsafe { node.as_ref().parent.map(|parent| parent.as_ref().color) }
+        unsafe { Self::parent(Some(node)).map(|parent| parent.as_ref().color) }
     }
 
     pub fn uncle_color(node: NonNull<Self>) -> Option<Color> {
@@ -130,3 +136,6 @@ where
         v.parse().ok().and_then(|v| Some(Self::from_element(v)))
     }
 }
+
+// rotate
+impl<T> Node<T> {}
