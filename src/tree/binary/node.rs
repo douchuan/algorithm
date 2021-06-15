@@ -1,5 +1,17 @@
+//!
+//! NODE relation:
+//!
+//!              grandparent
+//!              /         \
+//!           uncle       parent
+//!                      /     \
+//!                  (NODE)    sibling
+//!                       \
+//!                      child
+
 use std::ptr::NonNull;
 
+#[derive(Copy, Clone)]
 pub enum Color {
     Red,
     Black,
@@ -65,6 +77,48 @@ impl<T> Node<T> {
 
     pub fn right_node(node: Option<NonNull<Self>>) -> Option<NonNull<Self>> {
         unsafe { node.and_then(|node| node.as_ref().right) }
+    }
+
+    pub fn sibling(node: NonNull<Self>) -> Option<NonNull<Self>> {
+        unsafe {
+            node.as_ref().parent.and_then(|parent| {
+                if parent.as_ref().left == Some(node) {
+                    parent.as_ref().right
+                } else {
+                    parent.as_ref().left
+                }
+            })
+        }
+    }
+
+    pub fn uncle(node: NonNull<Self>) -> Option<NonNull<Self>> {
+        unsafe {
+            node.as_ref().parent.and_then(|parent| {
+                parent.as_ref().parent.and_then(|grandparent| {
+                    if grandparent.as_ref().left == Some(parent) {
+                        grandparent.as_ref().right
+                    } else {
+                        grandparent.as_ref().left
+                    }
+                })
+            })
+        }
+    }
+
+    pub fn grandparent(node: NonNull<Self>) -> Option<NonNull<Self>> {
+        unsafe {
+            node.as_ref()
+                .parent
+                .and_then(|parent| parent.as_ref().parent)
+        }
+    }
+
+    pub fn parent_color(node: NonNull<Self>) -> Option<Color> {
+        unsafe { node.as_ref().parent.map(|parent| parent.as_ref().color) }
+    }
+
+    pub fn uncle_color(node: NonNull<Self>) -> Option<Color> {
+        unsafe { Self::uncle(node).map(|uncle| uncle.as_ref().color) }
     }
 }
 
