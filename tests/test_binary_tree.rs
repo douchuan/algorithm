@@ -210,14 +210,12 @@ fn binary_search_tree_min_max() {
     }
 
     //min
-    let node = tree.min().unwrap();
-    let element = unsafe { (*node.as_ptr()).element };
-    assert_eq!(element, 1);
+    let v = tree.min();
+    assert_eq!(v, Some(1));
 
     //max
-    let node = tree.max().unwrap();
-    let element = unsafe { (*node.as_ptr()).element };
-    assert_eq!(element, 16);
+    let v = tree.max();
+    assert_eq!(v, Some(16));
 }
 
 #[test]
@@ -229,20 +227,16 @@ fn binary_search_tree_succ_pred() {
     }
 
     //succ
-    let node = tree.succ(8).unwrap();
-    let element = unsafe { (*node.as_ptr()).element };
-    assert_eq!(element, 9);
-    let node = tree.succ(2).unwrap();
-    let element = unsafe { (*node.as_ptr()).element };
-    assert_eq!(element, 3);
+    let v = tree.succ(8);
+    assert_eq!(v, Some(9));
+    let v = tree.succ(2);
+    assert_eq!(v, Some(3));
 
     //pred
-    let node = tree.pred(9).unwrap();
-    let element = unsafe { (*node.as_ptr()).element };
-    assert_eq!(element, 8);
-    let node = tree.pred(3).unwrap();
-    let element = unsafe { (*node.as_ptr()).element };
-    assert_eq!(element, 2);
+    let v = tree.pred(9);
+    assert_eq!(v, Some(8));
+    let v = tree.pred(3);
+    assert_eq!(v, Some(2));
 }
 
 #[test]

@@ -43,15 +43,13 @@ fn find_kth2tail() {
     let ll = create_ll(&data);
 
     let p = ll::kth2tail::find(&ll, 2);
-    assert!(p.is_some());
     assert_eq!(unsafe { p.unwrap().as_ref().element }, 8);
 
     let p = ll::kth2tail::find(&ll, 5);
-    assert!(p.is_some());
     assert_eq!(unsafe { p.unwrap().as_ref().element }, 5);
 
     let p = ll::kth2tail::find(&ll, 10);
-    assert!(p.is_none());
+    assert_eq!(p, None);
 }
 
 #[test]

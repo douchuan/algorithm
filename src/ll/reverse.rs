@@ -12,6 +12,7 @@ pub fn reverse<T>(l: &mut LinkedList<T>) {
     l.tail = head;
 }
 
+// 递归，先找到tail，然后从后向前修正指针
 unsafe fn do_reverse<T>(node: Option<NonNull<Node<T>>>) -> Option<NonNull<Node<T>>> {
     node.and_then(|mut node| match node.as_mut().next.take() {
         None => Some(node), // new_head, origin tail

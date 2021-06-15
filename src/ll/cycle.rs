@@ -11,14 +11,14 @@ pub fn has_cycle<T>(p: Option<NonNull<Node<T>>>) -> bool {
     let mut fast = p;
     let mut slow = p;
 
-    unsafe {
-        loop {
+    loop {
+        unsafe {
             fast = fast.and_then(|v| v.as_ref().next.and_then(|next| next.as_ref().next));
             slow = slow.and_then(|v| v.as_ref().next);
+        }
 
-            if fast.is_none() || fast == slow {
-                break;
-            }
+        if fast.is_none() || fast == slow {
+            break;
         }
     }
 

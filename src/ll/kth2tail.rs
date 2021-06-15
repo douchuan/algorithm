@@ -16,29 +16,21 @@ pub fn find<T>(l: &LinkedList<T>, k: usize) -> Option<NonNull<Node<T>>> {
 /// 倒数第 K 个节点。
 unsafe fn do_find<T>(node: Option<NonNull<Node<T>>>, mut k: usize) -> Option<NonNull<Node<T>>> {
     let mut p1 = node;
-    loop {
-        match p1 {
-            Some(node) if k > 0 => {
-                p1 = node.as_ref().next;
-                k -= 1;
-            }
-            _ => break,
-        }
-    }
 
+    // p1 move k nodes
+    while p1.is_some() && k > 0 {
+        p1 = p1.unwrap().as_ref().next;
+        k -= 1;
+    }
     if k > 0 {
         return None;
     }
 
+    // p2 移动到第 N - K 个节点处
     let mut p2 = node;
-    loop {
-        match p1 {
-            Some(node) => {
-                p1 = node.as_ref().next;
-                p2 = p2.unwrap().as_ref().next;
-            }
-            None => break,
-        }
+    while p1.is_some() {
+        p1 = p1.unwrap().as_ref().next;
+        p2 = p2.unwrap().as_ref().next;
     }
 
     p2

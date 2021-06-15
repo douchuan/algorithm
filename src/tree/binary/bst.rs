@@ -15,14 +15,13 @@ where
     ///   None: not insert, exist
     fn insert(&mut self, element: T) -> Option<NonNull<Node<T>>>;
     fn delete(&mut self, element: T) -> bool;
-    /// return node index
     fn find(&self, element: T) -> Option<NonNull<Node<T>>>;
-    fn min(&self) -> Option<NonNull<Node<T>>>;
-    fn max(&self) -> Option<NonNull<Node<T>>>;
+    fn min(&self) -> Option<T>;
+    fn max(&self) -> Option<T>;
     /// 查找后继元素
-    fn succ(&self, element: T) -> Option<NonNull<Node<T>>>;
+    fn succ(&self, element: T) -> Option<T>;
     /// 寻找前驱元素
-    fn pred(&self, elementx: T) -> Option<NonNull<Node<T>>>;
+    fn pred(&self, elementx: T) -> Option<T>;
 }
 
 impl<T> BSTree<T> for Tree<T>
@@ -41,20 +40,20 @@ where
         unsafe { find(element, self.root) }
     }
 
-    fn min(&self) -> Option<NonNull<Node<T>>> {
-        unsafe { find_min(self.root) }
+    fn min(&self) -> Option<T> {
+        unsafe { find_min(self.root).map(|p| p.as_ref().element) }
     }
 
-    fn max(&self) -> Option<NonNull<Node<T>>> {
-        unsafe { find_max(self.root) }
+    fn max(&self) -> Option<T> {
+        unsafe { find_max(self.root).map(|p| p.as_ref().element) }
     }
 
-    fn succ(&self, element: T) -> Option<NonNull<Node<T>>> {
-        unsafe { succ(self.root, element) }
+    fn succ(&self, element: T) -> Option<T> {
+        unsafe { succ(self.root, element).map(|p| p.as_ref().element) }
     }
 
-    fn pred(&self, element: T) -> Option<NonNull<Node<T>>> {
-        unsafe { pred(self.root, element) }
+    fn pred(&self, element: T) -> Option<T> {
+        unsafe { pred(self.root, element).map(|p| p.as_ref().element) }
     }
 }
 
@@ -101,7 +100,7 @@ where
     }
 }
 
-unsafe fn find<T>(element: T, node: Option<NonNull<Node<T>>>) -> Option<NonNull<Node<T>>>
+pub unsafe fn find<T>(element: T, node: Option<NonNull<Node<T>>>) -> Option<NonNull<Node<T>>>
 where
     T: std::cmp::PartialOrd,
 {
@@ -113,14 +112,14 @@ where
     })
 }
 
-unsafe fn find_min<T>(node: Option<NonNull<Node<T>>>) -> Option<NonNull<Node<T>>>
+pub unsafe fn find_min<T>(node: Option<NonNull<Node<T>>>) -> Option<NonNull<Node<T>>>
 where
     T: std::cmp::PartialOrd,
 {
     node.and_then(|node| node.as_ref().left.map_or(Some(node), |l| find_min(Some(l))))
 }
 
-unsafe fn find_max<T>(node: Option<NonNull<Node<T>>>) -> Option<NonNull<Node<T>>>
+pub unsafe fn find_max<T>(node: Option<NonNull<Node<T>>>) -> Option<NonNull<Node<T>>>
 where
     T: std::cmp::PartialOrd,
 {
