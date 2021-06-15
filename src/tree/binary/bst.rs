@@ -191,15 +191,16 @@ unsafe fn delete<T>(element: T, node: Option<NonNull<Node<T>>>) -> bool
 where
     T: Copy + std::cmp::PartialOrd,
 {
-    find(element, node).map_or(false, |node| {
+    find(element, node).map_or(false, |mut node| {
         match Node::children_count(node) {
             0 => {
+                //leaf
                 let mut parent = node.as_ref().parent.unwrap();
-                if parent.as_ref().left == Some(node) {
-                    parent.as_mut().left = None;
-                } else if parent.as_ref().right == Some(node) {
-                    parent.as_mut().right = None;
-                }
+                let _ = if parent.as_ref().left == Some(node) {
+                    parent.as_mut().left.take()
+                } else {
+                    parent.as_mut().right.take()
+                };
 
                 Node::release(node);
                 true
@@ -207,9 +208,9 @@ where
             1 => {
                 //backup node child
                 let child = if node.as_ref().left.is_some() {
-                    node.as_ref().left
+                    node.as_mut().left.take()
                 } else {
-                    node.as_ref().right
+                    node.as_mut().right.take()
                 };
 
                 // rm child, setup child node

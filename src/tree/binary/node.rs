@@ -1,13 +1,13 @@
-//!
-//! NODE relation:
-//!
-//!              grandparent
-//!              /         \
-//!           uncle       parent
-//!                      /     \
-//!                  (NODE)    sibling
-//!                       \
-//!                      child
+//
+// NODE relation:
+//
+//              grandparent
+//              /         \
+//           uncle       parent
+//                      /     \
+//                  (NODE)    sibling
+//                       \
+//                      child
 
 use std::ptr::NonNull;
 
