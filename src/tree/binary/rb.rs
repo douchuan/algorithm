@@ -110,7 +110,7 @@ Chris Okasaki 指出，共有四种情况会违反红黑树的第四条性质。
 */
 
 use crate::tree::binary::node::Color;
-use crate::tree::binary::Node;
+use crate::tree::binary::{Node, NodeQuery};
 use std::ptr::NonNull;
 
 pub trait RedBlackTree<T>
@@ -131,30 +131,24 @@ where
 }
 
 // todo: if element exist, just return
-unsafe fn insert<T>(mut p: Option<NonNull<Node<T>>>, element: T)
+unsafe fn insert<T>(mut root: Option<NonNull<Node<T>>>, element: T)
 where
     T: std::cmp::PartialOrd + Copy,
 {
-    let mut root = p;
-    let mut x = Node::from_element(element);
-    let mut parent = None;
-
     //寻找插入点
-    loop {
-        match p {
-            Some(node) => {
-                parent = p;
-                p = if element < node.as_ref().element {
-                    node.as_ref().left
-                } else {
-                    node.as_ref().right
-                };
-            }
-            None => break,
-        }
+    let mut nq = NodeQuery::new(root);
+    let mut parent = None;
+    while nq.is_some() {
+        parent = nq.get();
+        nq = if element < nq.get_element().unwrap() {
+            nq.left()
+        } else {
+            nq.right()
+        };
     }
 
     //插入x
+    let mut x = Node::from_element(element);
     match parent {
         None => root = Some(x),
         Some(mut parent) => {
