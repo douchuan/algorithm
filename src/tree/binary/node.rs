@@ -56,16 +56,6 @@ impl<T> Node<T> {
         }
     }
 
-    /// 一个节点的左右子树都为空，称之为 叶子节点
-    pub fn is_leaf(node: NonNull<Self>) -> bool {
-        Self::children_count(node) == 0
-    }
-
-    /// 分支节点
-    pub fn is_branch(node: NonNull<Self>) -> bool {
-        !Self::is_leaf(node)
-    }
-
     /// 直接子节点个数，不包括孙子...
     pub fn children_count(node: NonNull<Self>) -> usize {
         unsafe { node.as_ref().left.map_or(0, |_| 1) + node.as_ref().right.map_or(0, |_| 1) }
@@ -86,45 +76,34 @@ impl<T> Node<T> {
         unsafe { node.and_then(|node| node.as_ref().parent) }
     }
 
-    pub fn grandparent(node: NonNull<Self>) -> Option<NonNull<Self>> {
-        Self::parent(Self::parent(Some(node)))
-    }
-
-    pub fn sibling(node: NonNull<Self>) -> Option<NonNull<Self>> {
+    pub fn sibling(node: Option<NonNull<Self>>) -> Option<NonNull<Self>> {
         unsafe {
-            node.as_ref().parent.and_then(|parent| {
-                if parent.as_ref().left == Some(node) {
-                    parent.as_ref().right
-                } else {
-                    parent.as_ref().left
-                }
-            })
-        }
-    }
-
-    pub fn uncle(node: NonNull<Self>) -> Option<NonNull<Self>> {
-        unsafe {
-            node.as_ref().parent.and_then(|parent| {
-                parent.as_ref().parent.and_then(|grandparent| {
-                    if grandparent.as_ref().left == Some(parent) {
-                        grandparent.as_ref().right
+            node.and_then(|node| {
+                node.as_ref().parent.and_then(|parent| {
+                    if parent.as_ref().left == Some(node) {
+                        parent.as_ref().right
                     } else {
-                        grandparent.as_ref().left
+                        parent.as_ref().left
                     }
                 })
             })
         }
     }
-}
 
-// obtain color
-impl<T> Node<T> {
-    pub fn parent_color(node: NonNull<Self>) -> Option<Color> {
-        unsafe { Self::parent(Some(node)).map(|parent| parent.as_ref().color) }
-    }
-
-    pub fn uncle_color(node: NonNull<Self>) -> Option<Color> {
-        unsafe { Self::uncle(node).map(|uncle| uncle.as_ref().color) }
+    pub fn uncle(node: Option<NonNull<Self>>) -> Option<NonNull<Self>> {
+        unsafe {
+            node.and_then(|node| {
+                node.as_ref().parent.and_then(|parent| {
+                    parent.as_ref().parent.and_then(|grandparent| {
+                        if grandparent.as_ref().left == Some(parent) {
+                            grandparent.as_ref().right
+                        } else {
+                            grandparent.as_ref().left
+                        }
+                    })
+                })
+            })
+        }
     }
 }
 
@@ -139,3 +118,100 @@ where
 
 // rotate
 impl<T> Node<T> {}
+
+/// A node adapter, like jQuery
+#[derive(Copy, Clone)]
+pub struct NodeQuery<T> {
+    node: Option<NonNull<Node<T>>>,
+}
+
+impl<T> NodeQuery<T> {
+    pub fn new(node: Option<NonNull<Node<T>>>) -> Self {
+        Self { node }
+    }
+
+    /// create NodeQuery from node parent
+    pub fn new_parent(node: Option<NonNull<Node<T>>>) -> Self {
+        Self::new(node).parent()
+    }
+
+    pub fn get(&self) -> Option<NonNull<Node<T>>> {
+        self.node
+    }
+
+    pub fn set(&mut self, node: Option<NonNull<Node<T>>>) {
+        self.node = node;
+    }
+
+    pub fn set_element(&mut self, element: T) {
+        self.node
+            .map(|mut node| unsafe { node.as_mut().element = element });
+    }
+
+    pub fn is_some(&self) -> bool {
+        self.node.is_some()
+    }
+
+    pub fn is_none(&self) -> bool {
+        self.node.is_none()
+    }
+
+    pub fn is_leaf(&self) -> bool {
+        self.node
+            .map_or(true, |node| Node::children_count(node) == 0)
+    }
+
+    pub fn is_branch(&self) -> bool {
+        !self.is_leaf()
+    }
+
+    pub fn left(&self) -> Self {
+        let v = Node::left(self.node);
+        Self::new(v)
+    }
+
+    pub fn right(&self) -> Self {
+        let v = Node::right(self.node);
+        Self::new(v)
+    }
+
+    pub fn sibling(&self) -> Self {
+        let v = Node::sibling(self.node);
+        Self::new(v)
+    }
+
+    pub fn parent(&self) -> Self {
+        let v = Node::parent(self.node);
+        Self::new(v)
+    }
+
+    pub fn grandparent(&self) -> Self {
+        self.parent().parent()
+    }
+
+    pub fn uncle(&self) -> Self {
+        let v = Node::uncle(self.node);
+        Self::new(v)
+    }
+
+    pub fn color(&self) -> Option<Color> {
+        unsafe { self.node.map(|node| node.as_ref().color) }
+    }
+}
+
+impl<T> NodeQuery<T>
+where
+    T: Copy,
+{
+    pub fn left_element(&self) -> Option<T> {
+        self.left().get_element()
+    }
+
+    pub fn right_element(&self) -> Option<T> {
+        self.right().get_element()
+    }
+
+    pub fn get_element(&self) -> Option<T> {
+        unsafe { self.node.map(|node| node.as_ref().element) }
+    }
+}
