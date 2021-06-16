@@ -79,8 +79,12 @@ where
     let mut nq = NodeQuery::new_parent(Some(node));
     while nq.is_some() {
         let mut new_max = nq.get_element().unwrap();
-        nq.left_element().map(|v| new_max = new_max.max(v));
-        nq.right_element().map(|v| new_max = new_max.max(v));
+        if let Some(v) = nq.left_element() {
+            new_max = new_max.max(v);
+        }
+        if let Some(v) = nq.right_element() {
+            new_max = new_max.max(v);
+        }
         nq.set_element(new_max);
         nq = nq.parent();
     }
@@ -100,9 +104,9 @@ where
     while nodes.len() > 1 {
         nodes = nodes
             .chunks(2)
-            .map(|chunk| match chunk {
-                &[t1, t2] => unsafe { branch(t1, t2) },
-                &[t] => t,
+            .map(|chunk| match *chunk {
+                [t1, t2] => unsafe { branch(t1, t2) },
+                [t] => t,
                 _ => unreachable!(),
             })
             .collect();

@@ -15,23 +15,15 @@ where
 {
     let mut stack = Vec::with_capacity(ll.len());
     let mut p = ll.head;
-    loop {
-        match p {
-            Some(node) => {
-                let element = unsafe { node.as_ref().element };
-                stack.push(element);
-                p = unsafe { node.as_ref().next };
-            }
-            None => break,
-        }
+    while let Some(node) = p {
+        let element = unsafe { node.as_ref().element };
+        stack.push(element);
+        p = unsafe { node.as_ref().next };
     }
 
     let mut res = Vec::with_capacity(stack.len());
-    loop {
-        match stack.pop() {
-            Some(element) => res.push(element),
-            None => break,
-        }
+    while let Some(element) = stack.pop() {
+        res.push(element);
     }
 
     res

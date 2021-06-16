@@ -1,9 +1,13 @@
-TEST = rustup run nightly cargo test
-BENCH = rustup run nightly cargo bench
-BUILD = rustup run nightly cargo build
+CARGO = rustup run nightly cargo
+TEST = $(CARGO) test
+BENCH = $(CARGO) bench
+BUILD = $(CARGO) build
 
 build:
 	$(BUILD)
+
+clippy:
+	$(CARGO) clippy
 
 test:
 	$(TEST)

@@ -28,11 +28,11 @@ impl<T> Default for Tree<T> {
 impl<T> Drop for Tree<T> {
     fn drop(&mut self) {
         fn visitor<T>(p: Option<NonNull<Node<T>>>) {
-            p.map(|p| {
+            if let Some(p) = p {
                 let p = unsafe { Box::from_raw(p.as_ptr()) };
                 visitor(p.left);
                 visitor(p.right);
-            });
+            }
         }
         visitor(self.root);
     }

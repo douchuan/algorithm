@@ -141,13 +141,8 @@ impl<T> Iterator for IntoIter<T> {
 
 unsafe fn do_drop<T>(head: Option<NonNull<Node<T>>>) {
     let mut p = head;
-    loop {
-        match p {
-            Some(node) => {
-                let mut node = Box::from_raw(node.as_ptr());
-                p = node.next.take();
-            }
-            None => break,
-        }
+    while let Some(node) = p {
+        let mut node = Box::from_raw(node.as_ptr());
+        p = node.next.take();
     }
 }

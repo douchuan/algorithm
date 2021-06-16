@@ -12,7 +12,7 @@ where
     let len = a.len();
     let mut gap = len;
     while gap > 1 {
-        gap = gap / 2;
+        gap /= 2;
 
         for i in gap..len {
             let insert_v = a[i];

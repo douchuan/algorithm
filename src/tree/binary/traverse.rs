@@ -123,10 +123,8 @@ impl PreOrderVisitor {
         let mut p = tree.root;
         while let Some(node) = p {
             results.push(node.as_ref().element); //visit result
-            for pp in &[node.as_ref().right, node.as_ref().left] {
-                if let Some(pp) = pp {
-                    stack.push(*pp);
-                }
+            for pp in [node.as_ref().right, node.as_ref().left].iter().flatten() {
+                stack.push(*pp);
             }
 
             p = stack.pop();
@@ -341,10 +339,8 @@ impl LevelOrderVisitor {
                             .last_mut()
                             .expect("empty results container")
                             .push((*node.as_ptr()).element);
-                        for child in &[node.as_ref().left, node.as_ref().right] {
-                            if let Some(child) = child {
-                                next_level_nodes.push(*child);
-                            }
+                        for child in [node.as_ref().left, node.as_ref().right].iter().flatten() {
+                            next_level_nodes.push(*child);
                         }
                     }
                     None => {
@@ -381,10 +377,8 @@ impl LevelOrderVisitor {
 
             let mut next_level_nodes = vec![];
             for node in level_nodes {
-                for child in &[node.as_ref().left, node.as_ref().right] {
-                    if let Some(child) = child {
-                        next_level_nodes.push(*child);
-                    }
+                for child in [node.as_ref().left, node.as_ref().right].iter().flatten() {
+                    next_level_nodes.push(*child);
                 }
                 results[pos].push(node.as_ref().element);
             }
@@ -447,10 +441,8 @@ impl ZigzagOrderVisitor {
                             vec![node.as_ref().right, node.as_ref().left]
                         };
 
-                        for child in children {
-                            if let Some(child) = child {
-                                next_level_nodes.push(child);
-                            }
+                        for child in children.into_iter().flatten() {
+                            next_level_nodes.push(child);
                         }
                     }
                     None => {
@@ -496,10 +488,8 @@ impl ZigzagOrderVisitor {
                 } else {
                     vec![node.as_ref().right, node.as_ref().left]
                 };
-                for child in children {
-                    if let Some(child) = child {
-                        next_level_nodes.push(child);
-                    }
+                for child in children.into_iter().flatten() {
+                    next_level_nodes.push(child);
                 }
                 results[pos].push(node.as_ref().element);
             }

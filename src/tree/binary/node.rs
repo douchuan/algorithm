@@ -112,7 +112,7 @@ where
     T: std::str::FromStr,
 {
     pub fn from_str(v: &str) -> Option<NonNull<Node<T>>> {
-        v.parse().ok().and_then(|v| Some(Self::from_element(v)))
+        v.parse().ok().map(Self::from_element)
     }
 }
 
@@ -144,8 +144,9 @@ impl<T> NodeQuery<T> {
     }
 
     pub fn set_element(&mut self, element: T) {
-        self.node
-            .map(|mut node| unsafe { node.as_mut().element = element });
+        if let Some(mut node) = self.node {
+            unsafe { node.as_mut().element = element }
+        }
     }
 
     pub fn is_some(&self) -> bool {

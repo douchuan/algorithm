@@ -22,5 +22,5 @@ pub fn has_cycle<T>(p: Option<NonNull<Node<T>>>) -> bool {
         }
     }
 
-    return fast.is_some() && fast == slow;
+    fast.is_some() && fast == slow
 }
