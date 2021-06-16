@@ -1,6 +1,7 @@
 use crate::tree::binary::builder::TreeBuilder;
 use crate::tree::binary::node::Node;
 use crate::tree::binary::tree::Tree;
+use crate::tree::binary::NodeQuery;
 use std::cmp::max;
 use std::ptr::NonNull;
 
@@ -36,15 +37,13 @@ fn pop<T>(tree: &mut Tree<T>) -> Option<T>
 where
     T: Copy + std::cmp::Ord + Minimal,
 {
-    let element = tree.root.map(|root| unsafe { (*root.as_ptr()).element });
-    match element {
+    let nq = NodeQuery::new(tree.root);
+    match nq.get_element() {
         Some(element) if element != T::minimal() => {
-            unsafe {
-                //每次取出锦标赛树的根节点后，自顶向下将其替换为min
-                let leaf = replace_max_by_min(tree.root.unwrap(), element);
-                //由叶子节点向上回溯，设置新的最大值
-                setup_new_max(leaf);
-            }
+            // 每次取出锦标赛树的根节点后，自顶向下将其替换为min
+            let leaf = replace_max_by_min(nq.get().unwrap(), element);
+            // 由叶子节点向上回溯，设置新的最大值
+            setup_new_max(leaf);
             Some(element)
         }
         _ => None,
@@ -52,43 +51,38 @@ where
 }
 
 // 返回叶子节点的序号
-unsafe fn replace_max_by_min<T>(mut node: NonNull<Node<T>>, root_element: T) -> NonNull<Node<T>>
+fn replace_max_by_min<T>(node: NonNull<Node<T>>, root_element: T) -> NonNull<Node<T>>
 where
     T: Copy + std::cmp::Ord + Minimal,
 {
-    (*node.as_ptr()).element = T::minimal();
+    let mut nq = NodeQuery::new(Some(node));
+    nq.set_element(T::minimal());
 
-    while !Node::is_leaf(node) {
-        node = match (*node.as_ptr()).left {
-            Some(left) if (*left.as_ptr()).element == root_element => left,
-            _ => (*node.as_ptr()).right.unwrap(),
+    while nq.is_branch() {
+        let child = if nq.left_element() == Some(root_element) {
+            nq.left()
+        } else {
+            nq.right()
         };
 
-        (*node.as_ptr()).element = T::minimal();
+        nq.set(child.get());
+        nq.set_element(T::minimal());
     }
 
-    node
+    nq.get().unwrap()
 }
 
-unsafe fn setup_new_max<T>(mut node: NonNull<Node<T>>)
+fn setup_new_max<T>(node: NonNull<Node<T>>)
 where
     T: Copy + std::cmp::Ord,
 {
-    loop {
-        match (*node.as_ptr()).parent {
-            Some(parent) => {
-                let mut new_max = (*parent.as_ptr()).element;
-                if let Some(l) = (*parent.as_ptr()).left {
-                    new_max = new_max.max((*l.as_ptr()).element);
-                }
-                if let Some(r) = (*parent.as_ptr()).right {
-                    new_max = new_max.max((*r.as_ptr()).element);
-                }
-                (*parent.as_ptr()).element = new_max;
-                node = parent;
-            }
-            _ => break,
-        }
+    let mut nq = NodeQuery::new_parent(Some(node));
+    while nq.is_some() {
+        let mut new_max = nq.get_element().unwrap();
+        nq.left_element().map(|v| new_max = new_max.max(v));
+        nq.right_element().map(|v| new_max = new_max.max(v));
+        nq.set_element(new_max);
+        nq = nq.parent();
     }
 }
 
@@ -107,28 +101,26 @@ where
         nodes = nodes
             .chunks(2)
             .map(|chunk| match chunk {
-                &[t1, t2] => branch(t1, t2),
+                &[t1, t2] => unsafe { branch(t1, t2) },
                 &[t] => t,
                 _ => unreachable!(),
             })
             .collect();
     }
 
-    tree.root = nodes.get(0).cloned();
+    tree.root = nodes.first().cloned();
     tree
 }
 
 /// 创建分支节点，取t1, t2较大者的value构造parent
-fn branch<T>(n1: NonNull<Node<T>>, n2: NonNull<Node<T>>) -> NonNull<Node<T>>
+unsafe fn branch<T>(mut n1: NonNull<Node<T>>, mut n2: NonNull<Node<T>>) -> NonNull<Node<T>>
 where
     T: Copy + std::cmp::Ord,
 {
-    let v = unsafe { max((*n1.as_ptr()).element, (*n2.as_ptr()).element) };
+    let v = max(n1.as_ref().element, n2.as_ref().element);
     let node = Node::new(v, Some(n1), Some(n2), None);
-    unsafe {
-        (*n1.as_ptr()).parent = Some(node);
-        (*n2.as_ptr()).parent = Some(node);
-    }
+    n1.as_mut().parent = Some(node);
+    n2.as_mut().parent = Some(node);
     node
 }
 

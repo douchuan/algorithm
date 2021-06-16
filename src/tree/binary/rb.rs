@@ -47,6 +47,68 @@
 //! balance的四种情况都把红色向上移动一层。如果进行自底向上的递归修复，可能会把根节点染成红色。
 //! 根据性质2，最后需要把根节点变回黑色。
 
+/*
+
+当插入一个 key 时，我们可以把新节点一律染成红色。只要它不是根节点，除了第四条外的所有红黑
+树性质都可以满足。唯一的问题就是可能引入两个相邻的红色节点。
+Chris Okasaki 指出，共有四种情况会违反红黑树的第四条性质。它们都带有两个相邻的红色节点。
+非常关键的一点是: 它们可以被修复为一个统一形式。
+
+
+插入后需要修复的四种情况
+
+1.
+
+            B(z)
+           /    \
+         R(y)    D
+        /   \
+      R(x)   C
+    /     \
+   A      B
+
+
+2.
+
+    B(x)
+  /     \
+ A      R(y)
+       /    \
+      B     R(z)
+            /  \
+           C    D
+
+3.
+
+        B(z)
+      /      \
+    R(x)      D
+   /   \
+  A    R(y)
+      /    \
+     B      C
+
+4.
+        B(x)
+      /      \
+     A       R(z)
+            /    \
+          R(y)    D
+        /     \
+       B       C
+
+=============================================
+
+被修复为一个统一形式
+
+            R(y)
+          /     \
+        B(x)    B(z)
+       /  \     /   \
+      A   B    C     D
+
+*/
+
 use crate::tree::binary::node::Color;
 use crate::tree::binary::Node;
 use std::ptr::NonNull;
@@ -74,7 +136,7 @@ where
     T: std::cmp::PartialOrd + Copy,
 {
     let mut root = p;
-    let mut x = Some(Node::from_element(element));
+    let mut x = Node::from_element(element);
     let mut parent = None;
 
     //寻找插入点
@@ -94,21 +156,21 @@ where
 
     //插入x
     match parent {
-        None => root = x,
+        None => root = Some(x),
         Some(mut parent) => {
             if element < parent.as_ref().element {
-                parent.as_mut().left = x;
+                parent.as_mut().left = Some(x);
             } else {
-                parent.as_mut().right = x;
+                parent.as_mut().right = Some(x);
             }
-            x.unwrap().as_mut().parent = Some(parent);
+            x.as_mut().parent = Some(parent);
         }
     }
 
-    insert_fix(root.unwrap(), x.unwrap())
+    insert_fix(root.unwrap(), x)
 }
 
-unsafe fn insert_fix<T>(mut p: NonNull<Node<T>>, mut x: NonNull<Node<T>>)
+unsafe fn insert_fix<T>(mut root: NonNull<Node<T>>, mut x: NonNull<Node<T>>)
 where
     T: std::cmp::PartialOrd + Copy,
 {

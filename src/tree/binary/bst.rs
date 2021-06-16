@@ -2,7 +2,7 @@
 //!   1. 所有左侧分支的值都小于本节点的值
 //!   2. 本节点的值小于所有右侧分支的值
 
-use crate::tree::binary::{Node, Tree};
+use crate::tree::binary::{Node, NodeQuery, Tree};
 use std::cmp::Ordering;
 use std::ptr::NonNull;
 
@@ -130,25 +130,22 @@ where
     })
 }
 
-unsafe fn succ<T>(node: Option<NonNull<Node<T>>>, mut element: T) -> Option<NonNull<Node<T>>>
+unsafe fn succ<T>(p: Option<NonNull<Node<T>>>, mut element: T) -> Option<NonNull<Node<T>>>
 where
     T: std::cmp::PartialOrd + Copy,
 {
-    find(element, node).and_then(|node| {
-        match node.as_ref().right {
+    find(element, p).and_then(|node| {
+        let mut nq = NodeQuery::new(Some(node));
+        match nq.right().get() {
             //右分支的最小值
             Some(r) => find_min(Some(r)),
             None => {
                 //右分支为空，向上找
-                let mut parent = node.as_ref().parent;
                 loop {
-                    match Node::right(parent) {
-                        Some(r) if (*r.as_ptr()).element == element => {
-                            let the_parent = parent.unwrap();
-                            element = the_parent.as_ref().element;
-                            parent = the_parent.as_ref().parent;
-                        }
-                        _ => return parent,
+                    nq = nq.parent();
+                    match nq.right_element() {
+                        Some(r) if r == element => element = nq.get_element().unwrap(),
+                        _ => return nq.get(),
                     }
                 }
             }
@@ -161,20 +158,17 @@ where
     T: std::cmp::PartialOrd + Copy,
 {
     find(element, node).and_then(|node| {
-        match (*node.as_ptr()).left {
+        let mut nq = NodeQuery::new(Some(node));
+        match nq.left().get() {
             //左分支的最大值
             Some(l) => find_max(Some(l)),
             None => {
                 //左分支为空，向上找
-                let mut parent = node.as_ref().parent;
                 loop {
-                    match Node::left(parent) {
-                        Some(l) if l.as_ref().element == element => {
-                            let the_parent = parent.unwrap();
-                            element = the_parent.as_ref().element;
-                            parent = the_parent.as_ref().parent;
-                        }
-                        _ => return parent,
+                    nq = nq.parent();
+                    match nq.left_element() {
+                        Some(l) if l == element => element = nq.get_element().unwrap(),
+                        _ => return nq.get(),
                     }
                 }
             }
@@ -206,14 +200,14 @@ where
                 true
             }
             1 => {
-                //backup node child
+                // backup node child
                 let child = if node.as_ref().left.is_some() {
                     node.as_mut().left.take()
                 } else {
                     node.as_mut().right.take()
                 };
 
-                // rm child, setup child node
+                // setup child node
                 let mut parent = node.as_ref().parent.unwrap();
                 if parent.as_ref().left == Some(node) {
                     parent.as_mut().left = child;
@@ -227,9 +221,8 @@ where
             _ => {
                 //我们用其右子树中的最小值替换掉 x
                 let right = node.as_ref().right;
-                let min_node = find_min(right).unwrap();
-                let min = min_node.as_ref().element;
-                (*node.as_ptr()).element = min;
+                let min = find_min(right).unwrap().as_ref().element;
+                node.as_mut().element = min;
 
                 //右子树中的这一最小值“切掉”
                 delete(min, right)

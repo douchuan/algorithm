@@ -6,4 +6,5 @@ pub mod traverse;
 mod tree;
 
 pub use node::Node;
+pub use node::NodeQuery;
 pub use tree::Tree;
