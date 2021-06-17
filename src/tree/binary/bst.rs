@@ -29,13 +29,11 @@ where
     T: std::cmp::PartialOrd + Copy,
 {
     fn insert(&mut self, element: T) -> Option<NonNull<Node<T>>> {
-        unsafe {
-            let x = insert(self.root, element);
-            if self.root.is_none() {
-                self.root = x;
-            }
-            x
+        let x = unsafe { insert(self.root, element) };
+        if self.root.is_none() {
+            self.root = x;
         }
+        x
     }
 
     fn delete(&mut self, element: T) -> bool {

@@ -158,7 +158,6 @@ where
           /  \             /   \
          b    c           a     b
 
-
  */
 fn rotate_left<T>(
     mut root: Option<NonNull<Node<T>>>,
@@ -217,12 +216,6 @@ fn t_rotate_left() {
         tree.insert(v);
     }
 
-    unsafe {
-        assert_eq!(PreOrderVisitor::recursive(&tree), vec![10, 5, 15, 14, 16]);
-        assert_eq!(InOrderVisitor::recursive(&tree), vec![5, 10, 14, 15, 16]);
-        tree.root = rotate_left(tree.root, tree.root.unwrap());
-    }
-
     /*
         15
        /  \
@@ -231,6 +224,7 @@ fn t_rotate_left() {
     5   14
      */
     unsafe {
+        tree.root = rotate_left(tree.root, tree.root.unwrap());
         assert_eq!(PreOrderVisitor::recursive(&tree), vec![15, 10, 5, 14, 16]);
         assert_eq!(InOrderVisitor::recursive(&tree), vec![5, 10, 14, 15, 16]);
     }
@@ -248,13 +242,7 @@ fn t_rotate_right() {
     }
 
     unsafe {
-        assert_eq!(PreOrderVisitor::recursive(&tree), vec![10, 5, 15, 14, 16]);
-        assert_eq!(InOrderVisitor::recursive(&tree), vec![5, 10, 14, 15, 16]);
-
         tree.root = rotate_left(tree.root, tree.root.unwrap());
-        assert_eq!(PreOrderVisitor::recursive(&tree), vec![15, 10, 5, 14, 16]);
-        assert_eq!(InOrderVisitor::recursive(&tree), vec![5, 10, 14, 15, 16]);
-
         tree.root = rotate_right(tree.root, tree.root.unwrap());
         assert_eq!(PreOrderVisitor::recursive(&tree), vec![10, 5, 15, 14, 16]);
         assert_eq!(InOrderVisitor::recursive(&tree), vec![5, 10, 14, 15, 16]);
