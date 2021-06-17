@@ -15,7 +15,7 @@ All of these features become powerful tools for developing algorithms.
 ### Running
 
 ```
-# setup rust toolchain
+# setup Rust Toolchain
 make test
 ```
 

@@ -110,7 +110,7 @@ Chris Okasaki 指出，共有四种情况会违反红黑树的第四条性质。
 */
 
 use crate::tree::binary::node::Color;
-use crate::tree::binary::{Node, NodeQuery};
+use crate::tree::binary::{bst, Node, NodeQuery};
 use std::ptr::NonNull;
 
 pub trait RedBlackTree<T>
@@ -131,41 +131,73 @@ where
 }
 
 // todo: if element exist, just return
-unsafe fn insert<T>(mut root: Option<NonNull<Node<T>>>, element: T)
+unsafe fn insert<T>(root: Option<NonNull<Node<T>>>, element: T)
 where
     T: std::cmp::PartialOrd + Copy,
 {
-    //寻找插入点
-    let mut nq = NodeQuery::new(root);
-    let mut parent = None;
-    while nq.is_some() {
-        parent = nq.get();
-        nq = if element < nq.get_element().unwrap() {
-            nq.left()
-        } else {
-            nq.right()
-        };
-    }
-
-    //插入x
-    let mut x = Node::from_element(element);
-    match parent {
-        None => root = Some(x),
-        Some(mut parent) => {
-            if element < parent.as_ref().element {
-                parent.as_mut().left = Some(x);
-            } else {
-                parent.as_mut().right = Some(x);
-            }
-            x.as_mut().parent = Some(parent);
-        }
-    }
-
-    insert_fix(root.unwrap(), x)
+    // 插入过程与bst是一样的
+    let x = bst::insert(root, element);
+    let root = if root.is_none() { x } else { root };
+    // 修正，使树恢复平衡
+    insert_fix(root.unwrap(), x.unwrap())
 }
 
 unsafe fn insert_fix<T>(mut root: NonNull<Node<T>>, mut x: NonNull<Node<T>>)
 where
     T: std::cmp::PartialOrd + Copy,
 {
+}
+
+/*
+        X                        Y
+      /   \                   /     \
+     a     Y        =>       X       c
+          /  \             /   \
+         b    c           a     b
+
+左旋操作变换为:
+
+         Y
+       /   \
+      X     c
+    /   \
+   a     b
+ */
+fn rotate_left<T>(
+    mut root: Option<NonNull<Node<T>>>,
+    x: NonNull<Node<T>>,
+) -> Option<NonNull<Node<T>>> {
+    let mut x = NodeQuery::new(Some(x));
+    let p = x.parent();
+    let mut y = x.right();
+    let a = x.left();
+    let b = y.left();
+    let c = y.right();
+    x.replace(y.node);
+    x.set_children(a.node, b.node);
+    y.set_children(x.node, c.node);
+    if p.is_none() {
+        root = y.node;
+    }
+    root
+}
+
+fn rotate_right<T>(
+    mut root: Option<NonNull<Node<T>>>,
+    y: NonNull<Node<T>>,
+) -> Option<NonNull<Node<T>>> {
+    let mut y = NodeQuery::new(Some(y));
+    let p = y.parent();
+    let mut x = y.left();
+    let a = x.left();
+    let b = x.right();
+    let c = y.right();
+    y.replace(x.node);
+    y.set_children(b.node, c.node);
+    x.set_children(a.node, y.node);
+    if p.is_none() {
+        root = x.node;
+    }
+
+    root
 }

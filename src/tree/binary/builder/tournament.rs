@@ -41,7 +41,7 @@ where
     match nq.get_element() {
         Some(element) if element != T::minimal() => {
             // 每次取出锦标赛树的根节点后，自顶向下将其替换为min
-            let leaf = replace_max_by_min(nq.get().unwrap(), element);
+            let leaf = replace_max_by_min(nq.node.unwrap(), element);
             // 由叶子节点向上回溯，设置新的最大值
             setup_new_max(leaf);
             Some(element)
@@ -65,11 +65,11 @@ where
             nq.right()
         };
 
-        nq.set(child.get());
+        nq.node = child.node;
         nq.set_element(T::minimal());
     }
 
-    nq.get().unwrap()
+    nq.node.unwrap()
 }
 
 fn setup_new_max<T>(node: NonNull<Node<T>>)

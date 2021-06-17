@@ -29,7 +29,13 @@ where
     T: std::cmp::PartialOrd + Copy,
 {
     fn insert(&mut self, element: T) -> Option<NonNull<Node<T>>> {
-        unsafe { insert(self, element, None, self.root) }
+        unsafe {
+            let x = insert(self.root, element);
+            if self.root.is_none() {
+                self.root = x;
+            }
+            x
+        }
     }
 
     fn delete(&mut self, element: T) -> bool {
@@ -57,47 +63,33 @@ where
     }
 }
 
-unsafe fn insert<T>(
-    tree: &mut Tree<T>,
-    element: T,
-    parent: Option<NonNull<Node<T>>>,
-    node: Option<NonNull<Node<T>>>,
-) -> Option<NonNull<Node<T>>>
+pub unsafe fn insert<T>(root: Option<NonNull<Node<T>>>, element: T) -> Option<NonNull<Node<T>>>
 where
-    T: std::cmp::PartialOrd,
+    T: std::cmp::PartialOrd + Copy,
 {
-    match (parent, node) {
-        //empty tree
-        (None, None) => {
-            let node = Node::from_element(element);
-            tree.root = Some(node);
-            Some(node)
-        }
-        (_, Some(node)) => match node.as_ref().element.partial_cmp(&element) {
-            Some(Ordering::Less) => {
-                let r = node.as_ref().right;
-                insert(tree, element, Some(node), r)
-            }
-            Some(Ordering::Greater) => {
-                let l = node.as_ref().left;
-                insert(tree, element, Some(node), l)
-            }
-            _ => None,
-        },
-        (Some(mut node), None) => match node.as_ref().element.partial_cmp(&element) {
-            Some(Ordering::Less) => {
-                let child = Node::new_leaf(element, Some(node));
-                node.as_mut().right = Some(child);
-                Some(child)
-            }
-            Some(Ordering::Greater) => {
-                let child = Node::new_leaf(element, Some(node));
-                node.as_mut().left = Some(child);
-                Some(child)
-            }
-            _ => None,
-        },
+    let mut nq = NodeQuery::new(root);
+    let mut parent = None;
+    while nq.is_some() {
+        parent = nq.node;
+        nq = if element < nq.get_element().unwrap() {
+            nq.left()
+        } else {
+            nq.right()
+        };
     }
+
+    //插入x
+    let mut x = Node::from_element(element);
+    if let Some(mut node) = parent {
+        if element < node.as_ref().element {
+            node.as_mut().left = Some(x);
+        } else {
+            node.as_mut().right = Some(x);
+        }
+        x.as_mut().parent = parent;
+    }
+
+    Some(x)
 }
 
 pub unsafe fn find<T>(element: T, node: Option<NonNull<Node<T>>>) -> Option<NonNull<Node<T>>>
@@ -136,7 +128,7 @@ where
 {
     find(element, p).and_then(|node| {
         let mut nq = NodeQuery::new(Some(node));
-        match nq.right().get() {
+        match nq.right().node {
             //右分支的最小值
             Some(r) => find_min(Some(r)),
             None => {
@@ -145,7 +137,7 @@ where
                     nq = nq.parent();
                     match nq.right_element() {
                         Some(r) if r == element => element = nq.get_element().unwrap(),
-                        _ => return nq.get(),
+                        _ => return nq.node,
                     }
                 }
             }
@@ -159,7 +151,7 @@ where
 {
     find(element, node).and_then(|node| {
         let mut nq = NodeQuery::new(Some(node));
-        match nq.left().get() {
+        match nq.left().node {
             //左分支的最大值
             Some(l) => find_max(Some(l)),
             None => {
@@ -168,7 +160,7 @@ where
                     nq = nq.parent();
                     match nq.left_element() {
                         Some(l) if l == element => element = nq.get_element().unwrap(),
-                        _ => return nq.get(),
+                        _ => return nq.node,
                     }
                 }
             }

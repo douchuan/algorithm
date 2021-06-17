@@ -119,10 +119,10 @@ where
 // rotate
 impl<T> Node<T> {}
 
-/// A node adapter, like jQuery
+/// Node proxy, like jQuery
 #[derive(Copy, Clone)]
 pub struct NodeQuery<T> {
-    node: Option<NonNull<Node<T>>>,
+    pub node: Option<NonNull<Node<T>>>,
 }
 
 impl<T> NodeQuery<T> {
@@ -135,12 +135,45 @@ impl<T> NodeQuery<T> {
         Self::new(node).parent()
     }
 
-    pub fn get(&self) -> Option<NonNull<Node<T>>> {
-        self.node
+    pub fn set_left(&mut self, node: Option<NonNull<Node<T>>>) {
+        unsafe {
+            if let Some(mut p) = self.node {
+                p.as_mut().left = node;
+            }
+
+            if let Some(mut p) = node {
+                p.as_mut().parent = self.node;
+            }
+        }
     }
 
-    pub fn set(&mut self, node: Option<NonNull<Node<T>>>) {
-        self.node = node;
+    pub fn set_right(&mut self, node: Option<NonNull<Node<T>>>) {
+        unsafe {
+            if let Some(mut p) = self.node {
+                p.as_mut().right = node;
+            }
+
+            if let Some(mut p) = node {
+                p.as_mut().parent = self.node;
+            }
+        }
+    }
+
+    pub fn set_children(&mut self, l: Option<NonNull<Node<T>>>, r: Option<NonNull<Node<T>>>) {
+        self.set_left(l);
+        self.set_right(r);
+    }
+
+    pub fn replace(&mut self, node: Option<NonNull<Node<T>>>) {
+        if self.parent().is_none() {
+            if let Some(mut node) = node {
+                unsafe { node.as_mut().parent = None }
+            }
+        } else if self.i_am_left() {
+            self.parent().set_left(node);
+        } else {
+            self.parent().set_right(node);
+        }
     }
 
     pub fn set_element(&mut self, element: T) {
@@ -155,6 +188,14 @@ impl<T> NodeQuery<T> {
 
     pub fn is_none(&self) -> bool {
         self.node.is_none()
+    }
+
+    pub fn i_am_left(&self) -> bool {
+        self.parent().left().node == self.node
+    }
+
+    pub fn i_am_right(&self) -> bool {
+        self.parent().right().node == self.node
     }
 
     pub fn is_leaf(&self) -> bool {
