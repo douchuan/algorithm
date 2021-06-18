@@ -131,25 +131,57 @@ where
 }
 
 // todo: if element exist, just return
-unsafe fn insert<T>(root: Option<NonNull<Node<T>>>, element: T)
+fn insert<T>(root: Option<NonNull<Node<T>>>, element: T) -> Option<NonNull<Node<T>>>
 where
     T: std::cmp::PartialOrd + Copy,
 {
     // 插入过程与bst是一样的
-    let x = bst::insert(root, element);
+    let x = unsafe { bst::insert(root, element) };
     let root = if root.is_none() { x } else { root };
     // 修正，使树恢复平衡
-    insert_fix(root.unwrap(), x.unwrap())
+    insert_fix(root, x)
 }
 
-unsafe fn insert_fix<T>(mut root: NonNull<Node<T>>, mut x: NonNull<Node<T>>)
+fn insert_fix<T>(
+    root: Option<NonNull<Node<T>>>,
+    x: Option<NonNull<Node<T>>>,
+) -> Option<NonNull<Node<T>>>
 where
     T: std::cmp::PartialOrd + Copy,
 {
+    let mut t = NodeQuery::new(root);
+    let mut x = NodeQuery::new(x);
+    while x.parent().color() == Some(Color::Red) {
+        if x.uncle().color() == Some(Color::Red) {
+            x.parent().set_color(Color::Black);
+            x.grandparent().set_color(Color::Red);
+            x.uncle().set_color(Color::Black);
+            x = x.grandparent();
+        } else {
+            if x.parent().i_am_left() {
+                if x.i_am_right() {
+                    x = x.parent();
+                    t.node = rotate_left(t.node, x.node.unwrap());
+                }
+                x.parent().set_color(Color::Black);
+                x.grandparent().set_color(Color::Red);
+                t.node = rotate_right(t.node, x.grandparent().node.unwrap());
+            } else {
+                if x.i_am_left() {
+                    x = x.parent();
+                    t.node = rotate_right(t.node, x.node.unwrap());
+                }
+                x.parent().set_color(Color::Black);
+                x.grandparent().set_color(Color::Red);
+                t.node = rotate_left(t.node, x.grandparent().node.unwrap());
+            }
+        }
+    }
+    t.set_color(Color::Black);
+    t.node
 }
 
 /*
-
 左旋操作变换为:
 
         X                        Y
@@ -178,6 +210,16 @@ fn rotate_left<T>(
     root
 }
 
+/*
+右旋操作变换为:
+
+         Y                  X
+      /     \            /     \
+     X       c   =>     a       Y
+   /   \                      /   \
+  a     b                    b     c
+
+ */
 fn rotate_right<T>(
     mut root: Option<NonNull<Node<T>>>,
     y: NonNull<Node<T>>,
@@ -194,7 +236,6 @@ fn rotate_right<T>(
     if p.is_none() {
         root = x.node;
     }
-
     root
 }
 
@@ -246,5 +287,65 @@ fn t_rotate_right() {
         tree.root = rotate_right(tree.root, tree.root.unwrap());
         assert_eq!(PreOrderVisitor::recursive(&tree), vec![10, 5, 15, 14, 16]);
         assert_eq!(InOrderVisitor::recursive(&tree), vec![5, 10, 14, 15, 16]);
+    }
+}
+
+#[test]
+fn t_insert() {
+    use crate::tree::binary::bst::BSTree;
+    use crate::tree::binary::traverse::{InOrderVisitor, PreOrderVisitor};
+    use crate::tree::binary::Tree;
+
+    /*
+    [11, 2, 14, 1, 7, 5, 8, 4]
+
+                7
+            /       \
+           2        11
+         /  \      /  \
+        1    5    8   14
+            /
+           4
+
+    */
+    let mut tree = Tree::default();
+    for v in vec![11, 2, 14, 1, 7, 5, 8, 4] {
+        tree.root = insert(tree.root, v);
+    }
+    unsafe {
+        assert_eq!(
+            vec![7, 2, 1, 5, 4, 11, 8, 14],
+            PreOrderVisitor::recursive(&tree)
+        );
+        assert_eq!(
+            vec![1, 2, 4, 5, 7, 8, 11, 14],
+            InOrderVisitor::recursive(&tree)
+        );
+    }
+
+    /*
+     [1, 2, 3, 4, 5, 6, 7, 8]
+
+             4
+         /       \
+        2         6
+      /   \      /  \
+     1    3     5    7
+                      \
+                       8
+    */
+    let mut tree = Tree::default();
+    for v in 1..9 {
+        tree.root = insert(tree.root, v);
+    }
+    unsafe {
+        assert_eq!(
+            vec![4, 2, 1, 3, 6, 5, 7, 8],
+            PreOrderVisitor::recursive(&tree)
+        );
+        assert_eq!(
+            vec![1, 2, 3, 4, 5, 6, 7, 8],
+            InOrderVisitor::recursive(&tree)
+        );
     }
 }

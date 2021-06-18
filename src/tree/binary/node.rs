@@ -11,7 +11,7 @@
 
 use std::ptr::NonNull;
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Eq, PartialEq)]
 pub enum Color {
     Red,
     Black,
@@ -182,6 +182,12 @@ impl<T> NodeQuery<T> {
         }
     }
 
+    pub fn set_color(&mut self, v: Color) {
+        if let Some(mut node) = self.node {
+            unsafe { node.as_mut().color = v }
+        }
+    }
+
     pub fn is_some(&self) -> bool {
         self.node.is_some()
     }
@@ -191,11 +197,11 @@ impl<T> NodeQuery<T> {
     }
 
     pub fn i_am_left(&self) -> bool {
-        self.parent().left().node == self.node
+        self.is_some() && self.parent().left().node == self.node
     }
 
     pub fn i_am_right(&self) -> bool {
-        self.parent().right().node == self.node
+        self.is_some() && self.parent().right().node == self.node
     }
 
     pub fn is_leaf(&self) -> bool {
