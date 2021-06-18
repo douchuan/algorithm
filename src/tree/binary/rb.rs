@@ -145,10 +145,7 @@ where
 fn insert_fix<T>(
     root: Option<NonNull<Node<T>>>,
     x: Option<NonNull<Node<T>>>,
-) -> Option<NonNull<Node<T>>>
-where
-    T: std::cmp::PartialOrd + Copy,
-{
+) -> Option<NonNull<Node<T>>> {
     let mut t = NodeQuery::new(root);
     let mut x = NodeQuery::new(x);
     while x.parent().color() == Some(Color::Red) {
