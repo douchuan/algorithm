@@ -130,7 +130,6 @@ where
     fn max(&self) -> Option<T>;
 }
 
-// todo: if element exist, just return
 fn insert<T>(root: Option<NonNull<Node<T>>>, element: T) -> Option<NonNull<Node<T>>>
 where
     T: std::cmp::PartialOrd + Copy,
@@ -150,6 +149,7 @@ fn insert_fix<T>(
     let mut x = NodeQuery::new(x);
     while x.parent().color() == Some(Color::Red) {
         if x.uncle().color() == Some(Color::Red) {
+            // case 1: ((a:R x:R b) y:B c:R) => ((a:R x:B b) y:R c:B)
             x.parent().set_color(Color::Black);
             x.grandparent().set_color(Color::Red);
             x.uncle().set_color(Color::Black);
@@ -157,17 +157,21 @@ fn insert_fix<T>(
         } else {
             if x.parent().i_am_left() {
                 if x.i_am_right() {
+                    // case 2: ((a x:R b:R) y:B c) => case 3
                     x = x.parent();
                     t.node = rotate_left(t.node, x.node.unwrap());
                 }
+                // case 3: ((a:R x:R b) y:B c) => (a:R x:B (b y:R c))
                 x.parent().set_color(Color::Black);
                 x.grandparent().set_color(Color::Red);
                 t.node = rotate_right(t.node, x.grandparent().node.unwrap());
             } else {
                 if x.i_am_left() {
+                    // case 2': (a x:B (b:R y:R c)) => case 3'
                     x = x.parent();
                     t.node = rotate_right(t.node, x.node.unwrap());
                 }
+                // case 3': (a x:B (b y:R c:R)) => ((a x:R b) y:B c:R)
                 x.parent().set_color(Color::Black);
                 x.grandparent().set_color(Color::Red);
                 t.node = rotate_left(t.node, x.grandparent().node.unwrap());
@@ -289,7 +293,6 @@ fn t_rotate_right() {
 
 #[test]
 fn t_insert() {
-    use crate::tree::binary::bst::BSTree;
     use crate::tree::binary::traverse::{InOrderVisitor, PreOrderVisitor};
     use crate::tree::binary::Tree;
 
