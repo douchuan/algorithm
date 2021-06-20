@@ -1,4 +1,3 @@
-use algo::tree::binary::bst::BSTree;
 use algo::tree::binary::builder::level::BuildTreeInLevel;
 use algo::tree::binary::builder::TreeBuilder;
 use algo::tree::binary::traverse::{
@@ -187,6 +186,7 @@ fn levelorder_zigzag_traverse() {
 
 #[test]
 fn build_binary_search_tree() {
+    use algo::tree::binary::bst::BSTree;
     let mut tree = Tree::default();
     let data = vec![4, 3, 8, 1, 7, 16, 2, 10, 9, 14];
     for v in &data {
@@ -203,6 +203,7 @@ fn build_binary_search_tree() {
 
 #[test]
 fn binary_search_tree_min_max() {
+    use algo::tree::binary::bst::BSTree;
     let mut tree = Tree::default();
     let data = vec![4, 3, 8, 1, 7, 16, 2, 10, 9, 14];
     for v in &data {
@@ -220,6 +221,7 @@ fn binary_search_tree_min_max() {
 
 #[test]
 fn binary_search_tree_succ_pred() {
+    use algo::tree::binary::bst::BSTree;
     let mut tree = Tree::default();
     let data = vec![4, 3, 8, 1, 7, 16, 2, 10, 9, 14];
     for v in &data {
@@ -241,6 +243,7 @@ fn binary_search_tree_succ_pred() {
 
 #[test]
 fn delete_binary_search_tree() {
+    use algo::tree::binary::bst::BSTree;
     let mut tree = Tree::default();
     for v in vec![4, 3, 8, 1, 7, 16, 2, 10, 9, 14] {
         tree.insert(v);
@@ -254,6 +257,69 @@ fn delete_binary_search_tree() {
         tree.delete(v);
         let r = unsafe { PreOrderVisitor::iterate(&tree) };
         assert_eq!(r, expect);
+    }
+}
+
+#[test]
+fn rb_tree_height() {
+    use algo::tree::binary::rb::RedBlackTree;
+    let mut tree = Tree::default();
+    for v in 0..100 {
+        tree.insert(v);
+    }
+    assert!(tree.height() as f32 <= 2.0 * 100.0f32.log2())
+}
+
+#[test]
+fn rb_rotate_left() {
+    use algo::tree::binary::bst::BSTree;
+    use algo::tree::binary::rb::rotate_left;
+    use algo::tree::binary::traverse::{InOrderVisitor, PreOrderVisitor};
+    use algo::tree::binary::Tree;
+
+    /*
+         10
+        /  \
+       5   15
+         /    \
+        14    16
+    */
+    let mut tree = Tree::default();
+    for v in vec![10, 5, 15, 14, 16] {
+        tree.insert(v);
+    }
+
+    /*
+        15
+       /  \
+      10  16
+     /  \
+    5   14
+     */
+    unsafe {
+        tree.root = rotate_left(tree.root, tree.root.unwrap());
+        assert_eq!(PreOrderVisitor::recursive(&tree), vec![15, 10, 5, 14, 16]);
+        assert_eq!(InOrderVisitor::recursive(&tree), vec![5, 10, 14, 15, 16]);
+    }
+}
+
+#[test]
+fn rb_rotate_right() {
+    use algo::tree::binary::bst::BSTree;
+    use algo::tree::binary::rb::{rotate_left, rotate_right};
+    use algo::tree::binary::traverse::{InOrderVisitor, PreOrderVisitor};
+    use algo::tree::binary::Tree;
+
+    let mut tree = Tree::default();
+    for v in vec![10, 5, 15, 14, 16] {
+        tree.insert(v);
+    }
+
+    unsafe {
+        tree.root = rotate_left(tree.root, tree.root.unwrap());
+        tree.root = rotate_right(tree.root, tree.root.unwrap());
+        assert_eq!(PreOrderVisitor::recursive(&tree), vec![10, 5, 15, 14, 16]);
+        assert_eq!(InOrderVisitor::recursive(&tree), vec![5, 10, 14, 15, 16]);
     }
 }
 

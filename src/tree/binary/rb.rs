@@ -207,7 +207,7 @@ fn insert_fix<T>(
          b    c           a     b
 
  */
-fn rotate_left<T>(
+pub fn rotate_left<T>(
     mut root: Option<NonNull<Node<T>>>,
     x: NonNull<Node<T>>,
 ) -> Option<NonNull<Node<T>>> {
@@ -236,7 +236,7 @@ fn rotate_left<T>(
   a     b                    b     c
 
  */
-fn rotate_right<T>(
+pub fn rotate_right<T>(
     mut root: Option<NonNull<Node<T>>>,
     y: NonNull<Node<T>>,
 ) -> Option<NonNull<Node<T>>> {
@@ -253,57 +253,6 @@ fn rotate_right<T>(
         root = x.node;
     }
     root
-}
-
-#[test]
-fn t_rotate_left() {
-    use crate::tree::binary::bst::BSTree;
-    use crate::tree::binary::traverse::{InOrderVisitor, PreOrderVisitor};
-    use crate::tree::binary::Tree;
-
-    /*
-         10
-        /  \
-       5   15
-         /    \
-        14    16
-    */
-    let mut tree = Tree::default();
-    for v in vec![10, 5, 15, 14, 16] {
-        tree.insert(v);
-    }
-
-    /*
-        15
-       /  \
-      10  16
-     /  \
-    5   14
-     */
-    unsafe {
-        tree.root = rotate_left(tree.root, tree.root.unwrap());
-        assert_eq!(PreOrderVisitor::recursive(&tree), vec![15, 10, 5, 14, 16]);
-        assert_eq!(InOrderVisitor::recursive(&tree), vec![5, 10, 14, 15, 16]);
-    }
-}
-
-#[test]
-fn t_rotate_right() {
-    use crate::tree::binary::bst::BSTree;
-    use crate::tree::binary::traverse::{InOrderVisitor, PreOrderVisitor};
-    use crate::tree::binary::Tree;
-
-    let mut tree = Tree::default();
-    for v in vec![10, 5, 15, 14, 16] {
-        tree.insert(v);
-    }
-
-    unsafe {
-        tree.root = rotate_left(tree.root, tree.root.unwrap());
-        tree.root = rotate_right(tree.root, tree.root.unwrap());
-        assert_eq!(PreOrderVisitor::recursive(&tree), vec![10, 5, 15, 14, 16]);
-        assert_eq!(InOrderVisitor::recursive(&tree), vec![5, 10, 14, 15, 16]);
-    }
 }
 
 #[test]
