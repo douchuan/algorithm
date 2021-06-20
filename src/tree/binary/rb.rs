@@ -110,17 +110,11 @@ Chris Okasaki 指出，共有四种情况会违反红黑树的第四条性质。
 */
 
 use crate::tree::binary::node::Color;
-use crate::tree::binary::{bst, Node, NodeQuery};
+use crate::tree::binary::{bst, Node, NodeQuery, Tree};
 use std::ptr::NonNull;
 
-pub trait RedBlackTree<T>
-where
-    T: std::cmp::PartialOrd,
-{
-    /// return
-    ///   Some(NonNull<Node<T>>): insert success and return inserted node,
-    ///   None: not insert, exist
-    fn insert(&mut self, element: T) -> Option<NonNull<Node<T>>>;
+pub trait RedBlackTree<T> {
+    fn insert(&mut self, element: T);
 
     /// 此操作不改变rb tree结构，复用bst find
     fn find(&self, element: T) -> Option<NonNull<Node<T>>>;
@@ -128,6 +122,27 @@ where
     fn min(&self) -> Option<T>;
     /// 此操作不改变rb tree结构，复用bst max
     fn max(&self) -> Option<T>;
+}
+
+impl<T> RedBlackTree<T> for Tree<T>
+where
+    T: std::cmp::PartialOrd + std::marker::Copy,
+{
+    fn insert(&mut self, element: T) {
+        self.root = insert(self.root, element);
+    }
+
+    fn find(&self, element: T) -> Option<NonNull<Node<T>>> {
+        unsafe { bst::find(element, self.root) }
+    }
+
+    fn min(&self) -> Option<T> {
+        unsafe { bst::find_min(self.root).map(|p| p.as_ref().element) }
+    }
+
+    fn max(&self) -> Option<T> {
+        unsafe { bst::find_max(self.root).map(|p| p.as_ref().element) }
+    }
 }
 
 fn insert<T>(root: Option<NonNull<Node<T>>>, element: T) -> Option<NonNull<Node<T>>>

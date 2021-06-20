@@ -10,10 +10,7 @@ pub trait BSTree<T>
 where
     T: std::cmp::PartialOrd,
 {
-    /// return
-    ///   Some(NonNull<Node<T>>): insert success and return inserted node,
-    ///   None: not insert, exist
-    fn insert(&mut self, element: T) -> Option<NonNull<Node<T>>>;
+    fn insert(&mut self, element: T);
     fn delete(&mut self, element: T) -> bool;
     fn find(&self, element: T) -> Option<NonNull<Node<T>>>;
     fn min(&self) -> Option<T>;
@@ -28,12 +25,11 @@ impl<T> BSTree<T> for Tree<T>
 where
     T: std::cmp::PartialOrd + Copy,
 {
-    fn insert(&mut self, element: T) -> Option<NonNull<Node<T>>> {
+    fn insert(&mut self, element: T) {
         let x = unsafe { insert(self.root, element) };
         if self.root.is_none() {
             self.root = x;
         }
-        x
     }
 
     fn delete(&mut self, element: T) -> bool {
