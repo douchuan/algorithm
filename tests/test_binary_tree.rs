@@ -267,7 +267,20 @@ fn rb_tree_height() {
     for v in 0..100 {
         tree.insert(v);
     }
+    // 即使输入升序数列，rb tree仍然使平衡的
+    // 证明：含有n个节点的红黑树，其高度不会超过 2 * lg(n + 1)
     assert!(tree.height() as f32 <= 2.0 * 100.0f32.log2())
+}
+
+#[test]
+fn bst_tree_height() {
+    // 升序数列，使BST退化成一个linked list
+    use algo::tree::binary::bst::BSTree;
+    let mut tree = Tree::default();
+    for v in 0..100 {
+        tree.insert(v);
+    }
+    assert_eq!(tree.height(), 100);
 }
 
 #[test]
