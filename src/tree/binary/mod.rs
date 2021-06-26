@@ -1,3 +1,4 @@
+pub mod avl;
 pub mod bst;
 pub mod builder;
 mod node;

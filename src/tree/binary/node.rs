@@ -22,7 +22,8 @@ pub struct Node<T> {
     pub left: Option<NonNull<Node<T>>>,
     pub right: Option<NonNull<Node<T>>>,
     pub parent: Option<NonNull<Node<T>>>,
-    pub color: Color,
+    pub color: Color, // used by red black tree
+    pub delta: i32,   // 平衡因子, used by avl tree
 }
 
 impl<T> Node<T> {
@@ -38,6 +39,7 @@ impl<T> Node<T> {
             right,
             parent,
             color: Color::Red,
+            delta: 0,
         });
         Box::leak(v).into()
     }
@@ -186,6 +188,10 @@ impl<T> NodeQuery<T> {
         if let Some(mut node) = self.node {
             unsafe { node.as_mut().color = v }
         }
+    }
+
+    pub fn child_count(&self) -> usize {
+        self.node.map_or(0, |node| Node::children_count(node))
     }
 
     pub fn is_some(&self) -> bool {

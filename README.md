@@ -21,7 +21,8 @@ make test
 
 ### References
 
-1. [百度百科](https://baike.baidu.com/)
-2. [LeetCode 题解](https://github.com/soulmachine/leetcode)
-3. [算法新解](https://github.com/liuxinyu95/AlgoXY)
-4. [The Algorithms](https://github.com/TheAlgorithms)
+1. Algorithms 4th Edition by Robert Sedgewick, Kevin Wayne
+2. [算法新解](https://github.com/liuxinyu95/AlgoXY)
+3. [百度百科](https://baike.baidu.com/)
+4. [LeetCode 题解](https://github.com/soulmachine/leetcode)
+5. [The Algorithms](https://github.com/TheAlgorithms)

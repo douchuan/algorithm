@@ -3,11 +3,24 @@
 //! 红黑树是一种自平衡二叉搜索树，通过对节点进行着色和旋转，红黑树可以很容易地保持树的平衡。
 //! 我们需要在二叉搜索树上增加一个额外的颜色信息。节点可以被涂成红色或黑色。如果一棵二叉搜
 //! 索树满足下面的全部5条性质，我们称之为红黑树。
-//!   1. 任一节点要么是红色，要么是黑色。
-//!   2. 根节点为黑色。
-//!   3. 所有的叶节点(NIL 节点)为黑色。
-//!   4. 如果一个节点为红色，则它的两个子节点都是黑色。
-//!   5. 对任一节点，从它出发到所有叶子节点的路径上包含相同数量的黑色节点。
+//!   1. 任一节点要么是红色，要么是黑色
+//!   2. 根节点为黑色
+//!   3. 所有的叶节点(NIL 节点)为黑色
+//!   4. 如果一个节点为红色，则它的两个子节点都是黑色 (red-violation)
+//!   5. 对任一节点，从它出发到所有叶子节点的路径上包含相同数量的黑色节点 (black-violation)
+//!
+//! 这5条性质保证: 从根节点出发到达叶节点的所有路径中，最长路径不会超过最短路径两倍
+//!
+//! 注：
+//! 第4条不允许两个连续的红色节点
+//! 只有第5条，并不能保证rb tree平衡，比如：
+//!             B
+//!           /   \
+//!         B       B
+//!       /           \
+//!      B              B
+//!
+//! 证明：含有n个节点的红黑树，其高度不会超过 2 * lg(n + 1)
 //!
 //! 红黑树，一种被广泛使用的自平衡二叉搜索树(self-adjusting balanced binary search tree)。
 //! 另外一种自平衡树――AVL树。
@@ -15,20 +28,14 @@
 //! 红黑树是最广泛使用的一种平衡二叉搜索树。另外一种自平衡二叉树是AVL树。
 //! 红黑树可以帮助我们了解其它更复杂的数据结构。如果我们将子节点的数目从两个扩展到 k 个，
 //! 并且保持树的平衡，就可以演化到B树。如果我们在边上，而非在节点中存储数据，我们就得到了Trie
+//! 有很多集合(set)和 map 容器是使用红黑树来实现的。包括C++标准库STL
 //!
 //! 保证树的平衡
 //! 通过二叉树旋转，使二叉搜索树保持平衡。旋转操作可以在保持元素顺序(中序遍历结果不变)的
 //! 前提下，改变树的结构，因此可以用来提高平衡性。
 //!
-//! 有很多集合(set)和 map 容器是使用红黑树来实现的。包括 C++ 标准 库 STL
-//!
-//!
-//! 证明：含有n个节点的红黑树，其高度不会超过 2 * lg(n + 1)
-//!
-//!
 //! 令节点的颜色变量为C，取值为B或R。非空节点表达为一个四元组:
 //! T = (C, l, k, r), 其中l、r是左右子树，k是值
-//!
 //!
 //! 红黑树插入算法定义：
 //! insert T k = makeBlack (ins T k)
@@ -116,6 +123,7 @@ use crate::tree::binary::node::Color;
 use crate::tree::binary::{bst, Node, NodeQuery, Tree};
 use std::ptr::NonNull;
 
+//todo: rb tree delete, Chris Okasaki insert-fix
 pub trait RedBlackTree<T> {
     fn insert(&mut self, element: T);
 
@@ -136,7 +144,7 @@ where
     }
 
     fn find(&self, element: T) -> Option<NonNull<Node<T>>> {
-        unsafe { bst::find(element, self.root) }
+        unsafe { bst::find(self.root, element) }
     }
 
     fn min(&self) -> Option<T> {
@@ -153,10 +161,13 @@ where
     T: std::cmp::PartialOrd + Copy,
 {
     // 插入过程与bst是一样的
-    let x = unsafe { bst::insert(root, element) };
-    let root = if root.is_none() { x } else { root };
-    // 修正，使树恢复平衡
-    insert_fix(root, x)
+    if let Ok(x) = unsafe { bst::insert(root, element) } {
+        let root = if root.is_none() { Some(x) } else { root };
+        // 修正，使树恢复平衡
+        insert_fix(root, Some(x))
+    } else {
+        None
+    }
 }
 
 fn insert_fix<T>(
@@ -264,28 +275,28 @@ fn t_insert() {
     use crate::tree::binary::Tree;
 
     /*
-    [11, 2, 14, 1, 7, 5, 8, 4]
+    [15, 14, 11, 2, 1, 7, 5, 4, 8]
 
-                7
-            /       \
-           2        11
-         /  \      /  \
-        1    5    8   14
-            /
-           4
+                 7
+            /        \
+           2         14
+         /  \       /  \
+        1    5     11   15
+            /     /
+           4     8
 
     */
     let mut tree = Tree::default();
-    for v in vec![11, 2, 14, 1, 7, 5, 8, 4] {
+    for v in vec![15, 14, 11, 2, 1, 7, 5, 4, 8] {
         tree.root = insert(tree.root, v);
     }
     unsafe {
         assert_eq!(
-            vec![7, 2, 1, 5, 4, 11, 8, 14],
+            vec![7, 2, 1, 5, 4, 14, 11, 8, 15],
             PreOrderVisitor::recursive(&tree)
         );
         assert_eq!(
-            vec![1, 2, 4, 5, 7, 8, 11, 14],
+            vec![1, 2, 4, 5, 7, 8, 11, 14, 15],
             InOrderVisitor::recursive(&tree)
         );
     }

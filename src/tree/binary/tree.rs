@@ -7,15 +7,7 @@ pub struct Tree<T> {
 
 impl<T> Tree<T> {
     pub fn height(&self) -> usize {
-        fn calc<T>(node: Option<NonNull<Node<T>>>) -> usize {
-            node.map_or(0, |node| unsafe {
-                let lh = calc(node.as_ref().left);
-                let rh = calc(node.as_ref().right);
-                1 + std::cmp::max(lh, rh)
-            })
-        }
-
-        calc(self.root)
+        height(self.root)
     }
 }
 
@@ -36,4 +28,12 @@ impl<T> Drop for Tree<T> {
         }
         visitor(self.root);
     }
+}
+
+fn height<T>(node: Option<NonNull<Node<T>>>) -> usize {
+    node.map_or(0, |node| unsafe {
+        let lh = height(node.as_ref().left);
+        let rh = height(node.as_ref().right);
+        1 + std::cmp::max(lh, rh)
+    })
 }

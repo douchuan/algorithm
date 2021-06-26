@@ -26,9 +26,10 @@ where
     T: std::cmp::PartialOrd + Copy,
 {
     fn insert(&mut self, element: T) {
-        let x = unsafe { insert(self.root, element) };
-        if self.root.is_none() {
-            self.root = x;
+        if let Ok(x) = unsafe { insert(self.root, element) } {
+            if self.root.is_none() {
+                self.root = Some(x);
+            }
         }
     }
 
@@ -37,7 +38,7 @@ where
     }
 
     fn find(&self, element: T) -> Option<NonNull<Node<T>>> {
-        unsafe { find(element, self.root) }
+        unsafe { find(self.root, element) }
     }
 
     fn min(&self) -> Option<T> {
@@ -57,7 +58,7 @@ where
     }
 }
 
-pub unsafe fn insert<T>(root: Option<NonNull<Node<T>>>, element: T) -> Option<NonNull<Node<T>>>
+pub unsafe fn insert<T>(root: Option<NonNull<Node<T>>>, element: T) -> Result<NonNull<Node<T>>, ()>
 where
     T: std::cmp::PartialOrd + Copy,
 {
@@ -65,11 +66,11 @@ where
     let mut parent = None;
     while nq.is_some() {
         parent = nq.node;
-        nq = if element < nq.get_element().unwrap() {
-            nq.left()
-        } else {
-            nq.right()
-        };
+        match element.partial_cmp(nq.get_element().as_ref().unwrap()) {
+            Some(Ordering::Less) => nq = nq.left(),
+            Some(Ordering::Greater) => nq = nq.right(),
+            _ => return Err(()),
+        }
     }
 
     //插入x
@@ -83,16 +84,16 @@ where
         x.as_mut().parent = parent;
     }
 
-    Some(x)
+    Ok(x)
 }
 
-pub unsafe fn find<T>(element: T, node: Option<NonNull<Node<T>>>) -> Option<NonNull<Node<T>>>
+pub unsafe fn find<T>(node: Option<NonNull<Node<T>>>, element: T) -> Option<NonNull<Node<T>>>
 where
     T: std::cmp::PartialOrd,
 {
     node.and_then(|node| match node.as_ref().element.partial_cmp(&element) {
-        Some(Ordering::Less) => find(element, node.as_ref().right),
-        Some(Ordering::Greater) => find(element, node.as_ref().left),
+        Some(Ordering::Less) => find(node.as_ref().right, element),
+        Some(Ordering::Greater) => find(node.as_ref().left, element),
         Some(Ordering::Equal) => Some(node),
         None => None,
     })
@@ -120,7 +121,7 @@ unsafe fn succ<T>(p: Option<NonNull<Node<T>>>, mut element: T) -> Option<NonNull
 where
     T: std::cmp::PartialOrd + Copy,
 {
-    find(element, p).and_then(|node| {
+    find(p, element).and_then(|node| {
         let mut nq = NodeQuery::new(Some(node));
         match nq.right().node {
             //右分支的最小值
@@ -143,7 +144,7 @@ unsafe fn pred<T>(node: Option<NonNull<Node<T>>>, mut element: T) -> Option<NonN
 where
     T: std::cmp::PartialOrd + Copy,
 {
-    find(element, node).and_then(|node| {
+    find(node, element).and_then(|node| {
         let mut nq = NodeQuery::new(Some(node));
         match nq.left().node {
             //左分支的最大值
@@ -171,7 +172,7 @@ unsafe fn delete<T>(element: T, node: Option<NonNull<Node<T>>>) -> bool
 where
     T: Copy + std::cmp::PartialOrd,
 {
-    find(element, node).map_or(false, |mut node| {
+    find(node, element).map_or(false, |mut node| {
         match Node::children_count(node) {
             0 => {
                 //leaf
