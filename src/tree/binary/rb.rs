@@ -126,13 +126,6 @@ use std::ptr::NonNull;
 //todo: rb tree delete, Chris Okasaki insert-fix
 pub trait RedBlackTree<T> {
     fn insert(&mut self, element: T);
-
-    /// 此操作不改变rb tree结构，复用bst find
-    fn find(&self, element: T) -> Option<NonNull<Node<T>>>;
-    /// 此操作不改变rb tree结构，复用bst min
-    fn min(&self) -> Option<T>;
-    /// 此操作不改变rb tree结构，复用bst max
-    fn max(&self) -> Option<T>;
 }
 
 impl<T> RedBlackTree<T> for Tree<T>
@@ -141,18 +134,6 @@ where
 {
     fn insert(&mut self, element: T) {
         self.root = insert(self.root, element);
-    }
-
-    fn find(&self, element: T) -> Option<NonNull<Node<T>>> {
-        unsafe { bst::find(self.root, element) }
-    }
-
-    fn min(&self) -> Option<T> {
-        unsafe { bst::find_min(self.root).map(|p| p.as_ref().element) }
-    }
-
-    fn max(&self) -> Option<T> {
-        unsafe { bst::find_max(self.root).map(|p| p.as_ref().element) }
     }
 }
 

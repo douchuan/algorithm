@@ -21,79 +21,93 @@
 //! represent 2-3 trees in this way as red-black BSTs.
 //!
 //! Encoding a 3-node with two 2-nodes connected by a left-leaning red link
-//!
-//!             a    b
-//!          /    |     \
-//!       less  between   greater than b
-//!        a    a and b
-//!
-//!
-//!                 b
-//!             /    \
-//!           R(a)      greater than b
-//!         /     \
-//!       less    between a and b
-//!        a
-//!
+//
+//             a    b
+//          /    |     \
+//       less  between   greater than b
+//        a    a and b
+//
+//
+//                 b
+//             /    \
+//           R(a)      greater than b
+//         /     \
+//       less    between a and b
+//        a
+//
 //! RB tree definition.
 //! 1. Red links lean left.
 //! 2. No node has two red links connected to it.
 //! 3. The tree has perfect black balance : every path from the root to a
 //!   null link has the same number of black links.
 //!
-//!
-//! 1. Insert Into a single 2-node (2 cases)
-//!
-//!     case1: (insert 'a')
-//!
-//!     b   |        b
-//!         |      /
-//!         |    R(a)
-//!
-//!    ------------------------
-//!     case2: (inset 'b')
-//!
-//!     a   |    a        |        b
-//!         |      \      |      /
-//!         |       R(b)  |    R(a)
-//!         |             |
-//!                            rotate left to make a legal 3-node
-//!
-//! 2. Insert into a single 3-node (3 cases)
-//!
-//!     case1: larger, insert 'c'
-//!
-//!     b  |     b        |      b
-//!   /    |   /   \      |    /    \
-//! R(a)   | R(a)   R(c)  |   a      c
-//!                          color flipped to black
-//!
-//!     case2: smaller, insert 'a'
-//!
-//!     c           c           b                b
-//!   /            /          /   \            /  \
-//!  R(b)        R(b)       R(a)   R(c)       a    c
-//!             /
-//!            R(a)
-//!                         rotate              color
-//!                         right               flipped
-//!
-//!     case3: between, insert 'b'
-//!
-//!     c       c               c            c              c
-//!    /       /               /           /  \            /  \
-//!  R(a)    R(a)            R(b)       R(a)   R(c)       a    c
-//!            \            /
-//!            R(b)       R(a)
-//!
-//!                        left                            color
-//!                      rotate                            flipped
-//!
+//
+// 1. Insert Into a single 2-node (2 cases)
+//
+//     case1: (insert 'a')
+//
+//     b   |        b
+//         |      /
+//         |    R(a)
+//
+//    ------------------------
+//     case2: (inset 'b')
+//
+//     a   |    a        |        b
+//         |      \      |      /
+//         |       R(b)  |    R(a)
+//         |             |
+//                            rotate left to make a legal 3-node
+//
+// 2. Insert into a single 3-node (3 cases)
+//
+//     case1: larger, insert 'c'
+//
+//     b  |     b        |      b
+//   /    |   /   \      |    /    \
+// R(a)   | R(a)   R(c)  |   a      c
+//                          color flipped to black
+//
+//     case2: smaller, insert 'a'
+//
+//     c           c           b                b
+//   /            /          /   \            /  \
+//  R(b)        R(b)       R(a)   R(c)       a    c
+//             /
+//            R(a)
+//                         rotate              color
+//                         right               flipped
+//
+//     case3: between, insert 'b'
+//
+//     c       c               c            c              c
+//    /       /               /           /  \            /  \
+//  R(a)    R(a)            R(b)       R(a)   R(c)       a    c
+//            \            /
+//            R(b)       R(a)
+//
+//                        left                            color
+//                      rotate                            flipped
+//
 
 use crate::tree::binary::node::Color;
-use crate::tree::binary::{Node, NodeQuery};
+use crate::tree::binary::{Node, NodeQuery, Tree};
 use std::cmp::Ordering;
 use std::ptr::NonNull;
+
+pub trait RedBlackTreeV2<T> {
+    fn insert(&mut self, element: T);
+}
+
+impl<T> RedBlackTreeV2<T> for Tree<T>
+where
+    T: std::cmp::PartialOrd + std::marker::Copy,
+{
+    fn insert(&mut self, element: T) {
+        self.root = put(self.root, element);
+        unsafe { self.root.unwrap().as_mut().color = Color::Black };
+    }
+}
 
 /*
        h
