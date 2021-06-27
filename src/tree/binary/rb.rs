@@ -1,3 +1,4 @@
+#![allow(clippy::many_single_char_names)]
 //! 红黑树
 //!
 //! 红黑树是一种自平衡二叉搜索树，通过对节点进行着色和旋转，红黑树可以很容易地保持树的平衡。
@@ -164,28 +165,26 @@ fn insert_fix<T>(
             x.grandparent().set_color(Color::Red);
             x.uncle().set_color(Color::Black);
             x = x.grandparent();
-        } else {
-            if x.parent().i_am_left() {
-                if x.i_am_right() {
-                    // case 2: ((a x:R b:R) y:B c) => case 3
-                    x = x.parent();
-                    t.node = rotate_left(t.node, x.node.unwrap());
-                }
-                // case 3: ((a:R x:R b) y:B c) => (a:R x:B (b y:R c))
-                x.parent().set_color(Color::Black);
-                x.grandparent().set_color(Color::Red);
-                t.node = rotate_right(t.node, x.grandparent().node.unwrap());
-            } else {
-                if x.i_am_left() {
-                    // case 2': (a x:B (b:R y:R c)) => case 3'
-                    x = x.parent();
-                    t.node = rotate_right(t.node, x.node.unwrap());
-                }
-                // case 3': (a x:B (b y:R c:R)) => ((a x:R b) y:B c:R)
-                x.parent().set_color(Color::Black);
-                x.grandparent().set_color(Color::Red);
-                t.node = rotate_left(t.node, x.grandparent().node.unwrap());
+        } else if x.parent().i_am_left() {
+            if x.i_am_right() {
+                // case 2: ((a x:R b:R) y:B c) => case 3
+                x = x.parent();
+                t.node = rotate_left(t.node, x.node.unwrap());
             }
+            // case 3: ((a:R x:R b) y:B c) => (a:R x:B (b y:R c))
+            x.parent().set_color(Color::Black);
+            x.grandparent().set_color(Color::Red);
+            t.node = rotate_right(t.node, x.grandparent().node.unwrap());
+        } else {
+            if x.i_am_left() {
+                // case 2': (a x:B (b:R y:R c)) => case 3'
+                x = x.parent();
+                t.node = rotate_right(t.node, x.node.unwrap());
+            }
+            // case 3': (a x:B (b y:R c:R)) => ((a x:R b) y:B c:R)
+            x.parent().set_color(Color::Black);
+            x.grandparent().set_color(Color::Red);
+            t.node = rotate_left(t.node, x.grandparent().node.unwrap());
         }
     }
     t.set_color(Color::Black);

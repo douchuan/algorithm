@@ -24,6 +24,10 @@ impl<T> LinkedList<T> {
         self.len
     }
 
+    pub fn is_empty(&self) -> bool {
+        self.len == 0
+    }
+
     pub fn push_back(&mut self, mut node: NonNull<Node<T>>) {
         unsafe {
             node.as_mut().next = None;

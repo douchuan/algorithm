@@ -1,3 +1,4 @@
+#![allow(clippy::many_single_char_names)]
 //! 归并排序（Merge Sort）
 //!
 //! 建立在归并操作上的一种有效，稳定的排序算法，该算法是采用分治法（Divide and Conquer）

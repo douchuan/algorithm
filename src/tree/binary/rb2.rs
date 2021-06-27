@@ -104,8 +104,9 @@ where
     T: std::cmp::PartialOrd + std::marker::Copy,
 {
     fn insert(&mut self, element: T) {
-        self.root = put(self.root, element);
-        NodeQuery::new(self.root).set_color(Color::Black);
+        let new_root = put(self.root, element);
+        NodeQuery::new(new_root).set_color(Color::Black);
+        self.root = new_root;
     }
 }
 

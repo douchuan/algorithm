@@ -24,7 +24,7 @@ pub fn sqrt_newton(x: f32) -> f32 {
     if x == 0.0 {
         return x;
     }
-    if x == 1.0 {
+    if (x - 1.0).abs() <= f32::EPSILON {
         return 1.0;
     }
     let mut last = 0.0;

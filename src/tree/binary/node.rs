@@ -118,9 +118,6 @@ where
     }
 }
 
-// rotate
-impl<T> Node<T> {}
-
 /// Node proxy, like jQuery
 #[derive(Copy, Clone)]
 pub struct NodeQuery<T> {
@@ -191,7 +188,7 @@ impl<T> NodeQuery<T> {
     }
 
     pub fn child_count(&self) -> usize {
-        self.node.map_or(0, |node| Node::children_count(node))
+        self.node.map_or(0, Node::children_count)
     }
 
     pub fn is_some(&self) -> bool {
