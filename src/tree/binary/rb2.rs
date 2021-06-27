@@ -41,7 +41,7 @@
 //! 3. The tree has perfect black balance : every path from the root to a
 //!   null link has the same number of black links.
 //!
-//
+//! Insert:
 // 1. Insert Into a single 2-node (2 cases)
 //
 //     case1: (insert 'a')
@@ -105,7 +105,7 @@ where
 {
     fn insert(&mut self, element: T) {
         self.root = put(self.root, element);
-        unsafe { self.root.unwrap().as_mut().color = Color::Black };
+        NodeQuery::new(self.root).set_color(Color::Black);
     }
 }
 
@@ -124,7 +124,6 @@ where
  A      B
 */
 fn rotate_left<T>(h: Option<NonNull<Node<T>>>) -> Option<NonNull<Node<T>>> {
-    debug_assert!(h.is_some());
     let mut h = NodeQuery::new(h);
     let mut x = h.right();
     h.set_right(x.left().node);
@@ -149,7 +148,6 @@ fn rotate_left<T>(h: Option<NonNull<Node<T>>>) -> Option<NonNull<Node<T>>> {
           B      C
 */
 fn rotate_right<T>(h: Option<NonNull<Node<T>>>) -> Option<NonNull<Node<T>>> {
-    debug_assert!(h.is_some());
     let mut h = NodeQuery::new(h);
     let mut x = h.left();
     h.set_left(x.right().node);
@@ -170,7 +168,6 @@ R(A)  R(S)
 
  */
 fn flip_colors<T>(h: Option<NonNull<Node<T>>>) {
-    debug_assert!(h.is_some());
     let mut h = NodeQuery::new(h);
     h.set_color(Color::Red);
     h.left().set_color(Color::Black);
@@ -186,8 +183,14 @@ where
         None => return Some(Node::new_leaf(element, None)),
         Some(v) => match element.partial_cmp(&v) {
             None | Some(Ordering::Equal) => (),
-            Some(Ordering::Less) => h.set_left(put(h.left().node, element)),
-            Some(Ordering::Greater) => h.set_right(put(h.right().node, element)),
+            Some(Ordering::Less) => {
+                let l = put(h.left().node, element);
+                h.set_left(l);
+            }
+            Some(Ordering::Greater) => {
+                let r = put(h.right().node, element);
+                h.set_right(r);
+            }
         },
     }
 
@@ -201,6 +204,5 @@ where
         flip_colors(h.node);
     }
 
-    debug_assert!(h.node.is_some());
     h.node
 }
