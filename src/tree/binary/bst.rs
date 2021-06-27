@@ -58,6 +58,9 @@ where
     }
 }
 
+/// # Safety
+///
+/// This is highly unsafe, due to pointer
 pub unsafe fn insert<T>(root: Option<NonNull<Node<T>>>, element: T) -> Result<NonNull<Node<T>>, ()>
 where
     T: std::cmp::PartialOrd + Copy,
@@ -87,6 +90,9 @@ where
     Ok(x)
 }
 
+/// # Safety
+///
+/// This is highly unsafe, due to pointer
 pub unsafe fn find<T>(node: Option<NonNull<Node<T>>>, element: T) -> Option<NonNull<Node<T>>>
 where
     T: std::cmp::PartialOrd,
@@ -99,6 +105,9 @@ where
     })
 }
 
+/// # Safety
+///
+/// This is highly unsafe, due to pointer
 pub unsafe fn find_min<T>(node: Option<NonNull<Node<T>>>) -> Option<NonNull<Node<T>>>
 where
     T: std::cmp::PartialOrd,
@@ -106,6 +115,9 @@ where
     node.and_then(|node| node.as_ref().left.map_or(Some(node), |l| find_min(Some(l))))
 }
 
+/// # Safety
+///
+/// This is highly unsafe, due to pointer
 pub unsafe fn find_max<T>(node: Option<NonNull<Node<T>>>) -> Option<NonNull<Node<T>>>
 where
     T: std::cmp::PartialOrd,
@@ -117,6 +129,9 @@ where
     })
 }
 
+/// # Safety
+///
+/// This is highly unsafe, due to pointer
 unsafe fn succ<T>(p: Option<NonNull<Node<T>>>, mut element: T) -> Option<NonNull<Node<T>>>
 where
     T: std::cmp::PartialOrd + Copy,
@@ -140,6 +155,9 @@ where
     })
 }
 
+/// # Safety
+///
+/// This is highly unsafe, due to pointer
 unsafe fn pred<T>(node: Option<NonNull<Node<T>>>, mut element: T) -> Option<NonNull<Node<T>>>
 where
     T: std::cmp::PartialOrd + Copy,
@@ -163,6 +181,9 @@ where
     })
 }
 
+/// # Safety
+///
+/// This is highly unsafe, due to pointer
 /// 从二叉搜索树中删除节点 x 的方法如下:
 ///   如果 x 没有子节点，或者只有一个孩子，直接将 x“切下”;
 ///   否则，x 有两个孩子，我们用其右子树中的最小值替换掉 x，然后将右子树中的这一最小值“切掉”。

@@ -112,6 +112,9 @@ pub struct RecoverBinarySearchTree;
 pub struct SameTree;
 
 impl PreOrderVisitor {
+    /// # Safety
+    ///
+    /// This is highly unsafe, due to pointer
     /// 时间复杂度 O(n), 空间复杂度 O(n)
     pub unsafe fn iterate<T>(tree: &Tree<T>) -> Vec<T>
     where
@@ -133,6 +136,10 @@ impl PreOrderVisitor {
         results
     }
 
+    /// # Safety
+    ///
+    /// This is highly unsafe, due to pointer
+    ///
     /// 时间复杂度 O(n), 空间复杂度 O(1)
     ///
     /// 大概思路：当一个node有left subtree时，需要遍历left subtree
@@ -187,6 +194,9 @@ impl PreOrderVisitor {
         results
     }
 
+    /// # Safety
+    ///
+    /// This is highly unsafe, due to pointer
     /// 时间复杂度 O(n), 空间复杂度 O(n)
     pub unsafe fn recursive<T>(tree: &Tree<T>) -> Vec<T>
     where
@@ -209,6 +219,9 @@ impl PreOrderVisitor {
 }
 
 impl InOrderVisitor {
+    /// # Safety
+    ///
+    /// This is highly unsafe, due to pointer
     pub unsafe fn iterate<T>(tree: &Tree<T>) -> Vec<T>
     where
         T: Copy,
@@ -238,6 +251,9 @@ impl InOrderVisitor {
         results
     }
 
+    /// # Safety
+    ///
+    /// This is highly unsafe, due to pointer
     pub unsafe fn recursive<T>(tree: &Tree<T>) -> Vec<T>
     where
         T: Copy,
@@ -259,6 +275,9 @@ impl InOrderVisitor {
 }
 
 impl PostOrderVisitor {
+    /// # Safety
+    ///
+    /// This is highly unsafe, due to pointer
     pub unsafe fn iterate<T>(tree: &Tree<T>) -> Vec<T>
     where
         T: Copy,
@@ -298,6 +317,9 @@ impl PostOrderVisitor {
         results
     }
 
+    /// # Safety
+    ///
+    /// This is highly unsafe, due to pointer
     pub unsafe fn recursive<T>(tree: &Tree<T>) -> Vec<T>
     where
         T: Copy,
@@ -319,6 +341,9 @@ impl PostOrderVisitor {
 }
 
 impl LevelOrderVisitor {
+    /// # Safety
+    ///
+    /// This is highly unsafe, due to pointer
     pub unsafe fn iterate<T>(tree: &Tree<T>) -> Vec<Vec<T>>
     where
         T: Copy,
@@ -359,6 +384,9 @@ impl LevelOrderVisitor {
         results
     }
 
+    /// # Safety
+    ///
+    /// This is highly unsafe, due to pointer
     pub unsafe fn recursive<T>(tree: &Tree<T>) -> Vec<Vec<T>>
     where
         T: Copy,
@@ -393,6 +421,9 @@ impl LevelOrderVisitor {
 }
 
 impl LevelOrderVisitor2 {
+    /// # Safety
+    ///
+    /// This is highly unsafe, due to pointer
     pub unsafe fn iterate<T>(tree: &Tree<T>) -> Vec<Vec<T>>
     where
         T: Copy,
@@ -402,6 +433,9 @@ impl LevelOrderVisitor2 {
         r
     }
 
+    /// # Safety
+    ///
+    /// This is highly unsafe, due to pointer
     pub unsafe fn recursive<T>(tree: &Tree<T>) -> Vec<Vec<T>>
     where
         T: Copy,
@@ -413,6 +447,9 @@ impl LevelOrderVisitor2 {
 }
 
 impl ZigzagOrderVisitor {
+    /// # Safety
+    ///
+    /// This is highly unsafe, due to pointer
     pub unsafe fn iterate<T>(tree: &Tree<T>) -> Vec<Vec<T>>
     where
         T: Copy,
@@ -462,6 +499,9 @@ impl ZigzagOrderVisitor {
         results
     }
 
+    /// # Safety
+    ///
+    /// This is highly unsafe, due to pointer
     pub unsafe fn recursive<T>(tree: &Tree<T>) -> Vec<Vec<T>>
     where
         T: Copy,
