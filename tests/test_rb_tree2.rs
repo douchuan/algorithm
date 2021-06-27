@@ -20,12 +20,12 @@ fn rb_insert1() {
     use algo::tree::binary::rb2::RedBlackTreeV2;
 
     let mut tree = Tree::default();
-    for v in vec!["S", "E", "A", "R", "C", "H", "X", "M", "P", "L"] {
+    for v in "SEARCHXMPL".chars() {
         tree.insert(v);
     }
 
     let r = unsafe { PreOrderVisitor::iterate(&tree) };
-    assert_eq!(r, vec!["M", "E", "C", "A", "L", "H", "R", "P", "X", "S"]);
+    assert_eq!(r.iter().collect::<String>(), "MECALHRPXS");
 }
 
 #[test]
@@ -33,10 +33,10 @@ fn rb_insert2() {
     use algo::tree::binary::rb2::RedBlackTreeV2;
 
     let mut tree = Tree::default();
-    for v in vec!["A", "C", "E", "H", "L", "M", "P", "R", "S", "X"] {
+    for v in "ACEHLMPRSX".chars() {
         tree.insert(v);
     }
 
     let r = unsafe { PreOrderVisitor::iterate(&tree) };
-    assert_eq!(r, vec!["H", "C", "A", "E", "R", "M", "L", "P", "X", "S"]);
+    assert_eq!(r.iter().collect::<String>(), "HCAERMLPXS");
 }
