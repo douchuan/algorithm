@@ -1,9 +1,9 @@
+use algo::tree::binary::rb2::RedBlackTreeV2;
 use algo::tree::binary::traverse::PreOrderVisitor;
 use algo::tree::binary::Tree;
 
 #[test]
 fn rb_tree_height() {
-    use algo::tree::binary::rb2::RedBlackTreeV2;
     let mut tree = Tree::default();
     for v in 0..100 {
         tree.insert(v);
@@ -17,8 +17,6 @@ fn rb_tree_height() {
 /// P440
 #[test]
 fn rb_insert1() {
-    use algo::tree::binary::rb2::RedBlackTreeV2;
-
     let mut tree = Tree::default();
     for v in "SEARCHXMPL".chars() {
         tree.insert(v);
@@ -30,12 +28,26 @@ fn rb_insert1() {
 
 #[test]
 fn rb_insert2() {
+    let mut tree = Tree::default();
+    for v in "ACEHLMPRSX".chars() {
+        tree.insert(v);
+    }
+
+    let r = unsafe { PreOrderVisitor::iterate(&tree) };
+    assert_eq!(r.iter().collect::<String>(), "HCAERMLPXS");
+}
+
+#[test]
+fn rb_repeat_insert() {
     use algo::tree::binary::rb2::RedBlackTreeV2;
 
     let mut tree = Tree::default();
     for v in "ACEHLMPRSX".chars() {
         tree.insert(v);
     }
+
+    //重复insert 'A'
+    tree.insert('A');
 
     let r = unsafe { PreOrderVisitor::iterate(&tree) };
     assert_eq!(r.iter().collect::<String>(), "HCAERMLPXS");
