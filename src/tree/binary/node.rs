@@ -251,6 +251,14 @@ impl<T> NodeQuery<T> {
     pub fn color(&self) -> Option<Color> {
         unsafe { self.node.map(|node| node.as_ref().color) }
     }
+
+    pub fn is_red(&self) -> bool {
+        self.color() == Some(Color::Red)
+    }
+
+    pub fn is_black(&self) -> bool {
+        !self.is_red()
+    }
 }
 
 impl<T> NodeQuery<T>

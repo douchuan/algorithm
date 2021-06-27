@@ -3,6 +3,7 @@ pub mod bst;
 pub mod builder;
 mod node;
 pub mod rb;
+pub mod rb2;
 pub mod traverse;
 mod tree;
 

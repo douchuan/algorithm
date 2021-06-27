@@ -98,4 +98,3 @@ delta(z) = -1
 delta(y) = 0
 
  */
-
