@@ -58,6 +58,9 @@ where
     }
 }
 
+/// Ok(inserted node)
+/// Err(()): element exists
+///
 /// # Safety
 ///
 /// This is highly unsafe, due to pointer

@@ -111,18 +111,12 @@ where
 }
 
 /*
-       h
-    /      \
-   A        R(x)
-           /    \
-          B      C
+     h                          x
+  /      \                  /       \
+ A        R(x)     =>     R(h)       C
+         /    \         /      \
+        B      C       A        B
 
-
-       x
-     /   \
-   R(h)   C
-  /    \
- A      B
 */
 fn rotate_left<T>(h: Option<NonNull<Node<T>>>) -> Option<NonNull<Node<T>>> {
     let mut h = NodeQuery::new(h);
@@ -135,18 +129,12 @@ fn rotate_left<T>(h: Option<NonNull<Node<T>>>) -> Option<NonNull<Node<T>>> {
 }
 
 /*
-       h
-     /   \
-   R(x)   C
-  /    \
- A      B
+       h                x
+     /   \            /   \
+   R(x)   C    =>    A    R(h)
+  /    \                 /     \
+ A      B               B       C
 
-
-       x
-    /      \
-   A        R(h)
-           /    \
-          B      C
 */
 fn rotate_right<T>(h: Option<NonNull<Node<T>>>) -> Option<NonNull<Node<T>>> {
     let mut h = NodeQuery::new(h);
