@@ -28,7 +28,7 @@
 //        a    a and b
 //
 //
-//                 b
+//               b
 //             /    \
 //           R(a)      greater than b
 //         /     \
@@ -57,7 +57,8 @@
 //         |      \      |      /
 //         |       R(b)  |    R(a)
 //         |             |
-//                            rotate left to make a legal 3-node
+//              rotate
+//               left   =>
 //
 // 2. Insert into a single 3-node (3 cases)
 //
@@ -66,7 +67,8 @@
 //     b  |     b        |      b
 //   /    |   /   \      |    /    \
 // R(a)   | R(a)   R(c)  |   a      c
-//                          color flipped to black
+//
+//           color flip  =>
 //
 //     case2: smaller, insert 'a'
 //
@@ -75,19 +77,20 @@
 //  R(b)        R(b)       R(a)   R(c)       a    c
 //             /
 //            R(a)
-//                         rotate              color
-//                         right               flipped
+//
+//           rotate           color
+//           right    =>       flip    =>
 //
 //     case3: between, insert 'b'
 //
-//     c       c               c            c              c
-//    /       /               /           /  \            /  \
-//  R(a)    R(a)            R(b)       R(a)   R(c)       a    c
-//            \            /
-//            R(b)       R(a)
+//     c       c          c          b               b
+//    /       /          /         /  \            /  \
+//  R(a)    R(a)       R(b)     R(a)   R(c)       a    c
+//            \        /
+//            R(b)    R(a)
 //
-//                        left                            color
-//                      rotate                            flipped
+//          left       right       color
+//         rotate  => rotate  =>   flip    =>
 //
 
 use crate::tree::binary::node::Color;
@@ -97,6 +100,7 @@ use std::ptr::NonNull;
 
 pub trait RedBlackTreeV2<T> {
     fn insert(&mut self, element: T);
+    fn delete_min(&mut self);
 }
 
 impl<T> RedBlackTreeV2<T> for Tree<T>
@@ -108,6 +112,18 @@ where
         NodeQuery::new(new_root).set_color(Color::Black);
         self.root = new_root;
     }
+
+    fn delete_min(&mut self) {
+        let mut root = NodeQuery::new(self.root);
+        if root.is_some() {
+            if !root.left().is_red() && !root.right().is_red() {
+                root.set_color(Color::Red);
+            }
+            root.node = delete_min(root.node);
+            root.set_color(Color::Black);
+            self.root = root.node;
+        }
+    }
 }
 
 /*
@@ -117,7 +133,10 @@ where
          /    \         /      \
         B      C       A        B
 
+旋转操作会改变红链接的指向，所以旋转之后 h 变为 R(h)
+旋转操作可以保持rb tree的两个重要性质：有序性(中序)和完美平衡性
 */
+/// make a right-leaning link lean to the left
 fn rotate_left<T>(h: Option<NonNull<Node<T>>>) -> Option<NonNull<Node<T>>> {
     let mut h = NodeQuery::new(h);
     let mut x = h.right();
@@ -136,6 +155,7 @@ fn rotate_left<T>(h: Option<NonNull<Node<T>>>) -> Option<NonNull<Node<T>>> {
  A      B               B       C
 
 */
+/// make a left-leaning link lean to the right
 fn rotate_right<T>(h: Option<NonNull<Node<T>>>) -> Option<NonNull<Node<T>>> {
     let mut h = NodeQuery::new(h);
     let mut x = h.left();
@@ -146,21 +166,12 @@ fn rotate_right<T>(h: Option<NonNull<Node<T>>>) -> Option<NonNull<Node<T>>> {
     x.node
 }
 
-/*
-    E
-  /   \
-R(A)  R(S)
-
-   R(E)
-  /   \
- A     S
-
- */
+/// flip the colors of a node and its two children
 fn flip_colors<T>(h: Option<NonNull<Node<T>>>) {
     let mut h = NodeQuery::new(h);
-    h.set_color(Color::Red);
-    h.left().set_color(Color::Black);
-    h.right().set_color(Color::Black);
+    h.flip_color();
+    h.left().flip_color();
+    h.right().flip_color();
 }
 
 fn put<T>(h: Option<NonNull<Node<T>>>, element: T) -> Option<NonNull<Node<T>>>
@@ -168,30 +179,66 @@ where
     T: std::cmp::PartialOrd + Copy,
 {
     let mut h = NodeQuery::new(h);
+
     match h.get_element() {
         None => return Some(Node::new_leaf(element, None)),
         Some(v) => match element.partial_cmp(&v) {
             None | Some(Ordering::Equal) => (),
-            Some(Ordering::Less) => {
-                let l = put(h.left().node, element);
-                h.set_left(l);
-            }
-            Some(Ordering::Greater) => {
-                let r = put(h.right().node, element);
-                h.set_right(r);
-            }
+            Some(Ordering::Less) => h.set_left(put(h.left().node, element)),
+            Some(Ordering::Greater) => h.set_right(put(h.right().node, element)),
         },
     }
+
+    balance(h.node)
+}
+
+fn balance<T>(h: Option<NonNull<Node<T>>>) -> Option<NonNull<Node<T>>> {
+    let mut h = NodeQuery::new(h);
 
     if h.right().is_red() && !h.left().is_red() {
         h.node = rotate_left(h.node);
     }
+
     if h.left().is_red() && h.left().left().is_red() {
         h.node = rotate_right(h.node);
     }
+
     if h.left().is_red() && h.right().is_red() {
         flip_colors(h.node);
     }
 
     h.node
+}
+
+/// Assuming that h is red and both h.left and h.left.left
+/// are black, make h.left or one of its children red.
+fn move_red_left<T>(h: Option<NonNull<Node<T>>>) -> Option<NonNull<Node<T>>> {
+    let mut h = NodeQuery::new(h);
+
+    flip_colors(h.node);
+    if h.right().left().is_red() {
+        h.set_right(rotate_right(h.right().node));
+        h.node = rotate_left(h.node);
+        flip_colors(h.node);
+    }
+
+    h.node
+}
+
+fn delete_min<T>(h: Option<NonNull<Node<T>>>) -> Option<NonNull<Node<T>>> {
+    let mut h = NodeQuery::new(h);
+
+    if h.left().is_none() {
+        if let Some(h) = h.node.take() {
+            Node::release(h);
+        }
+        None
+    } else {
+        if !h.left().is_red() && !h.left().left().is_red() {
+            h.node = move_red_left(h.node);
+        }
+        let new_left = delete_min(h.left().node);
+        h.set_left(new_left);
+        balance(h.node)
+    }
 }

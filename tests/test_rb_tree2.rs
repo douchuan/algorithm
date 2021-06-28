@@ -1,6 +1,6 @@
 use algo::tree::binary::rb2::RedBlackTreeV2;
-use algo::tree::binary::traverse::PreOrderVisitor;
-use algo::tree::binary::Tree;
+use algo::tree::binary::traverse::{InOrderVisitor, PreOrderVisitor};
+use algo::tree::binary::{bst, Tree};
 
 #[test]
 fn rb_tree_height() {
@@ -24,6 +24,8 @@ fn rb_insert1() {
 
     let r = unsafe { PreOrderVisitor::iterate(&tree) };
     assert_eq!(r.iter().collect::<String>(), "MECALHRPXS");
+    let r = unsafe { InOrderVisitor::iterate(&tree) };
+    assert_eq!(r.iter().collect::<String>(), "ACEHLMPRSX");
 }
 
 #[test]
@@ -35,6 +37,8 @@ fn rb_insert2() {
 
     let r = unsafe { PreOrderVisitor::iterate(&tree) };
     assert_eq!(r.iter().collect::<String>(), "HCAERMLPXS");
+    let r = unsafe { InOrderVisitor::iterate(&tree) };
+    assert_eq!(r.iter().collect::<String>(), "ACEHLMPRSX");
 }
 
 #[test]
@@ -51,4 +55,18 @@ fn rb_repeat_insert() {
 
     let r = unsafe { PreOrderVisitor::iterate(&tree) };
     assert_eq!(r.iter().collect::<String>(), "HCAERMLPXS");
+}
+
+#[test]
+fn rb_insert_t() {
+    let mut tree = Tree::default();
+    for v in 0..10 {
+        tree.insert(v);
+    }
+    for v in 0..10 {
+        tree.delete_min();
+        unsafe {
+            assert!(bst::find(tree.root, v).is_none());
+        }
+    }
 }

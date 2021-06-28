@@ -187,6 +187,24 @@ impl<T> NodeQuery<T> {
         }
     }
 
+    pub fn flip_color(&mut self) {
+        if let Some(mut node) = self.node {
+            unsafe { node.as_mut().color = node.as_ref().color.flip() }
+        }
+    }
+
+    pub fn color(&self) -> Option<Color> {
+        unsafe { self.node.map(|node| node.as_ref().color) }
+    }
+
+    pub fn is_red(&self) -> bool {
+        self.color() == Some(Color::Red)
+    }
+
+    pub fn is_black(&self) -> bool {
+        !self.is_red()
+    }
+
     pub fn child_count(&self) -> usize {
         self.node.map_or(0, Node::children_count)
     }
@@ -244,18 +262,6 @@ impl<T> NodeQuery<T> {
         let v = Node::uncle(self.node);
         Self::new(v)
     }
-
-    pub fn color(&self) -> Option<Color> {
-        unsafe { self.node.map(|node| node.as_ref().color) }
-    }
-
-    pub fn is_red(&self) -> bool {
-        self.color() == Some(Color::Red)
-    }
-
-    pub fn is_black(&self) -> bool {
-        !self.is_red()
-    }
 }
 
 impl<T> NodeQuery<T>
@@ -272,5 +278,14 @@ where
 
     pub fn get_element(&self) -> Option<T> {
         unsafe { self.node.map(|node| node.as_ref().element) }
+    }
+}
+
+impl Color {
+    pub fn flip(&self) -> Self {
+        match self {
+            Color::Red => Color::Black,
+            Color::Black => Color::Red,
+        }
     }
 }
