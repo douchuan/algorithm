@@ -3,7 +3,7 @@ use algo::tree::binary::traverse::{InOrderVisitor, PreOrderVisitor};
 use algo::tree::binary::{bst, Tree};
 
 #[test]
-fn rb_tree_height() {
+fn height() {
     let mut tree = Tree::default();
     for v in 0..100 {
         tree.insert(v);
@@ -16,7 +16,7 @@ fn rb_tree_height() {
 /// Algorithms 4th Edition by Robert Sedgewick, Kevin Wayne
 /// P440
 #[test]
-fn rb_insert1() {
+fn insert1() {
     let mut tree = Tree::default();
     for v in "SEARCHXMPL".chars() {
         tree.insert(v);
@@ -29,7 +29,7 @@ fn rb_insert1() {
 }
 
 #[test]
-fn rb_insert2() {
+fn insert2() {
     let mut tree = Tree::default();
     for v in "ACEHLMPRSX".chars() {
         tree.insert(v);
@@ -42,7 +42,7 @@ fn rb_insert2() {
 }
 
 #[test]
-fn rb_repeat_insert() {
+fn repeat_insert() {
     use algo::tree::binary::rb2::RedBlackTreeV2;
 
     let mut tree = Tree::default();
@@ -58,14 +58,30 @@ fn rb_repeat_insert() {
 }
 
 #[test]
-fn rb_insert_t() {
+fn delete_min() {
     let mut tree = Tree::default();
     for v in 0..10 {
         tree.insert(v);
     }
     for v in 0..10 {
-        tree.delete_min();
+        assert!(tree.contains(&v));
         unsafe {
+            tree.delete_min();
+            assert!(bst::find(tree.root, v).is_none());
+        }
+    }
+}
+
+#[test]
+fn delete_max() {
+    let mut tree = Tree::default();
+    for v in 0..10 {
+        tree.insert(v);
+    }
+    for v in (0..10).rev() {
+        assert!(tree.contains(&v));
+        unsafe {
+            tree.delete_max();
             assert!(bst::find(tree.root, v).is_none());
         }
     }

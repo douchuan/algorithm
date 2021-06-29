@@ -1,9 +1,9 @@
+use algo::tree::binary::bst::BSTree;
 use algo::tree::binary::traverse::PreOrderVisitor;
-use algo::tree::binary::Tree;
+use algo::tree::binary::{bst, Tree};
 
 #[test]
 fn build_binary_search_tree() {
-    use algo::tree::binary::bst::BSTree;
     let mut tree = Tree::default();
     let data = vec![4, 3, 8, 1, 7, 16, 2, 10, 9, 14];
     for v in &data {
@@ -20,7 +20,6 @@ fn build_binary_search_tree() {
 
 #[test]
 fn binary_search_tree_min_max() {
-    use algo::tree::binary::bst::BSTree;
     let mut tree = Tree::default();
     let data = vec![4, 3, 8, 1, 7, 16, 2, 10, 9, 14];
     for v in &data {
@@ -38,7 +37,6 @@ fn binary_search_tree_min_max() {
 
 #[test]
 fn binary_search_tree_succ_pred() {
-    use algo::tree::binary::bst::BSTree;
     let mut tree = Tree::default();
     let data = vec![4, 3, 8, 1, 7, 16, 2, 10, 9, 14];
     for v in &data {
@@ -60,7 +58,6 @@ fn binary_search_tree_succ_pred() {
 
 #[test]
 fn delete_binary_search_tree() {
-    use algo::tree::binary::bst::BSTree;
     let mut tree = Tree::default();
     for v in vec![4, 3, 8, 1, 7, 16, 2, 10, 9, 14] {
         tree.insert(v);
@@ -80,10 +77,19 @@ fn delete_binary_search_tree() {
 #[test]
 fn bst_tree_height() {
     // 升序数列，使BST退化成一个linked list
-    use algo::tree::binary::bst::BSTree;
     let mut tree = Tree::default();
     for v in 0..100 {
         tree.insert(v);
     }
     assert_eq!(tree.height(), 100);
+}
+
+#[test]
+fn is_bst() {
+    let mut tree = Tree::default();
+    let data = vec![4, 3, 8, 1, 7, 16, 2, 10, 9, 14];
+    for v in &data {
+        tree.insert(*v);
+    }
+    assert!(bst::is_bst(tree.root, None, None));
 }

@@ -1,4 +1,4 @@
-CARGO = rustup run nightly cargo
+CARGO = RUST_BACKTRACE=1 rustup run nightly cargo
 TEST = $(CARGO) test
 BENCH = $(CARGO) bench
 BUILD = $(CARGO) build

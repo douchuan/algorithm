@@ -11,14 +11,20 @@ where
     T: std::cmp::PartialOrd,
 {
     fn insert(&mut self, element: T);
+    //todo: make element as &T
     fn delete(&mut self, element: T) -> bool;
+    //todo: make element as &T
     fn find(&self, element: T) -> Option<NonNull<Node<T>>>;
+    //todo: return Option<&T>
     fn min(&self) -> Option<T>;
+    //todo: return Option<&T>
     fn max(&self) -> Option<T>;
+    //todo: make element as &T
     /// 查找后继元素
     fn succ(&self, element: T) -> Option<T>;
+    //todo: make element as &T
     /// 寻找前驱元素
-    fn pred(&self, elementx: T) -> Option<T>;
+    fn pred(&self, element: T) -> Option<T>;
 }
 
 impl<T> BSTree<T> for Tree<T>
@@ -240,4 +246,23 @@ where
             }
         }
     })
+}
+
+/// is the tree rooted at x a BST with all keys strictly between min and max
+/// (if min or max is null, treat as empty constraint)
+pub fn is_bst<T>(x: Option<NonNull<Node<T>>>, min: Option<T>, max: Option<T>) -> bool
+where
+    T: Copy + std::cmp::PartialOrd,
+{
+    if x.is_none() {
+        true
+    } else {
+        let node = NodeQuery::new(x);
+        let element = node.get_element();
+        if (min.is_some() && element.lt(&min)) || (max.is_some() && element.gt(&max)) {
+            false
+        } else {
+            is_bst(node.left().node, min, element) && is_bst(node.right().node, element, max)
+        }
+    }
 }
