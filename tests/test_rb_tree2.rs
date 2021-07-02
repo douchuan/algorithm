@@ -1,6 +1,6 @@
 use algo::tree::binary::rb2::RedBlackTreeV2;
 use algo::tree::binary::traverse::{InOrderVisitor, PreOrderVisitor};
-use algo::tree::binary::{bst, Tree};
+use algo::tree::binary::Tree;
 
 #[test]
 fn height() {
@@ -65,10 +65,8 @@ fn delete_min() {
     }
     for v in 0..10 {
         assert!(tree.contains(&v));
-        unsafe {
-            tree.delete_min();
-            assert!(bst::find(tree.root, v).is_none());
-        }
+        tree.delete_min();
+        assert!(!tree.contains(&v));
     }
 }
 
@@ -80,9 +78,20 @@ fn delete_max() {
     }
     for v in (0..10).rev() {
         assert!(tree.contains(&v));
-        unsafe {
-            tree.delete_max();
-            assert!(bst::find(tree.root, v).is_none());
-        }
+        tree.delete_max();
+        assert!(!tree.contains(&v));
+    }
+}
+
+#[test]
+fn delete() {
+    let mut tree = Tree::default();
+    for v in 0..10 {
+        tree.insert(v);
+    }
+    for v in (0..10).rev() {
+        assert!(tree.contains(&v));
+        tree.delete(v);
+        assert!(!tree.contains(&v));
     }
 }

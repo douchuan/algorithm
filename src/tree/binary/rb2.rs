@@ -106,6 +106,8 @@ pub trait RedBlackTreeV2<T> {
     fn delete_min(&mut self);
     /// Removes the largest element
     fn delete_max(&mut self);
+    /// Removes the specified element
+    fn delete(&mut self, element: T);
     /// Does this symbol table contain the element
     fn contains(&self, element: &T) -> bool;
 }
@@ -139,6 +141,18 @@ where
                 root.set_color(Color::Red);
             }
             root.node = del_max(root.node);
+            root.set_color(Color::Black);
+            self.root = root.node;
+        }
+    }
+
+    fn delete(&mut self, element: T) {
+        if self.contains(&element) {
+            let mut root = NodeQuery::new(self.root);
+            if !root.left().is_red() && !root.right().is_red() {
+                root.set_color(Color::Red);
+            }
+            root.node = delete(root.node, element);
             root.set_color(Color::Black);
             self.root = root.node;
         }
@@ -210,6 +224,39 @@ fn del_max<T>(h: Option<NonNull<Node<T>>>) -> Option<NonNull<Node<T>>> {
     }
 }
 
+fn delete<T>(h: Option<NonNull<Node<T>>>, element: T) -> Option<NonNull<Node<T>>>
+where
+    T: std::cmp::PartialOrd + Copy,
+{
+    let mut h = NodeQuery::new(h);
+    if element < h.get_element().unwrap() {
+        if !h.left().is_red() && !h.left().left().is_red() {
+            h.node = move_red_left(h.node);
+        }
+        h.set_left(delete(h.left().node, element));
+    } else {
+        if h.left().is_red() {
+            h.node = rotate_right(h.node);
+        }
+        if element == h.get_element().unwrap() && h.right().is_none() {
+            Node::release(h.node.unwrap());
+            return None;
+        }
+        if !h.right().is_red() && !h.right().left().is_red() {
+            h.node = move_red_right(h.node);
+        }
+        if element == h.get_element().unwrap() {
+            let x = unsafe { bst::find_min(h.right().node) };
+            h.set_element(unsafe { x.unwrap().as_ref().element });
+            h.set_right(del_min(h.right().node));
+        } else {
+            h.set_right(delete(h.right().node, element));
+        }
+    }
+
+    balance(h.node)
+}
+
 /*
      h                          x
   /      \                  /       \
@@ -261,34 +308,20 @@ fn flip_colors<T>(h: Option<NonNull<Node<T>>>) {
 /// restore red-black tree invariant
 fn balance<T>(h: Option<NonNull<Node<T>>>) -> Option<NonNull<Node<T>>> {
     let mut h = NodeQuery::new(h);
-
     if h.right().is_red() && !h.left().is_red() {
         h.node = rotate_left(h.node);
     }
-
     if h.left().is_red() && h.left().left().is_red() {
         h.node = rotate_right(h.node);
     }
-
     if h.left().is_red() && h.right().is_red() {
         flip_colors(h.node);
     }
-
     h.node
 }
 
 /// does every path from the root to a leaf have the given number of black links?
 fn is_balance<T>(root: Option<NonNull<Node<T>>>) -> bool {
-    //calc black nodes
-    let mut black = 0;
-    let mut x = NodeQuery::new(root);
-    while x.is_some() {
-        if !x.is_red() {
-            black += 1;
-        }
-        x = x.left();
-    }
-
     fn counter<T>(h: Option<NonNull<Node<T>>>, mut black: usize) -> bool {
         if h.is_none() {
             0 == black
@@ -301,6 +334,7 @@ fn is_balance<T>(root: Option<NonNull<Node<T>>>) -> bool {
         }
     }
 
+    let black = calc_blacks(root);
     counter(root, black)
 }
 
@@ -308,14 +342,12 @@ fn is_balance<T>(root: Option<NonNull<Node<T>>>) -> bool {
 /// are black, make h.left or one of its children red.
 fn move_red_left<T>(h: Option<NonNull<Node<T>>>) -> Option<NonNull<Node<T>>> {
     let mut h = NodeQuery::new(h);
-
     flip_colors(h.node);
     if h.right().left().is_red() {
         h.set_right(rotate_right(h.right().node));
         h.node = rotate_left(h.node);
         flip_colors(h.node);
     }
-
     h.node
 }
 
@@ -323,13 +355,11 @@ fn move_red_left<T>(h: Option<NonNull<Node<T>>>) -> Option<NonNull<Node<T>>> {
 /// are black, make h.right or one of its children red.
 fn move_red_right<T>(h: Option<NonNull<Node<T>>>) -> Option<NonNull<Node<T>>> {
     let mut h = NodeQuery::new(h);
-
     flip_colors(h.node);
     if h.left().left().is_red() {
         h.node = rotate_right(h.node);
         flip_colors(h.node);
     }
-
     h.node
 }
 
@@ -347,6 +377,18 @@ fn is23<T>(root: Option<NonNull<Node<T>>>, x: Option<NonNull<Node<T>>>) -> bool 
             is23(root.node, x.left().node) && is23(root.node, x.right().node)
         }
     }
+}
+
+fn calc_blacks<T>(x: Option<NonNull<Node<T>>>) -> usize {
+    let mut x = NodeQuery::new(x);
+    let mut black = 0;
+    while x.is_some() {
+        if !x.is_red() {
+            black += 1;
+        }
+        x = x.left();
+    }
+    black
 }
 
 #[test]
