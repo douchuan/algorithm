@@ -1,4 +1,4 @@
-use algo::ll::{self, LinkedList, Node};
+use algo::ll::{self, LinkedList};
 
 #[test]
 fn normal() {
@@ -33,7 +33,7 @@ fn tail2head_print() {
     let ll = create_ll(&data);
 
     data.reverse();
-    let rev_ll = ll::tail2head::print(&ll);
+    let rev_ll = ll::tail2head::print(ll);
     assert_eq!(rev_ll, data);
 }
 
@@ -79,9 +79,7 @@ where
 {
     let mut ll = LinkedList::default();
     for v in data {
-        let node = Node::new(*v);
-        ll.push_back(node);
+        ll.push_back(*v);
     }
-
     ll
 }

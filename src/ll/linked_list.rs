@@ -1,6 +1,20 @@
-use crate::ll::Node;
 use std::marker::PhantomData;
 use std::ptr::NonNull;
+
+pub struct Node<T> {
+    pub element: T,
+    pub next: Option<NonNull<Node<T>>>,
+}
+
+impl<T> Node<T> {
+    fn new(element: T) -> NonNull<Self> {
+        let v = Box::new(Node {
+            element,
+            next: None,
+        });
+        Box::leak(v).into()
+    }
+}
 
 pub struct LinkedList<T> {
     pub head: Option<NonNull<Node<T>>>,
@@ -28,7 +42,8 @@ impl<T> LinkedList<T> {
         self.len == 0
     }
 
-    pub fn push_back(&mut self, mut node: NonNull<Node<T>>) {
+    pub fn push_back(&mut self, element: T) {
+        let mut node = Node::new(element);
         unsafe {
             node.as_mut().next = None;
 
