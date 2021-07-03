@@ -2,18 +2,11 @@
 //!
 //! 输入一个链表，反转链表后，输出新链表的表头。
 
-use crate::ll::{LinkedList, Node};
+use crate::ll::Node;
 use std::ptr::NonNull;
 
-pub fn reverse<T>(l: &mut LinkedList<T>) {
-    let head = l.head;
-    let new_head = unsafe { do_reverse(head) };
-    l.head = new_head;
-    l.tail = head;
-}
-
 // 递归，先找到tail，然后从后向前修正指针
-unsafe fn do_reverse<T>(node: Option<NonNull<Node<T>>>) -> Option<NonNull<Node<T>>> {
+pub(crate) unsafe fn do_reverse<T>(node: Option<NonNull<Node<T>>>) -> Option<NonNull<Node<T>>> {
     node.and_then(|mut node| match node.as_mut().next.take() {
         None => Some(node), // new_head, origin tail
         Some(mut next) => {

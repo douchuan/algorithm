@@ -1,3 +1,4 @@
+use crate::ll::reverse::do_reverse;
 use std::marker::PhantomData;
 use std::ptr::NonNull;
 
@@ -88,6 +89,14 @@ impl<T> LinkedList<T> {
 
     pub fn last(&self) -> Option<&T> {
         unsafe { self.tail.map(|node| &node.as_ref().element) }
+    }
+
+    /// 反转链表
+    pub fn reverse(&mut self) {
+        let head = self.head;
+        let new_head = unsafe { do_reverse(head) };
+        self.head = new_head;
+        self.tail = head;
     }
 }
 
