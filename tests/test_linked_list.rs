@@ -42,27 +42,6 @@ fn find_kth2tail() {
     assert_eq!(p, None);
 }
 
-#[test]
-fn has_cycle() {
-    let data = vec![1, 2, 3, 4, 5, 6, 7, 8, 9];
-    let ll = create_ll(&data);
-
-    //no cycle
-    assert!(!ll::cycle::has_cycle(ll.head));
-
-    //create cycle by hand
-    let mut tail = ll.tail.unwrap();
-    unsafe {
-        tail.as_mut().next = ll.head;
-    }
-    assert!(ll::cycle::has_cycle(ll.head));
-
-    //eliminate cycle, otherwise LinkedList drop failed
-    unsafe {
-        tail.as_mut().next = None;
-    }
-}
-
 fn create_ll<T>(data: &[T]) -> LinkedList<T>
 where
     T: Copy,
