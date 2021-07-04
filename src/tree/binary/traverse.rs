@@ -116,16 +116,16 @@ impl PreOrderVisitor {
     ///
     /// This is highly unsafe, due to pointer
     /// 时间复杂度 O(n), 空间复杂度 O(n)
-    pub unsafe fn iterate<T>(tree: &Tree<T>) -> Vec<T>
+    pub unsafe fn iterate<K, V>(tree: &Tree<K, V>) -> Vec<K>
     where
-        T: Copy,
+        K: Copy,
     {
         let mut results = vec![];
         let mut stack = vec![];
         //point current node
         let mut p = tree.root;
         while let Some(node) = p {
-            results.push(node.as_ref().element); //visit result
+            results.push(node.as_ref().key); //visit result
             for pp in [node.as_ref().right, node.as_ref().left].iter().flatten() {
                 stack.push(*pp);
             }
@@ -148,9 +148,9 @@ impl PreOrderVisitor {
     ///
     /// 点评：利用tree本身的node记录回溯指针（避免用栈记录回溯），
     /// 使得空间复杂度由 O(n) => O(1)
-    pub unsafe fn morris<T>(tree: &mut Tree<T>) -> Vec<T>
+    pub unsafe fn morris<K, V>(tree: &mut Tree<K, V>) -> Vec<K>
     where
-        T: Copy,
+        K: Copy,
     {
         let mut results = vec![];
         let mut cur = tree.root;
@@ -175,7 +175,7 @@ impl PreOrderVisitor {
                             record.as_mut().right = None;
                         }
                         None => {
-                            results.push(node.as_ref().element);
+                            results.push(node.as_ref().key);
 
                             //未线索化
                             record.as_mut().right = cur;
@@ -184,7 +184,7 @@ impl PreOrderVisitor {
                     }
                 }
                 None => {
-                    results.push(node.as_ref().element);
+                    results.push(node.as_ref().key);
                     //无left subtree, 直接跨到right subtree
                     cur = node.as_ref().right;
                 }
@@ -198,17 +198,17 @@ impl PreOrderVisitor {
     ///
     /// This is highly unsafe, due to pointer
     /// 时间复杂度 O(n), 空间复杂度 O(n)
-    pub unsafe fn recursive<T>(tree: &Tree<T>) -> Vec<T>
+    pub unsafe fn recursive<K, V>(tree: &Tree<K, V>) -> Vec<K>
     where
-        T: Copy,
+        K: Copy,
     {
         let mut results = vec![];
-        unsafe fn visitor<T>(p: Option<NonNull<Node<T>>>, results: &mut Vec<T>)
+        unsafe fn visitor<K, V>(p: Option<NonNull<Node<K, V>>>, results: &mut Vec<K>)
         where
-            T: Copy,
+            K: Copy,
         {
             if let Some(node) = p {
-                results.push(node.as_ref().element);
+                results.push(node.as_ref().key);
                 visitor(node.as_ref().left, results);
                 visitor(node.as_ref().right, results);
             }
@@ -222,9 +222,9 @@ impl InOrderVisitor {
     /// # Safety
     ///
     /// This is highly unsafe, due to pointer
-    pub unsafe fn iterate<T>(tree: &Tree<T>) -> Vec<T>
+    pub unsafe fn iterate<K, V>(tree: &Tree<K, V>) -> Vec<K>
     where
-        T: Copy,
+        K: Copy,
     {
         let mut results = vec![];
         let mut stack = vec![];
@@ -241,7 +241,7 @@ impl InOrderVisitor {
                     //visit result & switch to right child
                     p = stack.pop();
                     let node = p.unwrap();
-                    results.push(node.as_ref().element);
+                    results.push(node.as_ref().key);
                     p = node.as_ref().right;
                 }
                 (None, true) => break,
@@ -254,18 +254,18 @@ impl InOrderVisitor {
     /// # Safety
     ///
     /// This is highly unsafe, due to pointer
-    pub unsafe fn recursive<T>(tree: &Tree<T>) -> Vec<T>
+    pub unsafe fn recursive<K, V>(tree: &Tree<K, V>) -> Vec<K>
     where
-        T: Copy,
+        K: Copy,
     {
         let mut results = vec![];
-        unsafe fn visitor<T>(p: Option<NonNull<Node<T>>>, results: &mut Vec<T>)
+        unsafe fn visitor<K, V>(p: Option<NonNull<Node<K, V>>>, results: &mut Vec<K>)
         where
-            T: Copy,
+            K: Copy,
         {
             if let Some(node) = p {
                 visitor(node.as_ref().left, results);
-                results.push(node.as_ref().element); //visit result
+                results.push(node.as_ref().key); //visit result
                 visitor(node.as_ref().right, results);
             }
         }
@@ -278,9 +278,9 @@ impl PostOrderVisitor {
     /// # Safety
     ///
     /// This is highly unsafe, due to pointer
-    pub unsafe fn iterate<T>(tree: &Tree<T>) -> Vec<T>
+    pub unsafe fn iterate<K, V>(tree: &Tree<K, V>) -> Vec<K>
     where
-        T: Copy,
+        K: Copy,
     {
         let mut results = vec![];
         let mut stack = vec![];
@@ -309,7 +309,7 @@ impl PostOrderVisitor {
             }
 
             //visit & record node
-            results.push(node.as_ref().element);
+            results.push(node.as_ref().key);
             visited.insert(node);
             p = stack.pop();
         }
@@ -320,19 +320,19 @@ impl PostOrderVisitor {
     /// # Safety
     ///
     /// This is highly unsafe, due to pointer
-    pub unsafe fn recursive<T>(tree: &Tree<T>) -> Vec<T>
+    pub unsafe fn recursive<K, V>(tree: &Tree<K, V>) -> Vec<K>
     where
-        T: Copy,
+        K: Copy,
     {
         let mut results = vec![];
-        unsafe fn visitor<T>(p: Option<NonNull<Node<T>>>, results: &mut Vec<T>)
+        unsafe fn visitor<K, V>(p: Option<NonNull<Node<K, V>>>, results: &mut Vec<K>)
         where
-            T: Copy,
+            K: Copy,
         {
             if let Some(node) = p {
                 visitor(node.as_ref().left, results);
                 visitor(node.as_ref().right, results);
-                results.push(node.as_ref().element);
+                results.push(node.as_ref().key);
             }
         }
         visitor(tree.root, &mut results);
@@ -344,9 +344,9 @@ impl LevelOrderVisitor {
     /// # Safety
     ///
     /// This is highly unsafe, due to pointer
-    pub unsafe fn iterate<T>(tree: &Tree<T>) -> Vec<Vec<T>>
+    pub unsafe fn iterate<K, V>(tree: &Tree<K, V>) -> Vec<Vec<K>>
     where
-        T: Copy,
+        K: Copy,
     {
         let mut results = vec![];
         if let Some(p) = tree.root {
@@ -363,7 +363,7 @@ impl LevelOrderVisitor {
                         results
                             .last_mut()
                             .expect("empty results container")
-                            .push((*node.as_ptr()).element);
+                            .push((*node.as_ptr()).key);
                         for child in [node.as_ref().left, node.as_ref().right].iter().flatten() {
                             next_level_nodes.push(*child);
                         }
@@ -387,14 +387,14 @@ impl LevelOrderVisitor {
     /// # Safety
     ///
     /// This is highly unsafe, due to pointer
-    pub unsafe fn recursive<T>(tree: &Tree<T>) -> Vec<Vec<T>>
+    pub unsafe fn recursive<K, V>(tree: &Tree<K, V>) -> Vec<Vec<K>>
     where
-        T: Copy,
+        K: Copy,
     {
         let mut results = vec![];
-        unsafe fn visitor<T: Copy>(
-            level_nodes: Vec<NonNull<Node<T>>>,
-            results: &mut Vec<Vec<T>>,
+        unsafe fn visitor<K: Copy, V>(
+            level_nodes: Vec<NonNull<Node<K, V>>>,
+            results: &mut Vec<Vec<K>>,
             pos: usize,
         ) {
             if level_nodes.is_empty() {
@@ -408,7 +408,7 @@ impl LevelOrderVisitor {
                 for child in [node.as_ref().left, node.as_ref().right].iter().flatten() {
                     next_level_nodes.push(*child);
                 }
-                results[pos].push(node.as_ref().element);
+                results[pos].push(node.as_ref().key);
             }
 
             visitor(next_level_nodes, results, pos + 1);
@@ -424,9 +424,9 @@ impl LevelOrderVisitor2 {
     /// # Safety
     ///
     /// This is highly unsafe, due to pointer
-    pub unsafe fn iterate<T>(tree: &Tree<T>) -> Vec<Vec<T>>
+    pub unsafe fn iterate<K, V>(tree: &Tree<K, V>) -> Vec<Vec<K>>
     where
-        T: Copy,
+        K: Copy,
     {
         let mut r = LevelOrderVisitor::iterate(tree);
         r.reverse();
@@ -436,9 +436,9 @@ impl LevelOrderVisitor2 {
     /// # Safety
     ///
     /// This is highly unsafe, due to pointer
-    pub unsafe fn recursive<T>(tree: &Tree<T>) -> Vec<Vec<T>>
+    pub unsafe fn recursive<K, V>(tree: &Tree<K, V>) -> Vec<Vec<K>>
     where
-        T: Copy,
+        K: Copy,
     {
         let mut r = LevelOrderVisitor::recursive(tree);
         r.reverse();
@@ -450,9 +450,9 @@ impl ZigzagOrderVisitor {
     /// # Safety
     ///
     /// This is highly unsafe, due to pointer
-    pub unsafe fn iterate<T>(tree: &Tree<T>) -> Vec<Vec<T>>
+    pub unsafe fn iterate<K, V>(tree: &Tree<K, V>) -> Vec<Vec<K>>
     where
-        T: Copy,
+        K: Copy,
     {
         let mut results = vec![];
         if let Some(p) = tree.root {
@@ -470,7 +470,7 @@ impl ZigzagOrderVisitor {
                         results
                             .last_mut()
                             .expect("empty results container")
-                            .push(node.as_ref().element);
+                            .push(node.as_ref().key);
 
                         let children = if left_to_right {
                             vec![node.as_ref().left, node.as_ref().right]
@@ -502,18 +502,18 @@ impl ZigzagOrderVisitor {
     /// # Safety
     ///
     /// This is highly unsafe, due to pointer
-    pub unsafe fn recursive<T>(tree: &Tree<T>) -> Vec<Vec<T>>
+    pub unsafe fn recursive<K, V>(tree: &Tree<K, V>) -> Vec<Vec<K>>
     where
-        T: Copy,
+        K: Copy,
     {
         let mut results = vec![];
-        unsafe fn visitor<T>(
-            level_nodes: Vec<NonNull<Node<T>>>,
-            results: &mut Vec<Vec<T>>,
+        unsafe fn visitor<K, V>(
+            level_nodes: Vec<NonNull<Node<K, V>>>,
+            results: &mut Vec<Vec<K>>,
             pos: usize,
             left_to_right: bool,
         ) where
-            T: Copy,
+            K: Copy,
         {
             if level_nodes.is_empty() {
                 return;
@@ -531,7 +531,7 @@ impl ZigzagOrderVisitor {
                 for child in children.into_iter().flatten() {
                     next_level_nodes.push(child);
                 }
-                results[pos].push(node.as_ref().element);
+                results[pos].push(node.as_ref().key);
             }
 
             visitor(next_level_nodes, results, pos + 1, !left_to_right);

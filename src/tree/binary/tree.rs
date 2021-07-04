@@ -1,25 +1,25 @@
 use crate::tree::binary::node::Node;
 use std::ptr::NonNull;
 
-pub struct Tree<T> {
-    pub root: Option<NonNull<Node<T>>>,
+pub struct Tree<K, V> {
+    pub root: Option<NonNull<Node<K, V>>>,
 }
 
-impl<T> Tree<T> {
+impl<K, V> Tree<K, V> {
     pub fn height(&self) -> usize {
         height(self.root)
     }
 }
 
-impl<T> Default for Tree<T> {
+impl<K, V> Default for Tree<K, V> {
     fn default() -> Self {
         Tree { root: None }
     }
 }
 
-impl<T> Drop for Tree<T> {
+impl<K, V> Drop for Tree<K, V> {
     fn drop(&mut self) {
-        fn visitor<T>(p: Option<NonNull<Node<T>>>) {
+        fn visitor<K, V>(p: Option<NonNull<Node<K, V>>>) {
             if let Some(p) = p {
                 let p = unsafe { Box::from_raw(p.as_ptr()) };
                 visitor(p.left);
@@ -30,7 +30,7 @@ impl<T> Drop for Tree<T> {
     }
 }
 
-fn height<T>(node: Option<NonNull<Node<T>>>) -> usize {
+fn height<K, V>(node: Option<NonNull<Node<K, V>>>) -> usize {
     node.map_or(0, |node| unsafe {
         let lh = height(node.as_ref().left);
         let rh = height(node.as_ref().right);

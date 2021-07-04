@@ -6,61 +6,55 @@ use crate::tree::binary::{Node, NodeQuery, Tree};
 use std::cmp::Ordering;
 use std::ptr::NonNull;
 
-pub trait BSTree<T>
+pub trait BSTree<K, V>
 where
-    T: std::cmp::PartialOrd,
+    K: Ord,
 {
-    fn insert(&mut self, element: T);
-    //todo: make element as &T
-    fn delete(&mut self, element: T) -> bool;
-    //todo: make element as &T
-    fn find(&self, element: T) -> Option<NonNull<Node<T>>>;
-    //todo: return Option<&T>
-    fn min(&self) -> Option<T>;
-    //todo: return Option<&T>
-    fn max(&self) -> Option<T>;
-    //todo: make element as &T
+    fn insert(&mut self, key: K, val: V);
+    fn delete(&mut self, key: &K);
+    fn find(&self, key: &K) -> Option<&V>;
+    fn min(&self) -> Option<&V>;
+    fn max(&self) -> Option<&V>;
     /// 查找后继元素
-    fn succ(&self, element: T) -> Option<T>;
-    //todo: make element as &T
+    fn succ(&self, key: &K) -> Option<&V>;
     /// 寻找前驱元素
-    fn pred(&self, element: T) -> Option<T>;
+    fn pred(&self, key: &K) -> Option<&V>;
 }
 
-impl<T> BSTree<T> for Tree<T>
+impl<K, V> BSTree<K, V> for Tree<K, V>
 where
-    T: std::cmp::PartialOrd + Copy,
+    K: Ord,
 {
-    fn insert(&mut self, element: T) {
-        if let Ok(x) = unsafe { insert(self.root, element) } {
+    fn insert(&mut self, key: K, val: V) {
+        if let Ok(x) = unsafe { insert(self.root, key, val) } {
             if self.root.is_none() {
                 self.root = Some(x);
             }
         }
     }
 
-    fn delete(&mut self, element: T) -> bool {
-        unsafe { delete(element, self.root) }
+    fn delete(&mut self, key: &K) {
+        unsafe { delete(key, self.root) }
     }
 
-    fn find(&self, element: T) -> Option<NonNull<Node<T>>> {
-        unsafe { find(self.root, element) }
+    fn find(&self, key: &K) -> Option<&V> {
+        unsafe { find(self.root, key).and_then(|p| p.as_ref().val.as_ref()) }
     }
 
-    fn min(&self) -> Option<T> {
-        unsafe { find_min(self.root).map(|p| p.as_ref().element) }
+    fn min(&self) -> Option<&V> {
+        unsafe { find_min(self.root).and_then(|p| p.as_ref().val.as_ref()) }
     }
 
-    fn max(&self) -> Option<T> {
-        unsafe { find_max(self.root).map(|p| p.as_ref().element) }
+    fn max(&self) -> Option<&V> {
+        unsafe { find_max(self.root).and_then(|p| p.as_ref().val.as_ref()) }
     }
 
-    fn succ(&self, element: T) -> Option<T> {
-        unsafe { succ(self.root, element).map(|p| p.as_ref().element) }
+    fn succ(&self, key: &K) -> Option<&V> {
+        unsafe { succ(self.root, key).and_then(|p| p.as_ref().val.as_ref()) }
     }
 
-    fn pred(&self, element: T) -> Option<T> {
-        unsafe { pred(self.root, element).map(|p| p.as_ref().element) }
+    fn pred(&self, key: &K) -> Option<&V> {
+        unsafe { pred(self.root, key).and_then(|p| p.as_ref().val.as_ref()) }
     }
 }
 
@@ -70,30 +64,38 @@ where
 /// # Safety
 ///
 /// This is highly unsafe, due to pointer
-pub unsafe fn insert<T>(root: Option<NonNull<Node<T>>>, element: T) -> Result<NonNull<Node<T>>, ()>
+pub unsafe fn insert<K, V>(
+    root: Option<NonNull<Node<K, V>>>,
+    key: K,
+    val: V,
+) -> Result<NonNull<Node<K, V>>, ()>
 where
-    T: std::cmp::PartialOrd + Copy,
+    K: Ord,
 {
     let mut nq = NodeQuery::new(root);
     let mut parent = None;
     while nq.is_some() {
         parent = nq.node;
-        match element.partial_cmp(nq.get_element().as_ref().unwrap()) {
-            Some(Ordering::Less) => nq = nq.left(),
-            Some(Ordering::Greater) => nq = nq.right(),
+        match key.cmp(nq.get_key().unwrap()) {
+            Ordering::Less => nq = nq.left(),
+            Ordering::Greater => nq = nq.right(),
             _ => return Err(()),
         }
     }
 
     //插入x
-    let mut x = Node::from_element(element);
+    let mut x;
     if let Some(mut node) = parent {
-        if element < node.as_ref().element {
+        if key < node.as_ref().key {
+            x = Node::new_entry(key, val);
             node.as_mut().left = Some(x);
         } else {
+            x = Node::new_entry(key, val);
             node.as_mut().right = Some(x);
         }
         x.as_mut().parent = parent;
+    } else {
+        x = Node::new_entry(key, val);
     }
 
     Ok(x)
@@ -102,24 +104,23 @@ where
 /// # Safety
 ///
 /// This is highly unsafe, due to pointer
-pub unsafe fn find<T>(node: Option<NonNull<Node<T>>>, element: T) -> Option<NonNull<Node<T>>>
+pub unsafe fn find<K, V>(node: Option<NonNull<Node<K, V>>>, key: &K) -> Option<NonNull<Node<K, V>>>
 where
-    T: std::cmp::PartialOrd,
+    K: Ord,
 {
-    node.and_then(|node| match node.as_ref().element.partial_cmp(&element) {
-        Some(Ordering::Less) => find(node.as_ref().right, element),
-        Some(Ordering::Greater) => find(node.as_ref().left, element),
-        Some(Ordering::Equal) => Some(node),
-        None => None,
+    node.and_then(|node| match node.as_ref().key.cmp(key) {
+        Ordering::Less => find(node.as_ref().right, key),
+        Ordering::Greater => find(node.as_ref().left, key),
+        Ordering::Equal => Some(node),
     })
 }
 
 /// # Safety
 ///
 /// This is highly unsafe, due to pointer
-pub unsafe fn find_min<T>(node: Option<NonNull<Node<T>>>) -> Option<NonNull<Node<T>>>
+pub unsafe fn find_min<K, V>(node: Option<NonNull<Node<K, V>>>) -> Option<NonNull<Node<K, V>>>
 where
-    T: std::cmp::PartialOrd,
+    K: Ord,
 {
     node.and_then(|node| node.as_ref().left.map_or(Some(node), |l| find_min(Some(l))))
 }
@@ -127,9 +128,9 @@ where
 /// # Safety
 ///
 /// This is highly unsafe, due to pointer
-pub unsafe fn find_max<T>(node: Option<NonNull<Node<T>>>) -> Option<NonNull<Node<T>>>
+pub unsafe fn find_max<K, V>(node: Option<NonNull<Node<K, V>>>) -> Option<NonNull<Node<K, V>>>
 where
-    T: std::cmp::PartialOrd,
+    K: Ord,
 {
     node.and_then(|node| {
         node.as_ref()
@@ -141,11 +142,14 @@ where
 /// # Safety
 ///
 /// This is highly unsafe, due to pointer
-unsafe fn succ<T>(p: Option<NonNull<Node<T>>>, mut element: T) -> Option<NonNull<Node<T>>>
+unsafe fn succ<'a, K: 'a, V: 'a>(
+    p: Option<NonNull<Node<K, V>>>,
+    mut key: &'a K,
+) -> Option<NonNull<Node<K, V>>>
 where
-    T: std::cmp::PartialOrd + Copy,
+    K: Ord,
 {
-    find(p, element).and_then(|node| {
+    find(p, key).and_then(|node| {
         let mut nq = NodeQuery::new(Some(node));
         match nq.right().node {
             //右分支的最小值
@@ -154,8 +158,8 @@ where
                 //右分支为空，向上找
                 loop {
                     nq = nq.parent();
-                    match nq.right_element() {
-                        Some(r) if r == element => element = nq.get_element().unwrap(),
+                    match nq.right_key() {
+                        Some(r) if r == key => key = nq.get_key().unwrap(),
                         _ => return nq.node,
                     }
                 }
@@ -167,11 +171,14 @@ where
 /// # Safety
 ///
 /// This is highly unsafe, due to pointer
-unsafe fn pred<T>(node: Option<NonNull<Node<T>>>, mut element: T) -> Option<NonNull<Node<T>>>
+unsafe fn pred<'a, K: 'a, V: 'a>(
+    node: Option<NonNull<Node<K, V>>>,
+    mut key: &'a K,
+) -> Option<NonNull<Node<K, V>>>
 where
-    T: std::cmp::PartialOrd + Copy,
+    K: Ord,
 {
-    find(node, element).and_then(|node| {
+    find(node, key).and_then(|node| {
         let mut nq = NodeQuery::new(Some(node));
         match nq.left().node {
             //左分支的最大值
@@ -180,8 +187,8 @@ where
                 //左分支为空，向上找
                 loop {
                     nq = nq.parent();
-                    match nq.left_element() {
-                        Some(l) if l == element => element = nq.get_element().unwrap(),
+                    match nq.left_key() {
+                        Some(l) if l == key => key = nq.get_key().unwrap(),
                         _ => return nq.node,
                     }
                 }
@@ -198,11 +205,11 @@ where
 ///   否则，x 有两个孩子，我们用其右子树中的最小值替换掉 x，然后将右子树中的这一最小值“切掉”。
 ///
 /// idx, 起始node
-unsafe fn delete<T>(element: T, node: Option<NonNull<Node<T>>>) -> bool
+unsafe fn delete<K, V>(key: &K, node: Option<NonNull<Node<K, V>>>)
 where
-    T: Copy + std::cmp::PartialOrd,
+    K: Ord,
 {
-    find(node, element).map_or(false, |mut node| {
+    find(node, key).map_or((), |mut node| {
         match Node::children_count(node) {
             0 => {
                 //leaf
@@ -214,7 +221,6 @@ where
                 };
 
                 Node::release(node);
-                true
             }
             1 => {
                 // backup node child
@@ -233,36 +239,33 @@ where
                 }
 
                 Node::release(node);
-                true
             }
             _ => {
                 //我们用其右子树中的最小值替换掉 x
                 let right = node.as_ref().right;
-                let min = find_min(right).unwrap().as_ref().element;
-                node.as_mut().element = min;
+                let min = find_min(right);
+                NodeQuery::new(Some(node)).copy_entry(min.unwrap());
 
                 //右子树中的这一最小值“切掉”
-                delete(min, right)
+                delete(&min.unwrap().as_ref().key, right)
             }
         }
-    })
+    });
 }
 
 /// is the tree rooted at x a BST with all keys strictly between min and max
 /// (if min or max is null, treat as empty constraint)
-pub fn is_bst<T>(x: Option<NonNull<Node<T>>>, min: Option<T>, max: Option<T>) -> bool
+pub fn is_bst<K, V>(x: Option<NonNull<Node<K, V>>>, min: Option<&K>, max: Option<&K>) -> bool
 where
-    T: Copy + std::cmp::PartialOrd,
+    K: Ord,
 {
-    if x.is_none() {
-        true
-    } else {
-        let node = NodeQuery::new(x);
-        let element = node.get_element();
-        if (min.is_some() && element.lt(&min)) || (max.is_some() && element.gt(&max)) {
+    x.map_or(true, |x| {
+        let node = NodeQuery::new(Some(x));
+        let key = node.get_key();
+        if (min.is_some() && key.lt(&min)) || (max.is_some() && key.gt(&max)) {
             false
         } else {
-            is_bst(node.left().node, min, element) && is_bst(node.right().node, element, max)
+            is_bst(node.left().node, min, key) && is_bst(node.right().node, key, max)
         }
-    }
+    })
 }

@@ -11,20 +11,20 @@ use crate::tree::binary::node::Node;
 use crate::tree::binary::tree::Tree;
 use std::collections::LinkedList;
 
-pub trait BuildTreeInLevel<K> {
-    fn build_in_level(vec: &[&str]) -> Tree<K>;
+pub trait BuildTreeInLevel<K, V> {
+    fn build_in_level(vec: &[&str]) -> Tree<K, V>;
 }
 
-impl<K> BuildTreeInLevel<K> for TreeBuilder
+impl<K, V> BuildTreeInLevel<K, V> for TreeBuilder
 where
     K: std::str::FromStr,
 {
-    fn build_in_level(vec: &[&str]) -> Tree<K> {
+    fn build_in_level(vec: &[&str]) -> Tree<K, V> {
         build(vec)
     }
 }
 
-fn build<K>(vec: &[&str]) -> Tree<K>
+fn build<K, V>(vec: &[&str]) -> Tree<K, V>
 where
     K: std::str::FromStr,
 {

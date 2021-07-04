@@ -125,25 +125,25 @@ use crate::tree::binary::{bst, Node, NodeQuery, Tree};
 use std::ptr::NonNull;
 
 //todo: rb tree delete, Chris Okasaki insert-fix
-pub trait RedBlackTree<T> {
-    fn insert(&mut self, element: T);
+pub trait RedBlackTree<K, V> {
+    fn insert(&mut self, key: K, val: V);
 }
 
-impl<T> RedBlackTree<T> for Tree<T>
+impl<K, V> RedBlackTree<K, V> for Tree<K, V>
 where
-    T: std::cmp::PartialOrd + std::marker::Copy,
+    K: Ord,
 {
-    fn insert(&mut self, element: T) {
-        self.root = insert(self.root, element);
+    fn insert(&mut self, key: K, val: V) {
+        self.root = insert(self.root, key, val);
     }
 }
 
-fn insert<T>(root: Option<NonNull<Node<T>>>, element: T) -> Option<NonNull<Node<T>>>
+fn insert<K, V>(root: Option<NonNull<Node<K, V>>>, key: K, val: V) -> Option<NonNull<Node<K, V>>>
 where
-    T: std::cmp::PartialOrd + Copy,
+    K: Ord,
 {
     // 插入过程与bst是一样的
-    if let Ok(x) = unsafe { bst::insert(root, element) } {
+    if let Ok(x) = unsafe { bst::insert(root, key, val) } {
         let root = if root.is_none() { Some(x) } else { root };
         // 修正，使树恢复平衡
         insert_fix(root, Some(x))
@@ -152,10 +152,10 @@ where
     }
 }
 
-fn insert_fix<T>(
-    root: Option<NonNull<Node<T>>>,
-    x: Option<NonNull<Node<T>>>,
-) -> Option<NonNull<Node<T>>> {
+fn insert_fix<K, V>(
+    root: Option<NonNull<Node<K, V>>>,
+    x: Option<NonNull<Node<K, V>>>,
+) -> Option<NonNull<Node<K, V>>> {
     let mut t = NodeQuery::new(root);
     let mut x = NodeQuery::new(x);
     while x.parent().color() == Some(Color::Red) {
@@ -201,10 +201,10 @@ fn insert_fix<T>(
          b    c           a     b
 
  */
-fn rotate_left<T>(
-    mut root: Option<NonNull<Node<T>>>,
-    x: NonNull<Node<T>>,
-) -> Option<NonNull<Node<T>>> {
+fn rotate_left<K, V>(
+    mut root: Option<NonNull<Node<K, V>>>,
+    x: NonNull<Node<K, V>>,
+) -> Option<NonNull<Node<K, V>>> {
     let mut x = NodeQuery::new(Some(x));
     let p = x.parent();
     let mut y = x.right();
@@ -230,10 +230,10 @@ fn rotate_left<T>(
   a     b                    b     c
 
  */
-fn rotate_right<T>(
-    mut root: Option<NonNull<Node<T>>>,
-    y: NonNull<Node<T>>,
-) -> Option<NonNull<Node<T>>> {
+fn rotate_right<K, V>(
+    mut root: Option<NonNull<Node<K, V>>>,
+    y: NonNull<Node<K, V>>,
+) -> Option<NonNull<Node<K, V>>> {
     let mut y = NodeQuery::new(Some(y));
     let p = y.parent();
     let mut x = y.left();
@@ -268,7 +268,7 @@ fn t_insert() {
     */
     let mut tree = Tree::default();
     for v in vec![15, 14, 11, 2, 1, 7, 5, 4, 8] {
-        tree.root = insert(tree.root, v);
+        tree.root = insert(tree.root, v, v);
     }
     unsafe {
         assert_eq!(
@@ -294,7 +294,7 @@ fn t_insert() {
     */
     let mut tree = Tree::default();
     for v in 1..9 {
-        tree.root = insert(tree.root, v);
+        tree.root = insert(tree.root, v, v);
     }
     unsafe {
         assert_eq!(
@@ -322,7 +322,7 @@ fn t_rotate_left() {
     */
     let mut tree = Tree::default();
     for v in vec![10, 5, 15, 14, 16] {
-        let p = unsafe { bst::insert(tree.root, v).ok() };
+        let p = unsafe { bst::insert(tree.root, v, v).ok() };
         if tree.root.is_none() {
             tree.root = p;
         }
@@ -349,7 +349,7 @@ fn t_rotate_right() {
 
     let mut tree = Tree::default();
     for v in vec![10, 5, 15, 14, 16] {
-        let p = unsafe { bst::insert(tree.root, v).ok() };
+        let p = unsafe { bst::insert(tree.root, v, v).ok() };
         if tree.root.is_none() {
             tree.root = p;
         }

@@ -7,15 +7,15 @@ fn build_binary_search_tree() {
     let mut tree = Tree::default();
     let data = vec![4, 3, 8, 1, 7, 16, 2, 10, 9, 14];
     for v in &data {
-        tree.insert(*v);
+        tree.insert(*v, *v);
     }
     let r = unsafe { PreOrderVisitor::iterate(&tree) };
     assert_eq!(r, vec![4, 3, 1, 2, 8, 7, 16, 10, 9, 14]);
 
     for v in data {
-        assert!(tree.find(v).is_some());
+        assert!(tree.find(&v).is_some());
     }
-    assert_eq!(tree.find(100), None);
+    assert_eq!(tree.find(&100), None);
 }
 
 #[test]
@@ -23,16 +23,16 @@ fn binary_search_tree_min_max() {
     let mut tree = Tree::default();
     let data = vec![4, 3, 8, 1, 7, 16, 2, 10, 9, 14];
     for v in &data {
-        tree.insert(*v);
+        tree.insert(*v, *v);
     }
 
     //min
     let v = tree.min();
-    assert_eq!(v, Some(1));
+    assert_eq!(v, Some(&1));
 
     //max
     let v = tree.max();
-    assert_eq!(v, Some(16));
+    assert_eq!(v, Some(&16));
 }
 
 #[test]
@@ -40,27 +40,27 @@ fn binary_search_tree_succ_pred() {
     let mut tree = Tree::default();
     let data = vec![4, 3, 8, 1, 7, 16, 2, 10, 9, 14];
     for v in &data {
-        tree.insert(*v);
+        tree.insert(*v, *v);
     }
 
     //succ
-    let v = tree.succ(8);
-    assert_eq!(v, Some(9));
-    let v = tree.succ(2);
-    assert_eq!(v, Some(3));
+    let v = tree.succ(&8);
+    assert_eq!(v, Some(&9));
+    let v = tree.succ(&2);
+    assert_eq!(v, Some(&3));
 
     //pred
-    let v = tree.pred(9);
-    assert_eq!(v, Some(8));
-    let v = tree.pred(3);
-    assert_eq!(v, Some(2));
+    let v = tree.pred(&9);
+    assert_eq!(v, Some(&8));
+    let v = tree.pred(&3);
+    assert_eq!(v, Some(&2));
 }
 
 #[test]
 fn delete_binary_search_tree() {
     let mut tree = Tree::default();
     for v in vec![4, 3, 8, 1, 7, 16, 2, 10, 9, 14] {
-        tree.insert(v);
+        tree.insert(v, v);
     }
 
     for (v, expect) in vec![
@@ -68,7 +68,7 @@ fn delete_binary_search_tree() {
         (8, vec![4, 3, 2, 9, 7, 16, 10, 14]),
         (4, vec![7, 3, 2, 9, 16, 10, 14]),
     ] {
-        tree.delete(v);
+        tree.delete(&v);
         let r = unsafe { PreOrderVisitor::iterate(&tree) };
         assert_eq!(r, expect);
     }
@@ -79,7 +79,7 @@ fn bst_tree_height() {
     // 升序数列，使BST退化成一个linked list
     let mut tree = Tree::default();
     for v in 0..100 {
-        tree.insert(v);
+        tree.insert(v, v);
     }
     assert_eq!(tree.height(), 100);
 }
@@ -89,7 +89,7 @@ fn is_bst() {
     let mut tree = Tree::default();
     let data = vec![4, 3, 8, 1, 7, 16, 2, 10, 9, 14];
     for v in &data {
-        tree.insert(*v);
+        tree.insert(*v, *v);
     }
     assert!(bst::is_bst(tree.root, None, None));
 }

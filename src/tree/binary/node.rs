@@ -9,6 +9,7 @@
 //                       \
 //                      child
 
+use std::ptr;
 use std::ptr::NonNull;
 
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -17,24 +18,27 @@ pub enum Color {
     Black,
 }
 
-pub struct Node<T> {
-    pub element: T,
-    pub left: Option<NonNull<Node<T>>>,
-    pub right: Option<NonNull<Node<T>>>,
-    pub parent: Option<NonNull<Node<T>>>,
+pub struct Node<K, V> {
+    pub key: K,
+    pub val: Option<V>,
+    pub left: Option<NonNull<Node<K, V>>>,
+    pub right: Option<NonNull<Node<K, V>>>,
+    pub parent: Option<NonNull<Node<K, V>>>,
     pub color: Color, // used by red black tree
     pub delta: i32,   // 平衡因子, used by avl tree
 }
 
-impl<T> Node<T> {
+impl<K, V> Node<K, V> {
     pub fn new(
-        element: T,
-        left: Option<NonNull<Node<T>>>,
-        right: Option<NonNull<Node<T>>>,
-        parent: Option<NonNull<Node<T>>>,
+        key: K,
+        val: Option<V>,
+        left: Option<NonNull<Node<K, V>>>,
+        right: Option<NonNull<Node<K, V>>>,
+        parent: Option<NonNull<Node<K, V>>>,
     ) -> NonNull<Self> {
         let v = Box::new(Node {
-            element,
+            key,
+            val,
             left,
             right,
             parent,
@@ -44,15 +48,19 @@ impl<T> Node<T> {
         Box::leak(v).into()
     }
 
-    pub fn new_leaf(element: T, parent: Option<NonNull<Node<T>>>) -> NonNull<Self> {
-        Self::new(element, None, None, parent)
+    pub fn new_leaf(key: K, val: Option<V>, parent: Option<NonNull<Node<K, V>>>) -> NonNull<Self> {
+        Self::new(key, val, None, None, parent)
     }
 
-    pub fn from_element(element: T) -> NonNull<Self> {
-        Self::new_leaf(element, None)
+    pub fn new_key(key: K) -> NonNull<Self> {
+        Self::new_leaf(key, None, None)
     }
 
-    pub fn release(node: NonNull<Node<T>>) {
+    pub fn new_entry(key: K, val: V) -> NonNull<Self> {
+        Self::new_leaf(key, Some(val), None)
+    }
+
+    pub fn release(node: NonNull<Node<K, V>>) {
         unsafe {
             let _ = Box::from_raw(node.as_ptr());
         }
@@ -65,7 +73,7 @@ impl<T> Node<T> {
 }
 
 // relation
-impl<T> Node<T> {
+impl<K, V> Node<K, V> {
     pub fn left(node: Option<NonNull<Self>>) -> Option<NonNull<Self>> {
         unsafe { node.and_then(|node| node.as_ref().left) }
     }
@@ -109,32 +117,32 @@ impl<T> Node<T> {
     }
 }
 
-impl<T> Node<T>
+impl<K, V> Node<K, V>
 where
-    T: std::str::FromStr,
+    K: std::str::FromStr,
 {
-    pub fn from_str(v: &str) -> Option<NonNull<Node<T>>> {
-        v.parse().ok().map(Self::from_element)
+    pub fn from_str(v: &str) -> Option<NonNull<Node<K, V>>> {
+        v.parse().ok().map(Self::new_key)
     }
 }
 
 /// Node proxy, like jQuery
 #[derive(Copy, Clone)]
-pub struct NodeQuery<T> {
-    pub node: Option<NonNull<Node<T>>>,
+pub struct NodeQuery<K, V> {
+    pub node: Option<NonNull<Node<K, V>>>,
 }
 
-impl<T> NodeQuery<T> {
-    pub fn new(node: Option<NonNull<Node<T>>>) -> Self {
+impl<'a, K: 'a, V: 'a> NodeQuery<K, V> {
+    pub fn new(node: Option<NonNull<Node<K, V>>>) -> Self {
         Self { node }
     }
 
     /// create NodeQuery from node parent
-    pub fn new_parent(node: Option<NonNull<Node<T>>>) -> Self {
+    pub fn new_parent(node: Option<NonNull<Node<K, V>>>) -> Self {
         Self::new(node).parent()
     }
 
-    pub fn set_left(&mut self, node: Option<NonNull<Node<T>>>) {
+    pub fn set_left(&mut self, node: Option<NonNull<Node<K, V>>>) {
         unsafe {
             if let Some(mut p) = self.node {
                 p.as_mut().left = node;
@@ -146,7 +154,7 @@ impl<T> NodeQuery<T> {
         }
     }
 
-    pub fn set_right(&mut self, node: Option<NonNull<Node<T>>>) {
+    pub fn set_right(&mut self, node: Option<NonNull<Node<K, V>>>) {
         unsafe {
             if let Some(mut p) = self.node {
                 p.as_mut().right = node;
@@ -158,12 +166,12 @@ impl<T> NodeQuery<T> {
         }
     }
 
-    pub fn set_children(&mut self, l: Option<NonNull<Node<T>>>, r: Option<NonNull<Node<T>>>) {
+    pub fn set_children(&mut self, l: Option<NonNull<Node<K, V>>>, r: Option<NonNull<Node<K, V>>>) {
         self.set_left(l);
         self.set_right(r);
     }
 
-    pub fn replace(&mut self, node: Option<NonNull<Node<T>>>) {
+    pub fn replace(&mut self, node: Option<NonNull<Node<K, V>>>) {
         if self.parent().is_none() {
             if let Some(mut node) = node {
                 unsafe { node.as_mut().parent = None }
@@ -175,9 +183,21 @@ impl<T> NodeQuery<T> {
         }
     }
 
-    pub fn set_element(&mut self, element: T) {
+    pub fn set_entry(&mut self, (key, val): (K, V)) {
         if let Some(mut node) = self.node {
-            unsafe { node.as_mut().element = element }
+            unsafe {
+                node.as_mut().key = key;
+                node.as_mut().val = Some(val);
+            }
+        }
+    }
+
+    pub fn copy_entry(&mut self, src: NonNull<Node<K, V>>) {
+        if let Some(mut node) = self.node {
+            unsafe {
+                ptr::copy_nonoverlapping(&src.as_ref().key, &mut node.as_mut().key, 1);
+                ptr::copy_nonoverlapping(&src.as_ref().val, &mut node.as_mut().val, 1);
+            }
         }
     }
 
@@ -262,22 +282,24 @@ impl<T> NodeQuery<T> {
         let v = Node::uncle(self.node);
         Self::new(v)
     }
-}
 
-impl<T> NodeQuery<T>
-where
-    T: Copy,
-{
-    pub fn left_element(&self) -> Option<T> {
-        self.left().get_element()
+    pub fn left_key(&self) -> Option<&K> {
+        self.left().get_key()
     }
 
-    pub fn right_element(&self) -> Option<T> {
-        self.right().get_element()
+    pub fn right_key(&self) -> Option<&K> {
+        self.right().get_key()
     }
 
-    pub fn get_element(&self) -> Option<T> {
-        unsafe { self.node.map(|node| node.as_ref().element) }
+    pub fn get_key(&self) -> Option<&'a K> {
+        unsafe { self.node.map(|node| &node.as_ref().key) }
+    }
+
+    pub fn get_entry(&self) -> Option<(&K, Option<&V>)> {
+        unsafe {
+            self.node
+                .map(|node| (&node.as_ref().key, node.as_ref().val.as_ref()))
+        }
     }
 }
 

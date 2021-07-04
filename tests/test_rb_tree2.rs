@@ -6,7 +6,7 @@ use algo::tree::binary::Tree;
 fn height() {
     let mut tree = Tree::default();
     for v in 0..100 {
-        tree.insert(v);
+        tree.insert(v, v);
     }
     // 即使输入升序数列，rb tree仍然是平衡的
     // 证明：含有n个节点的红黑树，其高度不会超过 2 * lg(n + 1)
@@ -19,7 +19,7 @@ fn height() {
 fn insert1() {
     let mut tree = Tree::default();
     for v in "SEARCHXMPL".chars() {
-        tree.insert(v);
+        tree.insert(v, v);
     }
 
     let r = unsafe { PreOrderVisitor::iterate(&tree) };
@@ -32,7 +32,7 @@ fn insert1() {
 fn insert2() {
     let mut tree = Tree::default();
     for v in "ACEHLMPRSX".chars() {
-        tree.insert(v);
+        tree.insert(v, v);
     }
 
     let r = unsafe { PreOrderVisitor::iterate(&tree) };
@@ -47,11 +47,11 @@ fn repeat_insert() {
 
     let mut tree = Tree::default();
     for v in "ACEHLMPRSX".chars() {
-        tree.insert(v);
+        tree.insert(v, v);
     }
 
     //重复insert 'A'
-    tree.insert('A');
+    tree.insert('A', 'A');
 
     let r = unsafe { PreOrderVisitor::iterate(&tree) };
     assert_eq!(r.iter().collect::<String>(), "HCAERMLPXS");
@@ -61,7 +61,7 @@ fn repeat_insert() {
 fn delete_min() {
     let mut tree = Tree::default();
     for v in 0..10 {
-        tree.insert(v);
+        tree.insert(v, v);
     }
     for v in 0..10 {
         assert!(tree.contains(&v));
@@ -74,7 +74,7 @@ fn delete_min() {
 fn delete_max() {
     let mut tree = Tree::default();
     for v in 0..10 {
-        tree.insert(v);
+        tree.insert(v, v);
     }
     for v in (0..10).rev() {
         assert!(tree.contains(&v));
@@ -87,11 +87,11 @@ fn delete_max() {
 fn delete() {
     let mut tree = Tree::default();
     for v in 0..10 {
-        tree.insert(v);
+        tree.insert(v, v);
     }
     for v in (0..10).rev() {
         assert!(tree.contains(&v));
-        tree.delete(v);
+        tree.delete(&v);
         assert!(!tree.contains(&v));
     }
 }

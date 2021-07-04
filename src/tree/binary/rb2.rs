@@ -98,26 +98,27 @@
 use crate::tree::binary::node::Color;
 use crate::tree::binary::{bst, Node, NodeQuery, Tree};
 use std::cmp::Ordering;
+use std::ptr;
 use std::ptr::NonNull;
 
-pub trait RedBlackTreeV2<T> {
-    fn insert(&mut self, element: T);
+pub trait RedBlackTreeV2<K, V> {
+    fn insert(&mut self, key: K, val: V);
     /// Removes the smallest element
     fn delete_min(&mut self);
     /// Removes the largest element
     fn delete_max(&mut self);
     /// Removes the specified element
-    fn delete(&mut self, element: T);
+    fn delete(&mut self, k: &K);
     /// Does this symbol table contain the element
-    fn contains(&self, element: &T) -> bool;
+    fn contains(&self, k: &K) -> bool;
 }
 
-impl<T> RedBlackTreeV2<T> for Tree<T>
+impl<K, V> RedBlackTreeV2<K, V> for Tree<K, V>
 where
-    T: std::cmp::PartialOrd + std::marker::Copy,
+    K: Ord,
 {
-    fn insert(&mut self, element: T) {
-        let new_root = put(self.root, element);
+    fn insert(&mut self, key: K, val: V) {
+        let new_root = put(self.root, key, val);
         NodeQuery::new(new_root).set_color(Color::Black);
         self.root = new_root;
     }
@@ -146,36 +147,36 @@ where
         }
     }
 
-    fn delete(&mut self, element: T) {
-        if self.contains(&element) {
+    fn delete(&mut self, key: &K) {
+        if self.contains(key) {
             let mut root = NodeQuery::new(self.root);
             if !root.left().is_red() && !root.right().is_red() {
                 root.set_color(Color::Red);
             }
-            root.node = delete(root.node, element);
+            root.node = delete(root.node, key);
             root.set_color(Color::Black);
             self.root = root.node;
         }
     }
 
-    fn contains(&self, element: &T) -> bool {
-        unsafe { bst::find(self.root, *element).is_some() }
+    fn contains(&self, key: &K) -> bool {
+        unsafe { bst::find(self.root, key).is_some() }
     }
 }
 
 /// insert the element in the subtree rooted at h
-fn put<T>(h: Option<NonNull<Node<T>>>, element: T) -> Option<NonNull<Node<T>>>
+fn put<K, V>(h: Option<NonNull<Node<K, V>>>, key: K, val: V) -> Option<NonNull<Node<K, V>>>
 where
-    T: std::cmp::PartialOrd + Copy,
+    K: Ord,
 {
     let mut h = NodeQuery::new(h);
 
-    match h.get_element() {
-        None => return Some(Node::new_leaf(element, None)),
-        Some(v) => match element.partial_cmp(&v) {
-            None | Some(Ordering::Equal) => (),
-            Some(Ordering::Less) => h.set_left(put(h.left().node, element)),
-            Some(Ordering::Greater) => h.set_right(put(h.right().node, element)),
+    match h.get_key() {
+        None => return Some(Node::new_leaf(key, Some(val), None)),
+        Some(h_key) => match key.cmp(h_key) {
+            Ordering::Equal => (),
+            Ordering::Less => h.set_left(put(h.left().node, key, val)),
+            Ordering::Greater => h.set_right(put(h.right().node, key, val)),
         },
     }
 
@@ -183,7 +184,7 @@ where
 }
 
 /// delete the min element rooted at h
-fn del_min<T>(h: Option<NonNull<Node<T>>>) -> Option<NonNull<Node<T>>> {
+fn del_min<K, V>(h: Option<NonNull<Node<K, V>>>) -> Option<NonNull<Node<K, V>>> {
     let mut h = NodeQuery::new(h);
 
     if h.left().is_none() {
@@ -202,7 +203,7 @@ fn del_min<T>(h: Option<NonNull<Node<T>>>) -> Option<NonNull<Node<T>>> {
 }
 
 /// delete the max element rooted at h
-fn del_max<T>(h: Option<NonNull<Node<T>>>) -> Option<NonNull<Node<T>>> {
+fn del_max<K, V>(h: Option<NonNull<Node<K, V>>>) -> Option<NonNull<Node<K, V>>> {
     let mut h = NodeQuery::new(h);
 
     if h.left().is_red() {
@@ -224,33 +225,33 @@ fn del_max<T>(h: Option<NonNull<Node<T>>>) -> Option<NonNull<Node<T>>> {
     }
 }
 
-fn delete<T>(h: Option<NonNull<Node<T>>>, element: T) -> Option<NonNull<Node<T>>>
+fn delete<K, V>(h: Option<NonNull<Node<K, V>>>, key: &K) -> Option<NonNull<Node<K, V>>>
 where
-    T: std::cmp::PartialOrd + Copy,
+    K: Ord,
 {
     let mut h = NodeQuery::new(h);
-    if element < h.get_element().unwrap() {
+    if key < h.get_key().unwrap() {
         if !h.left().is_red() && !h.left().left().is_red() {
             h.node = move_red_left(h.node);
         }
-        h.set_left(delete(h.left().node, element));
+        h.set_left(delete(h.left().node, key));
     } else {
         if h.left().is_red() {
             h.node = rotate_right(h.node);
         }
-        if element == h.get_element().unwrap() && h.right().is_none() {
+        if key == h.get_key().unwrap() && h.right().is_none() {
             Node::release(h.node.unwrap());
             return None;
         }
         if !h.right().is_red() && !h.right().left().is_red() {
             h.node = move_red_right(h.node);
         }
-        if element == h.get_element().unwrap() {
+        if key == h.get_key().unwrap() {
             let x = unsafe { bst::find_min(h.right().node) };
-            h.set_element(unsafe { x.unwrap().as_ref().element });
+            h.copy_entry(x.unwrap());
             h.set_right(del_min(h.right().node));
         } else {
-            h.set_right(delete(h.right().node, element));
+            h.set_right(delete(h.right().node, key));
         }
     }
 
@@ -268,7 +269,7 @@ where
 旋转操作可以保持rb tree的两个重要性质：有序性(中序)和完美平衡性
 */
 /// make a right-leaning link lean to the left
-fn rotate_left<T>(h: Option<NonNull<Node<T>>>) -> Option<NonNull<Node<T>>> {
+fn rotate_left<K, V>(h: Option<NonNull<Node<K, V>>>) -> Option<NonNull<Node<K, V>>> {
     let mut h = NodeQuery::new(h);
     let mut x = h.right();
     h.set_right(x.left().node);
@@ -287,7 +288,7 @@ fn rotate_left<T>(h: Option<NonNull<Node<T>>>) -> Option<NonNull<Node<T>>> {
 
 */
 /// make a left-leaning link lean to the right
-fn rotate_right<T>(h: Option<NonNull<Node<T>>>) -> Option<NonNull<Node<T>>> {
+fn rotate_right<K, V>(h: Option<NonNull<Node<K, V>>>) -> Option<NonNull<Node<K, V>>> {
     let mut h = NodeQuery::new(h);
     let mut x = h.left();
     h.set_left(x.right().node);
@@ -298,7 +299,7 @@ fn rotate_right<T>(h: Option<NonNull<Node<T>>>) -> Option<NonNull<Node<T>>> {
 }
 
 /// flip the colors of a node and its two children
-fn flip_colors<T>(h: Option<NonNull<Node<T>>>) {
+fn flip_colors<K, V>(h: Option<NonNull<Node<K, V>>>) {
     let mut h = NodeQuery::new(h);
     h.flip_color();
     h.left().flip_color();
@@ -306,7 +307,7 @@ fn flip_colors<T>(h: Option<NonNull<Node<T>>>) {
 }
 
 /// restore red-black tree invariant
-fn balance<T>(h: Option<NonNull<Node<T>>>) -> Option<NonNull<Node<T>>> {
+fn balance<K, V>(h: Option<NonNull<Node<K, V>>>) -> Option<NonNull<Node<K, V>>> {
     let mut h = NodeQuery::new(h);
     if h.right().is_red() && !h.left().is_red() {
         h.node = rotate_left(h.node);
@@ -321,8 +322,8 @@ fn balance<T>(h: Option<NonNull<Node<T>>>) -> Option<NonNull<Node<T>>> {
 }
 
 /// does every path from the root to a leaf have the given number of black links?
-fn is_balance<T>(root: Option<NonNull<Node<T>>>) -> bool {
-    fn counter<T>(h: Option<NonNull<Node<T>>>, mut black: usize) -> bool {
+fn is_balance<K, V>(root: Option<NonNull<Node<K, V>>>) -> bool {
+    fn counter<K, V>(h: Option<NonNull<Node<K, V>>>, mut black: usize) -> bool {
         if h.is_none() {
             0 == black
         } else {
@@ -340,7 +341,7 @@ fn is_balance<T>(root: Option<NonNull<Node<T>>>) -> bool {
 
 /// Assuming that h is red and both h.left and h.left.left
 /// are black, make h.left or one of its children red.
-fn move_red_left<T>(h: Option<NonNull<Node<T>>>) -> Option<NonNull<Node<T>>> {
+fn move_red_left<K, V>(h: Option<NonNull<Node<K, V>>>) -> Option<NonNull<Node<K, V>>> {
     let mut h = NodeQuery::new(h);
     flip_colors(h.node);
     if h.right().left().is_red() {
@@ -353,7 +354,7 @@ fn move_red_left<T>(h: Option<NonNull<Node<T>>>) -> Option<NonNull<Node<T>>> {
 
 /// Assuming that h is red and both h.right and h.right.left
 /// are black, make h.right or one of its children red.
-fn move_red_right<T>(h: Option<NonNull<Node<T>>>) -> Option<NonNull<Node<T>>> {
+fn move_red_right<K, V>(h: Option<NonNull<Node<K, V>>>) -> Option<NonNull<Node<K, V>>> {
     let mut h = NodeQuery::new(h);
     flip_colors(h.node);
     if h.left().left().is_red() {
@@ -365,7 +366,7 @@ fn move_red_right<T>(h: Option<NonNull<Node<T>>>) -> Option<NonNull<Node<T>>> {
 
 /// Does the tree have no red right links, and at most one (left)
 /// red links in a row on any path?
-fn is23<T>(root: Option<NonNull<Node<T>>>, x: Option<NonNull<Node<T>>>) -> bool {
+fn is23<K, V>(root: Option<NonNull<Node<K, V>>>, x: Option<NonNull<Node<K, V>>>) -> bool {
     if x.is_none() {
         true
     } else {
@@ -379,7 +380,7 @@ fn is23<T>(root: Option<NonNull<Node<T>>>, x: Option<NonNull<Node<T>>>) -> bool 
     }
 }
 
-fn calc_blacks<T>(x: Option<NonNull<Node<T>>>) -> usize {
+fn calc_blacks<K, V>(x: Option<NonNull<Node<K, V>>>) -> usize {
     let mut x = NodeQuery::new(x);
     let mut black = 0;
     while x.is_some() {
@@ -395,7 +396,7 @@ fn calc_blacks<T>(x: Option<NonNull<Node<T>>>) -> usize {
 fn t_verify() {
     let mut tree = Tree::default();
     for v in 0..100 {
-        tree.insert(v);
+        tree.insert(v, v);
     }
 
     assert!(bst::is_bst(tree.root, None, None));
