@@ -10,6 +10,7 @@ clippy:
 	$(CARGO) clippy
 
 test:
+	#$(TEST) -- --nocapture --test-threads=1
 	$(TEST)
 
 test_dp:

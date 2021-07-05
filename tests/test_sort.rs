@@ -42,7 +42,6 @@ fn selection_cocktail() {
     }
 }
 
-/*
 #[test]
 fn tournament_tree() {
     let data = sort::util::plan_data();
@@ -52,7 +51,6 @@ fn tournament_tree() {
         assert_eq!(tt, expect, "t = {:?}, expect = {:?}", t, expect);
     }
 }
-*/
 
 #[test]
 fn merge_v1() {

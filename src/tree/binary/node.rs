@@ -183,11 +183,11 @@ impl<'a, K: 'a, V: 'a> NodeQuery<K, V> {
         }
     }
 
-    pub fn set_entry(&mut self, (key, val): (K, V)) {
+    pub fn set_entry(&mut self, (key, val): (K, Option<V>)) {
         if let Some(mut node) = self.node {
             unsafe {
                 node.as_mut().key = key;
-                node.as_mut().val = Some(val);
+                node.as_mut().val = val;
             }
         }
     }

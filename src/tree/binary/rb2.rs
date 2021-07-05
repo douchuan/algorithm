@@ -103,6 +103,7 @@ use std::ptr::NonNull;
 
 pub trait RedBlackTreeV2<K, V> {
     fn insert(&mut self, key: K, val: V);
+    fn find(&self, key: &K) -> Option<&V>;
     /// Removes the smallest element
     fn delete_min(&mut self);
     /// Removes the largest element
@@ -121,6 +122,10 @@ where
         let new_root = put(self.root, key, val);
         NodeQuery::new(new_root).set_color(Color::Black);
         self.root = new_root;
+    }
+
+    fn find(&self, key: &K) -> Option<&V> {
+        unsafe { bst::find(self.root, key).and_then(|p| p.as_ref().val.as_ref()) }
     }
 
     fn delete_min(&mut self) {
