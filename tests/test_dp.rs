@@ -18,7 +18,6 @@ fn make_changes() {
     ];
     for (expect, amount) in solutions {
         assert_eq!(expect, dp::coin::make_change_classic(&coins, amount));
-        assert_eq!(expect, dp::coin::make_change_cache(&coins, amount));
         assert_eq!(expect, dp::coin::make_change_iter(&coins, amount));
     }
 }
@@ -29,7 +28,6 @@ fn make_changes_fail() {
     let solutions = vec![(-1, 3)];
     for (expect, amount) in solutions {
         assert_eq!(expect, dp::coin::make_change_classic(&coins, amount));
-        assert_eq!(expect, dp::coin::make_change_cache(&coins, amount));
         assert_eq!(expect, dp::coin::make_change_iter(&coins, amount));
     }
 }

@@ -49,40 +49,6 @@ pub fn make_change_classic(coins: &[i32], amount: i32) -> i32 {
     }
 }
 
-use std::cell::RefCell;
-thread_local!(static MEMO: RefCell<Vec<i32>> = RefCell::new(vec![-1; 1000]));
-/// 缓存最小的目标金额，避免重复计算 (消除重叠子)
-pub fn make_change_cache(coins: &[i32], amount: i32) -> i32 {
-    if amount == 0 {
-        return 0;
-    }
-
-    if amount < 0 {
-        return -1;
-    }
-
-    match MEMO.with(|memo| memo.borrow()[amount as usize]) {
-        -1 => {
-            let mut res = i32::MAX;
-            for &coin in coins {
-                match make_change_cache(coins, amount - coin) {
-                    -1 => (),
-                    sub => res = std::cmp::min(res, 1 + sub),
-                }
-            }
-
-            match res {
-                i32::MAX => -1,
-                _ => {
-                    MEMO.with(|memo| memo.borrow_mut()[amount as usize] = res);
-                    res
-                }
-            }
-        }
-        m => m,
-    }
-}
-
 pub fn make_change_iter(coins: &[i32], amount: i32) -> i32 {
     check_inputs!(coins, amount);
     let max_amount = amount + 1;
