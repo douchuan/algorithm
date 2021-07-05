@@ -112,6 +112,10 @@ pub trait RedBlackTreeV2<K, V> {
     fn delete(&mut self, k: &K);
     /// Does this symbol table contain the element
     fn contains(&self, k: &K) -> bool;
+    /// Returns the smallest key
+    fn min(&self) -> Option<&K>;
+    /// Returns the largest key
+    fn max(&self) -> Option<&K>;
 }
 
 impl<K, V> RedBlackTreeV2<K, V> for Tree<K, V>
@@ -122,6 +126,7 @@ where
         let new_root = put(self.root, key, val);
         NodeQuery::new(new_root).set_color(Color::Black);
         self.root = new_root;
+        self.set_size(calc_size(self.root));
     }
 
     fn find(&self, key: &K) -> Option<&V> {
@@ -137,6 +142,7 @@ where
             root.node = del_min(root.node);
             root.set_color(Color::Black);
             self.root = root.node;
+            self.set_size(self.size() - 1);
         }
     }
 
@@ -149,6 +155,7 @@ where
             root.node = del_max(root.node);
             root.set_color(Color::Black);
             self.root = root.node;
+            self.set_size(self.size() - 1);
         }
     }
 
@@ -161,11 +168,36 @@ where
             root.node = delete(root.node, key);
             root.set_color(Color::Black);
             self.root = root.node;
+            self.set_size(self.size() - 1);
         }
     }
 
     fn contains(&self, key: &K) -> bool {
         unsafe { bst::find(self.root, key).is_some() }
+    }
+
+    fn min(&self) -> Option<&K> {
+        fn min<K, V>(n: Option<NonNull<Node<K, V>>>) -> Option<NonNull<Node<K, V>>> {
+            let n = NodeQuery::new(n);
+            if n.left().is_none() {
+                n.node
+            } else {
+                min(n.left().node)
+            }
+        }
+        min(self.root).map(|n| unsafe { &n.as_ref().key })
+    }
+
+    fn max(&self) -> Option<&K> {
+        fn max<K, V>(n: Option<NonNull<Node<K, V>>>) -> Option<NonNull<Node<K, V>>> {
+            let n = NodeQuery::new(n);
+            if n.right().is_none() {
+                n.node
+            } else {
+                max(n.right().node)
+            }
+        }
+        max(self.root).map(|n| unsafe { &n.as_ref().key })
     }
 }
 
@@ -397,6 +429,15 @@ fn calc_blacks<K, V>(x: Option<NonNull<Node<K, V>>>) -> usize {
     black
 }
 
+fn calc_size<K, V>(x: Option<NonNull<Node<K, V>>>) -> usize {
+    let mut x = NodeQuery::new(x);
+    if x.is_some() {
+        1 + calc_size(x.left().node) + calc_size(x.right().node)
+    } else {
+        0
+    }
+}
+
 #[test]
 fn t_verify() {
     let mut tree = Tree::default();
@@ -407,4 +448,22 @@ fn t_verify() {
     assert!(bst::is_bst(tree.root, None, None));
     assert!(is23(tree.root, tree.root));
     assert!(is_balance(tree.root));
+}
+
+#[test]
+fn t_calc_size() {
+    let mut tree = Tree::default();
+    for v in 0..100 {
+        tree.insert(v, v);
+    }
+    assert_eq!(100, calc_size(tree.root));
+
+    tree.insert(0, 0);
+    assert_eq!(100, calc_size(tree.root));
+
+    tree.insert(100, 100);
+    assert_eq!(101, calc_size(tree.root));
+
+    tree.delete(&100);
+    assert_eq!(100, calc_size(tree.root));
 }

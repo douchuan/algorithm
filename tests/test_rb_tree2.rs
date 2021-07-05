@@ -95,3 +95,13 @@ fn delete() {
         assert!(!tree.contains(&v));
     }
 }
+
+#[test]
+fn min_max() {
+    let mut tree = Tree::default();
+    for v in 0..10 {
+        tree.insert(v, v);
+    }
+    assert_eq!(tree.min(), Some(&0));
+    assert_eq!(tree.max(), Some(&9));
+}

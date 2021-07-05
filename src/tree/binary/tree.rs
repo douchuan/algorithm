@@ -3,17 +3,29 @@ use std::ptr::NonNull;
 
 pub struct Tree<K, V> {
     pub root: Option<NonNull<Node<K, V>>>,
+    size: usize,
 }
 
 impl<K, V> Tree<K, V> {
     pub fn height(&self) -> usize {
         height(self.root)
     }
+
+    pub fn size(&self) -> usize {
+        self.size
+    }
+
+    pub fn set_size(&mut self, size: usize) {
+        self.size = size;
+    }
 }
 
 impl<K, V> Default for Tree<K, V> {
     fn default() -> Self {
-        Tree { root: None }
+        Tree {
+            root: None,
+            size: 0,
+        }
     }
 }
 
