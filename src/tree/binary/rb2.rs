@@ -179,11 +179,7 @@ where
     fn min(&self) -> Option<&K> {
         fn min<K, V>(n: Option<NonNull<Node<K, V>>>) -> Option<NonNull<Node<K, V>>> {
             let n = NodeQuery::new(n);
-            if n.left().is_none() {
-                n.node
-            } else {
-                min(n.left().node)
-            }
+            n.left().node.map_or(n.node, |l| min(Some(l)))
         }
         min(self.root).map(|n| unsafe { &n.as_ref().key })
     }
@@ -191,11 +187,7 @@ where
     fn max(&self) -> Option<&K> {
         fn max<K, V>(n: Option<NonNull<Node<K, V>>>) -> Option<NonNull<Node<K, V>>> {
             let n = NodeQuery::new(n);
-            if n.right().is_none() {
-                n.node
-            } else {
-                max(n.right().node)
-            }
+            n.right().node.map_or(n.node, |r| max(Some(r)))
         }
         max(self.root).map(|n| unsafe { &n.as_ref().key })
     }
