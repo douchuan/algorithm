@@ -10,6 +10,7 @@
 /// ref: https://github.com/kevin-wayne/algs4.git
 use crate::tree::binary::rb2::RedBlackTreeV2;
 use crate::tree::binary::Tree;
+use std::ops::{Add, Sub};
 
 #[derive(Debug)]
 pub enum Err {
@@ -89,29 +90,6 @@ impl SparseVector {
         }
         c
     }
-
-    /// Returns the sum of this vector and the specified vector.
-    pub fn plus(&self, that: &Self) -> Self {
-        let mut c = Self::new(self.d);
-        for i in self.st.keys() {
-            c.put(*i, self.get(*i));
-        }
-        for i in that.st.keys() {
-            c.put(*i, c.get(*i) + that.get(*i));
-        }
-        c
-    }
-
-    pub fn sub(&self, that: &Self) -> Self {
-        let mut c = Self::new(self.d);
-        for i in self.st.keys() {
-            c.put(*i, self.get(*i));
-        }
-        for i in that.st.keys() {
-            c.put(*i, c.get(*i) - that.get(*i));
-        }
-        c
-    }
 }
 
 impl ToString for SparseVector {
@@ -122,5 +100,35 @@ impl ToString for SparseVector {
             v.push(format!("({}, {})", i, self.get(*i)));
         }
         v.join("")
+    }
+}
+
+impl Add for SparseVector {
+    type Output = Self;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        let mut c = Self::new(self.d);
+        for i in self.st.keys() {
+            c.put(*i, self.get(*i));
+        }
+        for i in rhs.st.keys() {
+            c.put(*i, c.get(*i) + rhs.get(*i));
+        }
+        c
+    }
+}
+
+impl Sub for SparseVector {
+    type Output = Self;
+
+    fn sub(self, rhs: Self) -> Self::Output {
+        let mut c = Self::new(self.d);
+        for i in self.st.keys() {
+            c.put(*i, self.get(*i));
+        }
+        for i in rhs.st.keys() {
+            c.put(*i, c.get(*i) - rhs.get(*i));
+        }
+        c
     }
 }

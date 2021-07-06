@@ -28,7 +28,7 @@ fn scale() {
 #[test]
 fn plus() {
     let (a, b) = create();
-    let c = a.plus(&b);
+    let c = a + b;
     let expect = vec![0.0, 0.0, 0.0, 1.1, 0.9, 0.0, 0.0, 0.0, 0.0, 0.75];
     for (i, &v) in expect.iter().enumerate() {
         assert_relative_eq!(v, c.get(i),);
@@ -38,7 +38,7 @@ fn plus() {
 #[test]
 fn sub() {
     let (a, b) = create();
-    let c = a.sub(&b);
+    let c = a - b;
     let expect = vec![0.0, 0.0, 0.0, -0.1, -0.9, 0.0, 0.0, 0.0, 0.0, 0.75];
     for (i, &v) in expect.iter().enumerate() {
         assert_relative_eq!(v, c.get(i),);
