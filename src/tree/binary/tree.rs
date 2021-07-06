@@ -18,6 +18,10 @@ impl<K, V> Tree<K, V> {
     pub fn set_size(&mut self, size: usize) {
         self.size = size;
     }
+
+    pub fn is_empty(&self) -> bool {
+        self.root.is_none()
+    }
 }
 
 impl<K, V> Default for Tree<K, V> {

@@ -105,3 +105,19 @@ fn min_max() {
     assert_eq!(tree.min(), Some(&0));
     assert_eq!(tree.max(), Some(&9));
 }
+
+#[test]
+fn keys() {
+    let mut tree = Tree::default();
+    for v in 0..10 {
+        tree.insert(v, v);
+    }
+    assert_eq!(tree.keys(), vec![&0, &1, &2, &3, &4, &5, &6, &7, &8, &9]);
+
+    // 倒序加入
+    let mut tree = Tree::default();
+    for v in (0..10).rev() {
+        tree.insert(v, v);
+    }
+    assert_eq!(tree.keys(), vec![&0, &1, &2, &3, &4, &5, &6, &7, &8, &9]);
+}

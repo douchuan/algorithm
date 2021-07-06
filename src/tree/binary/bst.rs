@@ -12,13 +12,13 @@ where
 {
     fn insert(&mut self, key: K, val: V);
     fn delete(&mut self, key: &K);
-    fn find(&self, key: &K) -> Option<&V>;
-    fn min(&self) -> Option<&V>;
-    fn max(&self) -> Option<&V>;
+    fn get(&self, key: &K) -> Option<&V>;
+    fn min(&self) -> Option<&K>;
+    fn max(&self) -> Option<&K>;
     /// 查找后继元素
-    fn succ(&self, key: &K) -> Option<&V>;
+    fn succ(&self, key: &K) -> Option<&K>;
     /// 寻找前驱元素
-    fn pred(&self, key: &K) -> Option<&V>;
+    fn pred(&self, key: &K) -> Option<&K>;
 }
 
 impl<K, V> BSTree<K, V> for Tree<K, V>
@@ -37,24 +37,24 @@ where
         unsafe { delete(key, self.root) }
     }
 
-    fn find(&self, key: &K) -> Option<&V> {
+    fn get(&self, key: &K) -> Option<&V> {
         unsafe { find(self.root, key).and_then(|p| p.as_ref().val.as_ref()) }
     }
 
-    fn min(&self) -> Option<&V> {
-        unsafe { find_min(self.root).and_then(|p| p.as_ref().val.as_ref()) }
+    fn min(&self) -> Option<&K> {
+        unsafe { find_min(self.root).map(|p| &p.as_ref().key) }
     }
 
-    fn max(&self) -> Option<&V> {
-        unsafe { find_max(self.root).and_then(|p| p.as_ref().val.as_ref()) }
+    fn max(&self) -> Option<&K> {
+        unsafe { find_max(self.root).map(|p| &p.as_ref().key) }
     }
 
-    fn succ(&self, key: &K) -> Option<&V> {
-        unsafe { succ(self.root, key).and_then(|p| p.as_ref().val.as_ref()) }
+    fn succ(&self, key: &K) -> Option<&K> {
+        unsafe { succ(self.root, key).map(|p| &p.as_ref().key) }
     }
 
-    fn pred(&self, key: &K) -> Option<&V> {
-        unsafe { pred(self.root, key).and_then(|p| p.as_ref().val.as_ref()) }
+    fn pred(&self, key: &K) -> Option<&K> {
+        unsafe { pred(self.root, key).map(|p| &p.as_ref().key) }
     }
 }
 
@@ -260,12 +260,46 @@ where
     K: Ord,
 {
     x.map_or(true, |x| {
-        let node = NodeQuery::new(Some(x));
-        let key = node.get_key();
+        let x = NodeQuery::new(Some(x));
+        let key = x.get_key();
         if (min.is_some() && key.lt(&min)) || (max.is_some() && key.gt(&max)) {
             false
         } else {
-            is_bst(node.left().node, min, key) && is_bst(node.right().node, key, max)
+            is_bst(x.left().node, min, key) && is_bst(x.right().node, key, max)
         }
     })
+}
+
+/// Returns the number of key-value pairs
+pub fn calc_size<K, V>(x: Option<NonNull<Node<K, V>>>) -> usize {
+    x.map_or(0, |x| unsafe {
+        1 + calc_size(x.as_ref().left) + calc_size(x.as_ref().right)
+    })
+}
+
+/// add the keys between lo and hi in the subtree rooted at x
+/// to the queue
+pub fn keys<'a, K: 'a, V: 'a>(
+    x: Option<NonNull<Node<K, V>>>,
+    queue: &mut Vec<&'a K>,
+    lo: &K,
+    hi: &K,
+) where
+    K: Ord,
+{
+    let x = NodeQuery::new(x);
+    if x.is_some() {
+        let xkey = x.get_key().unwrap();
+        let cmplo = lo.cmp(xkey);
+        let cmphi = hi.cmp(xkey);
+        if cmplo.is_lt() {
+            keys(x.left().node, queue, lo, hi);
+        }
+        if cmplo.is_le() && cmphi.is_ge() {
+            queue.push(xkey);
+        }
+        if cmphi.is_gt() {
+            keys(x.right().node, queue, lo, hi);
+        }
+    }
 }

@@ -13,9 +13,9 @@ fn build_binary_search_tree() {
     assert_eq!(r, vec![4, 3, 1, 2, 8, 7, 16, 10, 9, 14]);
 
     for v in data {
-        assert!(tree.find(&v).is_some());
+        assert!(tree.get(&v).is_some());
     }
-    assert_eq!(tree.find(&100), None);
+    assert_eq!(tree.get(&100), None);
 }
 
 #[test]

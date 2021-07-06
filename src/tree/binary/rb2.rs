@@ -93,8 +93,7 @@
 //          left       right       color
 //         rotate  => rotate  =>   flip    =>
 //
-/// ref impl
-/// https://algs4.cs.princeton.edu/code/edu/princeton/cs/algs4/RedBlackBST.java.html
+/// ref: https://github.com/kevin-wayne/algs4.git
 use crate::tree::binary::node::Color;
 use crate::tree::binary::{bst, Node, NodeQuery, Tree};
 use std::cmp::Ordering;
@@ -103,7 +102,7 @@ use std::ptr::NonNull;
 
 pub trait RedBlackTreeV2<K, V> {
     fn insert(&mut self, key: K, val: V);
-    fn find(&self, key: &K) -> Option<&V>;
+    fn get(&self, key: &K) -> Option<&V>;
     /// Removes the smallest element
     fn delete_min(&mut self);
     /// Removes the largest element
@@ -116,6 +115,8 @@ pub trait RedBlackTreeV2<K, V> {
     fn min(&self) -> Option<&K>;
     /// Returns the largest key
     fn max(&self) -> Option<&K>;
+    /// Returns all keys in the symbol table
+    fn keys(&self) -> Vec<&K>;
 }
 
 impl<K, V> RedBlackTreeV2<K, V> for Tree<K, V>
@@ -126,10 +127,10 @@ where
         let new_root = put(self.root, key, val);
         NodeQuery::new(new_root).set_color(Color::Black);
         self.root = new_root;
-        self.set_size(calc_size(self.root));
+        self.set_size(bst::calc_size(self.root));
     }
 
-    fn find(&self, key: &K) -> Option<&V> {
+    fn get(&self, key: &K) -> Option<&V> {
         unsafe { bst::find(self.root, key).and_then(|p| p.as_ref().val.as_ref()) }
     }
 
@@ -177,19 +178,23 @@ where
     }
 
     fn min(&self) -> Option<&K> {
-        fn min<K, V>(n: Option<NonNull<Node<K, V>>>) -> Option<NonNull<Node<K, V>>> {
-            let n = NodeQuery::new(n);
-            n.left().node.map_or(n.node, |l| min(Some(l)))
-        }
-        min(self.root).map(|n| unsafe { &n.as_ref().key })
+        unsafe { bst::find_min(self.root).map(|p| &p.as_ref().key) }
     }
 
     fn max(&self) -> Option<&K> {
-        fn max<K, V>(n: Option<NonNull<Node<K, V>>>) -> Option<NonNull<Node<K, V>>> {
-            let n = NodeQuery::new(n);
-            n.right().node.map_or(n.node, |r| max(Some(r)))
+        unsafe { bst::find_max(self.root).map(|p| &p.as_ref().key) }
+    }
+
+    fn keys(&self) -> Vec<&K> {
+        if self.is_empty() {
+            Vec::new()
+        } else {
+            let mut queue = Vec::with_capacity(self.size());
+            let lo = self.min().unwrap();
+            let hi = self.max().unwrap();
+            bst::keys(self.root, &mut queue, lo, hi);
+            queue
         }
-        max(self.root).map(|n| unsafe { &n.as_ref().key })
     }
 }
 
@@ -421,15 +426,6 @@ fn calc_blacks<K, V>(x: Option<NonNull<Node<K, V>>>) -> usize {
     black
 }
 
-fn calc_size<K, V>(x: Option<NonNull<Node<K, V>>>) -> usize {
-    let mut x = NodeQuery::new(x);
-    if x.is_some() {
-        1 + calc_size(x.left().node) + calc_size(x.right().node)
-    } else {
-        0
-    }
-}
-
 #[test]
 fn t_verify() {
     let mut tree = Tree::default();
@@ -448,14 +444,21 @@ fn t_calc_size() {
     for v in 0..100 {
         tree.insert(v, v);
     }
-    assert_eq!(100, calc_size(tree.root));
+    assert_eq!(100, bst::calc_size(tree.root));
 
+    // 重复加入
     tree.insert(0, 0);
-    assert_eq!(100, calc_size(tree.root));
+    assert_eq!(100, bst::calc_size(tree.root));
 
+    // 加入新元素
     tree.insert(100, 100);
-    assert_eq!(101, calc_size(tree.root));
+    assert_eq!(101, bst::calc_size(tree.root));
 
+    // 删除一个
     tree.delete(&100);
-    assert_eq!(100, calc_size(tree.root));
+    assert_eq!(100, bst::calc_size(tree.root));
+
+    // 删除一个不存在的
+    tree.delete(&10000);
+    assert_eq!(100, bst::calc_size(tree.root));
 }

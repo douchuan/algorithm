@@ -1,8 +1,19 @@
+/// The SparseVector represents a d dimensional mathematical vector.
+/// Vectors are mutable: their values can be changed after they are created.
+/// It includes methods for addition, subtraction,
+/// dot product, scalar product, unit vector, and Euclidean norm.
+///
+/// The implementation is a symbol table of indices and values for which the vector
+/// coordinates are nonzero. This makes it efficient when most of the vector coordindates
+/// are zero.
+///
+/// ref: https://github.com/kevin-wayne/algs4.git
 use crate::tree::binary::rb2::RedBlackTreeV2;
 use crate::tree::binary::Tree;
 
+#[derive(Debug)]
 pub enum Err {
-    IllegalDimension,
+    Dimension,
 }
 
 pub struct SparseVector {
@@ -28,7 +39,7 @@ impl SparseVector {
 
     /// Returns the ith coordinate of this vector
     pub fn get(&self, i: usize) -> f64 {
-        self.st.find(&i).cloned().unwrap_or(0.0)
+        self.st.get(&i).cloned().unwrap_or(0.0)
     }
 
     /// Returns the number of nonzero entries in this vector.
@@ -43,12 +54,33 @@ impl SparseVector {
 
     pub fn dot(&self, that: &Self) -> Result<f64, Err> {
         if self.d != that.d {
-            return Err(Err::IllegalDimension);
+            Err(Err::Dimension)
+        } else {
+            let keys = if self.st.size() <= that.st.size() {
+                self.st.keys()
+            } else {
+                that.st.keys()
+            };
+
+            let sum = keys.iter().fold(0.0, |acc, &i| {
+                let delta = match (self.st.get(i), that.st.get(i)) {
+                    (Some(a), Some(b)) => a * b,
+                    _ => 0.0,
+                };
+                acc + delta
+            });
+
+            /*
+            let mut sum = 0.0;
+            for i in keys {
+                match (self.st.get(i), that.st.get(i)) {
+                    (Some(a), Some(b)) => sum += a * b,
+                    _ => (),
+                }
+            }
+            */
+
+            Ok(sum)
         }
-
-        let mut sum = 0.0;
-        if self.st.size() <= that.st.size() {}
-
-        unimplemented!()
     }
 }
