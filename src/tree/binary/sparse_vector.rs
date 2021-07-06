@@ -90,13 +90,25 @@ impl SparseVector {
         c
     }
 
+    /// Returns the sum of this vector and the specified vector.
     pub fn plus(&self, that: &Self) -> Self {
         let mut c = Self::new(self.d);
         for i in self.st.keys() {
             c.put(*i, self.get(*i));
         }
         for i in that.st.keys() {
-            c.put(*i, that.get(*i) + c.get(*i));
+            c.put(*i, c.get(*i) + that.get(*i));
+        }
+        c
+    }
+
+    pub fn sub(&self, that: &Self) -> Self {
+        let mut c = Self::new(self.d);
+        for i in self.st.keys() {
+            c.put(*i, self.get(*i));
+        }
+        for i in that.st.keys() {
+            c.put(*i, c.get(*i) - that.get(*i));
         }
         c
     }

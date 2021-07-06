@@ -36,6 +36,16 @@ fn plus() {
 }
 
 #[test]
+fn sub() {
+    let (a, b) = create();
+    let c = a.sub(&b);
+    let expect = vec![0.0, 0.0, 0.0, -0.1, -0.9, 0.0, 0.0, 0.0, 0.0, 0.75];
+    for (i, &v) in expect.iter().enumerate() {
+        assert_relative_eq!(v, c.get(i),);
+    }
+}
+
+#[test]
 fn to_string() {
     let (a, _) = create();
     assert_eq!(a.to_string(), "(3, 0.5)(9, 0.75)");
