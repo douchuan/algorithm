@@ -79,7 +79,10 @@ where
         match key.cmp(nq.get_key().unwrap()) {
             Ordering::Less => nq = nq.left(),
             Ordering::Greater => nq = nq.right(),
-            _ => return Err(()),
+            Ordering::Equal => {
+                nq.set_entry((key, Some(val))); // update val
+                return Err(());
+            }
         }
     }
 

@@ -6,7 +6,13 @@ use algo::tree::binary::sparse_vector::SparseVector;
 #[test]
 fn dot() {
     let (a, b) = create();
-    relative_eq!(a.dot(&b).unwrap(), 0.5 * 0.6);
+    assert_relative_eq!(a.dot(&b).unwrap(), 0.5 * 0.6);
+}
+
+#[test]
+fn magnitude() {
+    let (a, _) = create();
+    assert_relative_eq!(a.magnitude(), (0.5f64.powf(2.0) + 0.75f64.powf(2.0)).sqrt());
 }
 
 #[test]
@@ -15,7 +21,8 @@ fn plus() {
     let c = a.plus(&b);
     let expect = vec![0.0, 0.0, 0.0, 1.1, 0.9, 0.0, 0.0, 0.0, 0.0, 0.75];
     for (i, &v) in expect.iter().enumerate() {
-        relative_eq!(v, c.get(i));
+        println!("i = {}, v = {}, c = {}", i, v, c.get(i));
+        assert_relative_eq!(v, c.get(i),);
     }
 }
 

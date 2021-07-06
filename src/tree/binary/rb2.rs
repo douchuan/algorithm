@@ -208,7 +208,7 @@ where
     match h.get_key() {
         None => return Some(Node::new_leaf(key, Some(val), None)),
         Some(h_key) => match key.cmp(h_key) {
-            Ordering::Equal => (),
+            Ordering::Equal => h.set_entry((key, Some(val))), // update val
             Ordering::Less => h.set_left(put(h.left().node, key, val)),
             Ordering::Greater => h.set_right(put(h.right().node, key, val)),
         },
