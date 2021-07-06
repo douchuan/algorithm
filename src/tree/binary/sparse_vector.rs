@@ -52,6 +52,7 @@ impl SparseVector {
         self.d
     }
 
+    /// Returns the inner product of this vector with the specified vector.
     pub fn dot(&self, that: &Self) -> Result<f64, Err> {
         if self.d != that.d {
             Err(Err::Dimension)
@@ -70,17 +71,33 @@ impl SparseVector {
                 acc + delta
             });
 
-            /*
-            let mut sum = 0.0;
-            for i in keys {
-                match (self.st.get(i), that.st.get(i)) {
-                    (Some(a), Some(b)) => sum += a * b,
-                    _ => (),
-                }
-            }
-            */
-
             Ok(sum)
         }
+    }
+
+    /// Returns the magnitude of this vector.
+    /// This is also known as the L2 norm or the Euclidean norm.
+    pub fn magnitude(&self) -> f64 {
+        self.dot(self).unwrap().sqrt()
+    }
+
+    /// Returns the scalar-vector product of this vector with the specified scalar.
+    pub fn scale(&self, alpha: f64) -> Self {
+        let mut c = Self::new(self.d);
+        for i in self.st.keys() {
+            c.put(*i, alpha * self.get(*i));
+        }
+        c
+    }
+
+    pub fn plus(&self, that: &Self) -> Self {
+        let mut c = Self::new(self.d);
+        for i in self.st.keys() {
+            c.put(*i, self.get(*i));
+        }
+        for i in that.st.keys() {
+            c.put(*i, that.get(*i) + c.get(*i));
+        }
+        c
     }
 }
