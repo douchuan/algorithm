@@ -101,3 +101,14 @@ impl SparseVector {
         c
     }
 }
+
+impl ToString for SparseVector {
+    fn to_string(&self) -> String {
+        let keys = self.st.keys();
+        let mut v = Vec::with_capacity(keys.len());
+        for i in self.st.keys() {
+            v.push(format!("({}, {})", i, self.get(*i)));
+        }
+        v.join("")
+    }
+}

@@ -16,14 +16,29 @@ fn magnitude() {
 }
 
 #[test]
+fn scale() {
+    let (a, _) = create();
+    let c = a.scale(2.0);
+    let expect = vec![0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.5];
+    for (i, &v) in expect.iter().enumerate() {
+        assert_relative_eq!(v, c.get(i),);
+    }
+}
+
+#[test]
 fn plus() {
     let (a, b) = create();
     let c = a.plus(&b);
     let expect = vec![0.0, 0.0, 0.0, 1.1, 0.9, 0.0, 0.0, 0.0, 0.0, 0.75];
     for (i, &v) in expect.iter().enumerate() {
-        println!("i = {}, v = {}, c = {}", i, v, c.get(i));
         assert_relative_eq!(v, c.get(i),);
     }
+}
+
+#[test]
+fn to_string() {
+    let (a, _) = create();
+    assert_eq!(a.to_string(), "(3, 0.5)(9, 0.75)");
 }
 
 fn create() -> (SparseVector, SparseVector) {
