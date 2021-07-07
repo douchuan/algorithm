@@ -5,15 +5,14 @@
 
 use crate::common::heap::{self, BinaryHeap};
 
-pub fn sort<T, F>(a: &[T], compare: &F) -> Vec<T>
+pub fn sort<T>(a: &[T]) -> Vec<T>
 where
-    T: Copy,
-    F: Fn(&T, &T) -> bool,
+    T: Ord + Copy,
 {
     let data = Vec::from(a);
-    let mut heap = BinaryHeap::new(data, compare);
+    let mut heap = BinaryHeap::new(data);
     let mut res = Vec::with_capacity(a.len());
-    while let Some(v) = heap.pop(compare) {
+    while let Some(v) = heap.pop() {
         res.push(v);
     }
     res
@@ -28,16 +27,15 @@ where
 /// 就地排序，小 -> 大
 pub fn floyd_sort<T>(a: &mut [T])
 where
-    T: std::cmp::PartialOrd,
+    T: Ord,
 {
     // 构建最大堆
-    let compare = |x: &T, y: &T| x >= y;
-    heap::build_heap(a, &compare);
+    heap::build_heap(a);
 
     let mut i = a.len();
     while i > 1 {
         i -= 1;
         a.swap(0, i);
-        heap::heapify(&mut a[0..i], 0, &compare);
+        heap::heapify(&mut a[0..i], 0);
     }
 }

@@ -27,17 +27,16 @@
 //!   https://github.com/liuxinyu95/AlgoXY/blob/algoxy/sorting/merge-sort/src/mergesort.c
 
 pub mod v1 {
-    fn merge<T, F>(mut l: &[T], mut r: &[T], compare: &F) -> Vec<T>
+    fn merge<T>(mut l: &[T], mut r: &[T]) -> Vec<T>
     where
-        T: Copy,
-        F: Fn(T, T) -> bool,
+        T: Ord + Copy,
     {
         //存放归并结果
         //每次merge时分配work space，这是一个问题！v2对这个问题做了改进
         let mut ws = Vec::with_capacity(l.len() + r.len());
 
         while !l.is_empty() && !r.is_empty() {
-            if compare(l[0], r[0]) {
+            if l[0] < r[0] {
                 ws.push(l[0]);
                 l = &l[1..];
             } else {
@@ -53,10 +52,9 @@ pub mod v1 {
         ws
     }
 
-    pub fn sort<T, F>(a: &[T], compare: &F) -> Vec<T>
+    pub fn sort<T>(a: &[T]) -> Vec<T>
     where
-        T: Copy,
-        F: Fn(T, T) -> bool,
+        T: Ord + Copy,
     {
         let len = a.len();
         match len {
@@ -64,9 +62,9 @@ pub mod v1 {
             1 => vec![a[0]],
             _ => {
                 let (l, r) = a.split_at(len / 2);
-                let l = sort(l, compare);
-                let r = sort(r, compare);
-                merge(&l, &r, compare)
+                let l = sort(l);
+                let r = sort(r);
+                merge(&l, &r)
             }
         }
     }
@@ -76,10 +74,9 @@ pub mod v2 {
     use std::ptr;
 
     //ws为辅助space
-    fn merge<T, F>(a: &mut [T], l: usize, mid: usize, u: usize, compare: &F, ws: &mut [T])
+    fn merge<T>(a: &mut [T], l: usize, mid: usize, u: usize, ws: &mut [T])
     where
-        T: Copy,
-        F: Fn(T, T) -> bool,
+        T: Ord + Copy,
     {
         //left部分索引
         let mut il = l;
@@ -89,7 +86,7 @@ pub mod v2 {
         let mut i = l;
 
         while il < mid && iu < u {
-            if compare(a[il], a[iu]) {
+            if a[il] < a[iu] {
                 ws[i] = a[il];
                 il += 1;
             } else {
@@ -109,29 +106,27 @@ pub mod v2 {
         }
     }
 
-    fn do_sort<T, F>(a: &mut [T], l: usize, u: usize, compare: &F, ws: &mut [T])
+    fn do_sort<T>(a: &mut [T], l: usize, u: usize, ws: &mut [T])
     where
-        T: Copy,
-        F: Fn(T, T) -> bool,
+        T: Ord + Copy,
     {
         if u - l > 1 {
             let mid = (u + l) / 2;
-            do_sort(a, l, mid, compare, ws);
-            do_sort(a, mid, u, compare, ws);
-            merge(a, l, mid, u, compare, ws);
+            do_sort(a, l, mid, ws);
+            do_sort(a, mid, u, ws);
+            merge(a, l, mid, u, ws);
         }
     }
 
-    pub fn sort<T, F>(a: &mut [T], compare: &F)
+    pub fn sort<T>(a: &mut [T])
     where
-        T: Copy + Default,
-        F: Fn(T, T) -> bool,
+        T: Ord + Copy + Default,
     {
         let len = a.len();
         if len > 1 {
             // 分配一个与a同样大小的Vec作为辅助work space
             let mut ws = vec![T::default(); len];
-            do_sort(a, 0, len, compare, &mut ws);
+            do_sort(a, 0, len, &mut ws);
         }
     }
 }
@@ -139,19 +134,12 @@ pub mod v2 {
 // ref, https://github.com/liuxinyu95/AlgoXY/blob/algoxy/sorting/merge-sort/src/mergesort.c
 pub mod v3 {
     // merge two sorted subs xs[i, m) and xs[j...n) to working area xs[w...]
-    fn wmerge<T, F>(
-        xs: &mut [T],
-        mut i: usize,
-        m: usize,
-        mut j: usize,
-        n: usize,
-        compare: &F,
-        mut w: usize,
-    ) where
-        F: Fn(&T, &T) -> bool,
+    fn wmerge<T>(xs: &mut [T], mut i: usize, m: usize, mut j: usize, n: usize, mut w: usize)
+    where
+        T: Ord,
     {
         while i < m && j < n {
-            if compare(&xs[i], &xs[j]) {
+            if xs[i] < xs[j] {
                 xs.swap(w, i);
                 i += 1;
             } else {
@@ -176,15 +164,15 @@ pub mod v3 {
 
     /// sort xs[l, u), and put result to working area w.
     /// constraint, len(w) == u - l
-    fn wsort<T, F>(xs: &mut [T], mut l: usize, u: usize, compare: &F, mut w: usize)
+    fn wsort<T>(xs: &mut [T], mut l: usize, u: usize, mut w: usize)
     where
-        F: Fn(&T, &T) -> bool,
+        T: Ord,
     {
         if u - l > 1 {
             let m = (u + l) / 2;
-            do_sort(xs, l, m, compare);
-            do_sort(xs, m, u, compare);
-            wmerge(xs, l, m, m, u, compare, w);
+            do_sort(xs, l, m);
+            do_sort(xs, m, u);
+            wmerge(xs, l, m, m, u, w);
         } else {
             while l < u {
                 xs.swap(l, w);
@@ -194,28 +182,28 @@ pub mod v3 {
         }
     }
 
-    fn do_sort<T, F>(a: &mut [T], l: usize, u: usize, compare: &F)
+    fn do_sort<T>(a: &mut [T], l: usize, u: usize)
     where
-        F: Fn(&T, &T) -> bool,
+        T: Ord,
     {
         if u - l > 1 {
             let mut m = (u + l) / 2;
             let mut w = l + u - m;
             // the last half contains sorted elements
-            wsort(a, l, m, compare, w);
+            wsort(a, l, m, w);
             while w - l > 2 {
                 let n = w;
                 w = l + (n - l + 1) / 2;
                 // the first half of the previous working area contains sorted elements
-                wsort(a, w, n, compare, l);
-                wmerge(a, l, l + n - w, n, u, compare, w);
+                wsort(a, w, n, l);
+                wmerge(a, l, l + n - w, n, u, w);
             }
 
             // switch to insertion sort
             let mut n = w;
             while n > l {
                 m = n;
-                while m < u && compare(&a[m], &a[m - 1]) {
+                while m < u && a[m] < a[m - 1] {
                     a.swap(m, m - 1);
                     m += 1;
                 }
@@ -224,11 +212,11 @@ pub mod v3 {
         }
     }
 
-    pub fn sort<T, F>(a: &mut [T], compare: &F)
+    pub fn sort<T>(a: &mut [T])
     where
-        F: Fn(&T, &T) -> bool,
+        T: Ord,
     {
         let len = a.len();
-        do_sort(a, 0, len, compare);
+        do_sort(a, 0, len);
     }
 }

@@ -1,18 +1,21 @@
 #[macro_use]
 extern crate approx;
 
-use algo::tree::binary::sparse_vector::SparseVector;
+use algo::math::sparse_vector::SparseVector;
 
 #[test]
 fn dot() {
     let (a, b) = create();
-    assert_relative_eq!(a.dot(&b).unwrap(), 0.5 * 0.6);
+    assert_relative_eq!(a.dot(&b).unwrap(), 0.3);
 }
 
 #[test]
 fn magnitude() {
     let (a, _) = create();
-    assert_relative_eq!(a.magnitude(), (0.5f64.powf(2.0) + 0.75f64.powf(2.0)).sqrt());
+    assert_relative_eq!(
+        a.magnitude(),
+        (0.5_f64.powf(2.0) + 0.75_f64.powf(2.0)).sqrt()
+    );
 }
 
 #[test]

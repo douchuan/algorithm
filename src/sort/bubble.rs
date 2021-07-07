@@ -13,16 +13,16 @@
 //! 若初始状态反序，时间复杂度 O(n^2)
 //! 稳定排序算法
 
-pub fn sort<T, F>(a: &mut [T], compare: F)
+pub fn sort<T>(a: &mut [T])
 where
-    F: Fn(&T, &T) -> bool,
+    T: Ord,
 {
     let len = a.len();
     for i in 0..len.saturating_sub(1) {
         let mut swapped = false;
 
         for j in 0..(len - 1 - i) {
-            if compare(&a[j], &a[j + 1]) {
+            if a[j] > a[j + 1] {
                 a.swap(j, j + 1);
                 swapped = true;
             }

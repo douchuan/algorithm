@@ -7,7 +7,7 @@
 
 pub fn sort<T>(a: &mut [T])
 where
-    T: std::cmp::PartialOrd,
+    T: Ord,
 {
     let len = a.len();
     for i in 0..len {
@@ -27,7 +27,7 @@ where
 /// 最大值放到末尾
 pub fn sort_cocktail<T>(a: &mut [T])
 where
-    T: std::cmp::PartialOrd,
+    T: Ord,
 {
     let n = a.len();
     let semi_n = n / 2;
