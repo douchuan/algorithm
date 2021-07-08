@@ -13,7 +13,4 @@ fn parser() {
     let graph = Graph::from_str(s).unwrap();
     assert_eq!(graph.E(), 13);
     assert_eq!(graph.V(), 13);
-
-    let s2 = graph.to_string();
-    assert_eq!(s2, s);
 }

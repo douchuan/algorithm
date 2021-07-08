@@ -78,13 +78,18 @@ impl Graph {
 
 impl ToString for Graph {
     fn to_string(&self) -> String {
-        let mut list = Vec::with_capacity(2 + self.links.len());
-        list.push(format!("{}", self.nv));
-        list.push(format!("{}", self.ne));
-        for (v, w) in &self.links {
-            list.push(format!("{} {}", v, w));
+        let mut buf = Vec::new();
+        buf.push(format!("{} vertices, {} edges", self.nv, self.ne));
+        for v in 0..self.V() {
+            let adj = self
+                .adj(v as i32)
+                .iter()
+                .map(|v| v.to_string())
+                .collect::<Vec<String>>()
+                .join(" ");
+            buf.push(format!("{}: {}", v, adj));
         }
-        list.join("\n")
+        buf.join("\n")
     }
 }
 
