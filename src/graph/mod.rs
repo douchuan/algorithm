@@ -14,8 +14,8 @@ impl Graph {
     /// create a V-vertex graph with no edges
     pub fn new(nv: usize) -> Self {
         let mut adj = Vec::with_capacity(nv);
-        for i in 0..nv {
-            adj[i] = LinkedList::default();
+        for _ in 0..nv {
+            adj.push(LinkedList::default());
         }
 
         Self { nv, ne: 0, adj }
