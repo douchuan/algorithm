@@ -20,7 +20,7 @@ pub(crate) fn parse_edges(i: &str) -> nom::IResult<&str, usize> {
     parse_num(i)
 }
 
-pub(crate) fn parse_link(i: &str) -> nom::IResult<&str, Vec<i32>> {
+pub(crate) fn parse_link(i: &str) -> nom::IResult<&str, Vec<u32>> {
     separated_list1(nom::character::complete::char(' '), parse_num)(i)
 }
 
