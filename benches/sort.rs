@@ -9,8 +9,7 @@ use test::Bencher;
 fn small_merge_v1(b: &mut Bencher) {
     b.iter(|| {
         let mut numbs = [1, 2, 4, 8, 9, 9, 13, 17, 22];
-        let f = |x: i32, y: i32| x > y;
-        sort::merge::v1::sort(&mut numbs, &f);
+        sort::merge::v1::sort(&mut numbs);
     });
 }
 
@@ -19,8 +18,7 @@ fn large_merge_v1(b: &mut Bencher) {
     let data = util::random_data(util::DATA_LEN);
     b.iter(|| {
         let mut numbs = data.clone();
-        let f = |x: i32, y: i32| x > y;
-        sort::merge::v1::sort(&mut numbs, &f);
+        sort::merge::v1::sort(&mut numbs);
     });
 }
 
@@ -29,8 +27,7 @@ fn large_sorted_asc_merge_v1(b: &mut Bencher) {
     let data = util::sorted_data_asc(util::DATA_LEN);
     b.iter(|| {
         let mut numbs = data.clone();
-        let f = |x: i32, y: i32| x > y;
-        sort::merge::v1::sort(&mut numbs, &f);
+        sort::merge::v1::sort(&mut numbs);
     });
 }
 
@@ -39,8 +36,7 @@ fn large_sorted_desc_merge_v1(b: &mut Bencher) {
     let data = util::sorted_data_desc(util::DATA_LEN);
     b.iter(|| {
         let mut numbs = data.clone();
-        let f = |x: i32, y: i32| x > y;
-        sort::merge::v1::sort(&mut numbs, &f);
+        sort::merge::v1::sort(&mut numbs);
     });
 }
 
@@ -49,8 +45,7 @@ fn eq_data_merge_v1(b: &mut Bencher) {
     let data = util::eq_data(util::DATA_LEN);
     b.iter(|| {
         let mut numbs = data.clone();
-        let f = |x: i32, y: i32| x > y;
-        sort::merge::v1::sort(&mut numbs, &f);
+        sort::merge::v1::sort(&mut numbs);
     });
 }
 
@@ -58,8 +53,7 @@ fn eq_data_merge_v1(b: &mut Bencher) {
 fn small_merge_v2(b: &mut Bencher) {
     b.iter(|| {
         let mut numbs = [1, 2, 4, 8, 9, 9, 13, 17, 22];
-        let f = |x: i32, y: i32| x > y;
-        sort::merge::v2::sort(&mut numbs, &f);
+        sort::merge::v2::sort(&mut numbs);
     });
 }
 
@@ -68,8 +62,7 @@ fn large_merge_v2(b: &mut Bencher) {
     let data = util::random_data(util::DATA_LEN);
     b.iter(|| {
         let mut numbs = data.clone();
-        let f = |x: i32, y: i32| x > y;
-        sort::merge::v2::sort(&mut numbs, &f);
+        sort::merge::v2::sort(&mut numbs);
     });
 }
 
@@ -78,8 +71,7 @@ fn large_sorted_asc_merge_v2(b: &mut Bencher) {
     let data = util::sorted_data_asc(util::DATA_LEN);
     b.iter(|| {
         let mut numbs = data.clone();
-        let f = |x: i32, y: i32| x > y;
-        sort::merge::v2::sort(&mut numbs, &f);
+        sort::merge::v2::sort(&mut numbs);
     });
 }
 
@@ -88,8 +80,7 @@ fn large_sorted_desc_merge_v2(b: &mut Bencher) {
     let data = util::sorted_data_desc(util::DATA_LEN);
     b.iter(|| {
         let mut numbs = data.clone();
-        let f = |x: i32, y: i32| x > y;
-        sort::merge::v2::sort(&mut numbs, &f);
+        sort::merge::v2::sort(&mut numbs);
     });
 }
 
@@ -98,8 +89,7 @@ fn eq_data_merge_v2(b: &mut Bencher) {
     let data = util::eq_data(util::DATA_LEN);
     b.iter(|| {
         let mut numbs = data.clone();
-        let f = |x: i32, y: i32| x > y;
-        sort::merge::v2::sort(&mut numbs, &f);
+        sort::merge::v2::sort(&mut numbs);
     });
 }
 
@@ -107,8 +97,7 @@ fn eq_data_merge_v2(b: &mut Bencher) {
 fn small_merge_v3(b: &mut Bencher) {
     b.iter(|| {
         let mut numbs = [1, 2, 4, 8, 9, 9, 13, 17, 22];
-        let f = |x: &i32, y: &i32| x > y;
-        sort::merge::v3::sort(&mut numbs, &f);
+        sort::merge::v3::sort(&mut numbs);
     });
 }
 
@@ -117,8 +106,7 @@ fn large_merge_v3(b: &mut Bencher) {
     let data = util::random_data(util::DATA_LEN);
     b.iter(|| {
         let mut numbs = data.clone();
-        let f = |x: &i32, y: &i32| x > y;
-        sort::merge::v3::sort(&mut numbs, &f);
+        sort::merge::v3::sort(&mut numbs);
     });
 }
 
@@ -127,8 +115,7 @@ fn large_sorted_asc_merge_v3(b: &mut Bencher) {
     let data = util::sorted_data_asc(util::DATA_LEN);
     b.iter(|| {
         let mut numbs = data.clone();
-        let f = |x: &i32, y: &i32| x > y;
-        sort::merge::v3::sort(&mut numbs, &f);
+        sort::merge::v3::sort(&mut numbs);
     });
 }
 
@@ -137,8 +124,7 @@ fn large_sorted_desc_merge_v3(b: &mut Bencher) {
     let data = util::sorted_data_desc(util::DATA_LEN);
     b.iter(|| {
         let mut numbs = data.clone();
-        let f = |x: &i32, y: &i32| x > y;
-        sort::merge::v3::sort(&mut numbs, &f);
+        sort::merge::v3::sort(&mut numbs);
     });
 }
 
@@ -147,8 +133,7 @@ fn eq_data_merge_v3(b: &mut Bencher) {
     let data = util::eq_data(util::DATA_LEN);
     b.iter(|| {
         let mut numbs = data.clone();
-        let f = |x: &i32, y: &i32| x > y;
-        sort::merge::v3::sort(&mut numbs, &f);
+        sort::merge::v3::sort(&mut numbs);
     });
 }
 
@@ -156,8 +141,7 @@ fn eq_data_merge_v3(b: &mut Bencher) {
 fn small_quick(b: &mut Bencher) {
     b.iter(|| {
         let mut numbs = [1, 2, 4, 8, 9, 9, 13, 17, 22];
-        let f = |x: &i32, y: &i32| x > y;
-        sort::quick::sort(&mut numbs, &f);
+        sort::quick::sort(&mut numbs);
     });
 }
 
@@ -166,8 +150,7 @@ fn large_quick(b: &mut Bencher) {
     let data = util::random_data(util::DATA_LEN);
     b.iter(|| {
         let mut numbs = data.clone();
-        let f = |x: &i32, y: &i32| x > y;
-        sort::quick::sort(&mut numbs, &f);
+        sort::quick::sort(&mut numbs);
     });
 }
 
@@ -176,8 +159,7 @@ fn large_sorted_asc_quick(b: &mut Bencher) {
     let data = util::sorted_data_asc(util::DATA_LEN);
     b.iter(|| {
         let mut numbs = data.clone();
-        let f = |x: &i32, y: &i32| x > y;
-        sort::quick::sort(&mut numbs, &f);
+        sort::quick::sort(&mut numbs);
     });
 }
 
@@ -186,8 +168,7 @@ fn large_sorted_desc_quick(b: &mut Bencher) {
     let data = util::sorted_data_desc(util::DATA_LEN);
     b.iter(|| {
         let mut numbs = data.clone();
-        let f = |x: &i32, y: &i32| x > y;
-        sort::quick::sort(&mut numbs, &f);
+        sort::quick::sort(&mut numbs);
     });
 }
 
@@ -196,8 +177,7 @@ fn eq_data_quick(b: &mut Bencher) {
     let data = util::eq_data(util::DATA_LEN);
     b.iter(|| {
         let mut numbs = data.clone();
-        let f = |x: &i32, y: &i32| x > y;
-        sort::quick::sort(&mut numbs, &f);
+        sort::quick::sort(&mut numbs);
     });
 }
 

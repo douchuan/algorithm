@@ -91,7 +91,7 @@ impl Add for SparseVector {
     type Output = Self;
 
     fn add(self, rhs: Self) -> Self::Output {
-        let mut c = self.clone();
+        let mut c = self;
         for &i in rhs.st.keys() {
             c.put(i, c.get(i) + rhs.get(i));
         }
@@ -103,7 +103,7 @@ impl Sub for SparseVector {
     type Output = Self;
 
     fn sub(self, rhs: Self) -> Self::Output {
-        let mut c = self.clone();
+        let mut c = self;
         for &i in rhs.st.keys() {
             c.put(i, c.get(i) - rhs.get(i));
         }

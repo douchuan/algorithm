@@ -13,12 +13,6 @@ fn make_changes_classic(b: &mut Bencher) {
 }
 
 #[bench]
-fn make_changes_cache(b: &mut Bencher) {
-    let coins = vec![1, 2, 5];
-    b.iter(|| dp::coin::make_change_cache(&coins, MAKE_CHANGES_AMOUNT));
-}
-
-#[bench]
 fn make_changes_iter(b: &mut Bencher) {
     let coins = vec![1, 2, 5];
     b.iter(|| dp::coin::make_change_iter(&coins, MAKE_CHANGES_AMOUNT));

@@ -4,6 +4,7 @@ extern crate test;
 
 pub mod common;
 pub mod dp;
+pub mod graph;
 pub mod ll;
 pub mod math;
 pub mod other;

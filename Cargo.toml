@@ -12,6 +12,7 @@ path = "src/lib.rs"
 
 [dependencies]
 libc = "0.2"
+nom = "6.2.1"
 rand = "0.8.0"
 
 [dev-dependencies]
