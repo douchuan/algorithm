@@ -52,10 +52,24 @@ impl<T> LinkedList<T> {
                 Some(mut tail) => tail.as_mut().next = Some(node),
                 None => self.head = Some(node),
             }
-
-            self.tail = Some(node);
-            self.len += 1;
         }
+
+        self.tail = Some(node);
+        self.len += 1;
+    }
+
+    pub fn push_front(&mut self, element: T) {
+        let mut node = Node::new(element);
+        unsafe {
+            node.as_mut().next = self.head;
+        }
+
+        if self.head.is_none() {
+            self.tail = Some(node);
+        }
+
+        self.head = Some(node);
+        self.len += 1;
     }
 
     pub fn pop_front(&mut self) -> Option<T> {

@@ -14,6 +14,23 @@ fn normal() {
 }
 
 #[test]
+fn push_front() {
+    let mut data = vec![1, 2, 3, 4, 5];
+    let mut ll = LinkedList::default();
+    for &v in &data {
+        ll.push_front(v);
+    }
+
+    //len
+    assert_eq!(ll.len(), data.len());
+
+    //verify data
+    let ll_data: Vec<i32> = ll.into_iter().collect();
+    data.reverse();
+    assert_eq!(ll_data, data);
+}
+
+#[test]
 fn reverse() {
     let mut data = vec![1, 2, 3, 4, 5];
     let mut ll = create_ll(&data);
