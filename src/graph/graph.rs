@@ -71,8 +71,11 @@ impl Graph {
 
     /// add edge v-w to this graph
     pub fn add_edge(&mut self, v: usize, w: usize) {
-        self.adj[v as usize].push_back(w);
-        self.adj[w as usize].push_back(v);
+        // Algorithhms 4th Edition by Robert Sedgewick, Kevin Wayne
+        // p538, Adjacency-listsdatastructure
+        // first adjacent vertex in input is last on list
+        self.adj[v as usize].push_front(w);
+        self.adj[w as usize].push_front(v);
         self.ne += 1;
     }
 

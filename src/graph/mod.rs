@@ -9,4 +9,4 @@ pub use graph::Graph;
 // the graph representation. To do so, we develop, for each given
 // task, a task-specific class so that clients can create objects
 // to perform the task.
-pub use search::{DepthFirstSearch, Search};
+pub use search::{DepthFirstPaths, DepthFirstSearch, Paths, Search};

@@ -1,7 +1,8 @@
-use algo::graph::{DepthFirstSearch, Graph, Search};
+use algo::graph::{DepthFirstPaths, DepthFirstSearch, Graph, Paths, Search};
 use std::str::FromStr;
 
 const TINY_G: &'static str = include_str!("res/graph/tinyG.txt");
+const TINY_CG: &'static str = include_str!("res/graph/tinyCG.txt");
 
 #[test]
 fn parser() {
@@ -16,7 +17,7 @@ fn parser() {
     assert_eq!(graph.E(), 13);
     assert_eq!(graph.V(), 13);
 
-    let expect = vec![5, 1, 2, 6];
+    let expect = vec![6, 2, 1, 5];
     let adj0 = graph.adj(0);
     for (i, w) in adj0.enumerate() {
         assert_eq!(*w, expect[i]);
@@ -25,15 +26,39 @@ fn parser() {
     assert_eq!(graph.degree(0), 4);
     assert_eq!(graph.degree(1), 1);
 
+    /*
+    13 vertices, 13 edges
+    0: 6 2 1 5
+    1: 0
+    2: 0
+    3: 5 4
+    4: 5 6 3
+    5: 3 4 0
+    6: 0 4
+    7: 8
+    8: 7
+    9: 11 10 12
+    10: 9
+    11: 9 12
+    12: 11 9
+    */
     // println!("{}", graph.to_string());
 }
 
 #[test]
-fn dfs() {
+fn search() {
     let s = TINY_G;
     let graph = Graph::from_str(s).unwrap();
     let search = DepthFirstSearch::new(&graph, 0);
     assert_ne!(search.count(), graph.V());
     assert!(vec![1, 2, 3, 4, 5, 6].iter().all(|&w| search.marked(w)));
     assert!(vec![7, 8, 9, 10, 11, 12].iter().all(|&w| !search.marked(w)));
+}
+
+#[test]
+fn paths() {
+    let s = TINY_CG;
+    let graph = Graph::from_str(s).unwrap();
+    let paths = DepthFirstPaths::new(&graph, 0);
+    assert_eq!(paths.path_to(5), Some(vec![0, 2, 3, 5]));
 }
