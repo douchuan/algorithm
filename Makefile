@@ -22,3 +22,6 @@ stats:
 	@echo
 	@echo "commits: "
 	@git log --oneline | wc -l
+	@echo
+	@echo "disk:"
+	@du -d 1 -h target
