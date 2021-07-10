@@ -4,29 +4,17 @@ BENCH = $(CARGO) bench
 BUILD = $(CARGO) build
 
 build:
-	$(BUILD)
+	@$(BUILD)
 
 clippy:
-	$(CARGO) clippy
+	@$(CARGO) clippy
 
 test:
 	#$(TEST) -- --nocapture
-	$(TEST)
-
-test_dp:
-	$(TEST) dp
-
-test_math:
-	$(TEST) math
+	@$(TEST)
 
 bench:
-	$(BENCH)
-
-bench_dp:
-	$(BENCH) -- dp
-
-bench_math:
-	$(BENCH) -- math
+	@$(BENCH)
 
 stats:
 	@echo "codes: "
