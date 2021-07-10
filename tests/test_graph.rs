@@ -1,5 +1,5 @@
 use algo::graph::{
-    BreadthFirstPaths, Cycle, DepthFirstPaths, DepthFirstSearch, Graph, Paths, Search, CC,
+    BreadthFirstPaths, Cycle, DepthFirstPaths, DepthFirstSearch, Graph, Paths, Search, TowColor, CC,
 };
 use std::str::FromStr;
 
@@ -93,4 +93,12 @@ fn cycle() {
     let graph = Graph::from_str(s).unwrap();
     let c = Cycle::new(&graph);
     assert!(c.has_cycle());
+}
+
+#[test]
+fn two_color() {
+    let s = TINY_G;
+    let graph = Graph::from_str(s).unwrap();
+    let c = TowColor::new(&graph);
+    assert!(!c.is_bipartite());
 }

@@ -13,6 +13,6 @@ pub use graph::Graph;
 // task, a task-specific class so that clients can create objects
 // to perform the task.
 pub use cc::CC;
-pub use detection::Cycle;
+pub use detection::{Cycle, TowColor};
 pub use paths::{BreadthFirstPaths, DepthFirstPaths, Paths};
 pub use search::{DepthFirstSearch, Search};
