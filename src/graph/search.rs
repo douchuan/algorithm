@@ -52,6 +52,8 @@ pub struct BreadthFirstPaths {
     s: usize,
 }
 
+// impl trait
+
 impl Search for DepthFirstSearch {
     fn marked(&self, v: usize) -> bool {
         self.marked[v]
@@ -111,6 +113,8 @@ impl Paths for BreadthFirstPaths {
         }
     }
 }
+
+// impl utils
 
 impl DepthFirstSearch {
     pub fn new(g: &Graph, s: usize) -> Self {
