@@ -1,6 +1,7 @@
 mod cc;
 mod graph;
 mod parser;
+mod paths;
 mod search;
 
 pub use graph::Graph;
@@ -11,4 +12,5 @@ pub use graph::Graph;
 // task, a task-specific class so that clients can create objects
 // to perform the task.
 pub use cc::CC;
-pub use search::{BreadthFirstPaths, DepthFirstPaths, DepthFirstSearch, Paths, Search};
+pub use paths::{BreadthFirstPaths, DepthFirstPaths, Paths};
+pub use search::{DepthFirstSearch, Search};
