@@ -1,4 +1,6 @@
-use algo::graph::{BreadthFirstPaths, DepthFirstPaths, DepthFirstSearch, Graph, Paths, Search, CC};
+use algo::graph::{
+    BreadthFirstPaths, Cycle, DepthFirstPaths, DepthFirstSearch, Graph, Paths, Search, CC,
+};
 use std::str::FromStr;
 
 const TINY_G: &'static str = include_str!("res/graph/tinyG.txt");
@@ -73,7 +75,7 @@ fn breadth_first_paths() {
 }
 
 #[test]
-fn bfs_cc() {
+fn bfs_connected_components() {
     let s = TINY_G;
     let graph = Graph::from_str(s).unwrap();
     let cc = CC::new(&graph);
@@ -83,4 +85,12 @@ fn bfs_cc() {
     assert_eq!(cc.id(0), 0);
     assert_eq!(cc.id(7), 1);
     assert_eq!(cc.id(9), 2);
+}
+
+#[test]
+fn cycle() {
+    let s = TINY_G;
+    let graph = Graph::from_str(s).unwrap();
+    let c = Cycle::new(&graph);
+    assert!(c.has_cycle());
 }
