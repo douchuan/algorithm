@@ -27,3 +27,10 @@ bench_dp:
 
 bench_math:
 	$(BENCH) -- math
+
+stats:
+	@echo "codes: "
+	@cloc . --exclude-dir=target
+	@echo
+	@echo "commits: "
+	@git log --oneline | wc -l
