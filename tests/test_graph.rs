@@ -1,4 +1,4 @@
-use algo::graph::{DepthFirstPaths, DepthFirstSearch, Graph, Paths, Search};
+use algo::graph::{BreadthFirstPaths, DepthFirstPaths, DepthFirstSearch, Graph, Paths, Search};
 use std::str::FromStr;
 
 const TINY_G: &'static str = include_str!("res/graph/tinyG.txt");
@@ -56,9 +56,18 @@ fn search() {
 }
 
 #[test]
-fn paths() {
+fn deep_first_paths() {
     let s = TINY_CG;
     let graph = Graph::from_str(s).unwrap();
     let paths = DepthFirstPaths::new(&graph, 0);
     assert_eq!(paths.path_to(5), Some(vec![0, 2, 3, 5]));
+}
+
+#[test]
+fn breadth_first_paths() {
+    let s = TINY_CG;
+    let graph = Graph::from_str(s).unwrap();
+    let paths = BreadthFirstPaths::new(&graph, 0);
+    assert_eq!(paths.path_to(4), Some(vec![0, 2, 4]));
+    assert_eq!(paths.path_to(5), Some(vec![0, 5]));
 }

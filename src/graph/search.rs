@@ -1,4 +1,5 @@
 use crate::graph::Graph;
+use crate::ll::LinkedList;
 
 /// find vertices connected to a source vertex s
 ///
@@ -45,6 +46,12 @@ pub struct DepthFirstPaths {
     s: usize,
 }
 
+pub struct BreadthFirstPaths {
+    marked: Vec<bool>,
+    edge_to: Vec<usize>,
+    s: usize,
+}
+
 impl Search for DepthFirstSearch {
     fn marked(&self, v: usize) -> bool {
         self.marked[v]
@@ -56,6 +63,31 @@ impl Search for DepthFirstSearch {
 }
 
 impl Paths for DepthFirstPaths {
+    fn has_path(&self, v: usize) -> bool {
+        self.marked[v]
+    }
+
+    fn path_to(&self, v: usize) -> Option<Vec<usize>> {
+        if self.has_path(v) {
+            let mut paths = Vec::new();
+            let s = self.s;
+            let mut x = v;
+
+            while x != s {
+                paths.push(x);
+                x = self.edge_to[x];
+            }
+            paths.push(s);
+            paths.reverse();
+
+            Some(paths)
+        } else {
+            None
+        }
+    }
+}
+
+impl Paths for BreadthFirstPaths {
     fn has_path(&self, v: usize) -> bool {
         self.marked[v]
     }
@@ -114,6 +146,31 @@ impl DepthFirstPaths {
             if !self.marked[w] {
                 self.edge_to[w] = v;
                 self.dfs(g, w);
+            }
+        }
+    }
+}
+
+impl BreadthFirstPaths {
+    pub fn new(g: &Graph, s: usize) -> Self {
+        let marked = vec![false; g.V()];
+        let edge_to = vec![0; g.V()];
+        let mut h = Self { marked, s, edge_to };
+        h.bfs(g, s);
+        h
+    }
+
+    fn bfs(&mut self, g: &Graph, v: usize) {
+        let mut queue = LinkedList::default();
+        self.marked[v] = true;
+        queue.push_back(v);
+        while let Some(v) = queue.pop_front() {
+            for &w in g.adj(v) {
+                if !self.marked[w] {
+                    self.marked[w] = true;
+                    queue.push_back(w);
+                    self.edge_to[w] = v;
+                }
             }
         }
     }
