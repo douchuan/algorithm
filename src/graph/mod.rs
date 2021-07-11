@@ -4,6 +4,7 @@ mod graph;
 mod parser;
 mod paths;
 mod search;
+mod symbol_graph;
 
 pub use graph::Graph;
 

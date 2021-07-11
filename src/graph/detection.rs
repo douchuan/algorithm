@@ -14,6 +14,16 @@ pub struct Cycle {
 /// which is equivalent to this question: Is the graph bipartite ?
 /// 能够用两种颜色将图的所有顶点着色，使得任意一条边的两个端点的颜色都不相同吗？
 /// 这个问题也等价于：这是一幅二分图吗？
+///
+/// bipartite example:
+/// file movies.txt, from the Internet Movie Database (IMDB),
+/// Recall that this file consists of lines listing a movie name followed
+/// by a list of the performers in the movie. In the context of graph processing,
+/// we can view it as defining a graph with movies and performers as vertices and
+/// each line defining the adjacency list of edges connect- ing each movie to its
+/// performers.
+/// Note that the graph is a bipartite graph—there are no edges connecting
+/// performers to performers or movies to movies.
 pub struct TowColor {
     marked: Vec<bool>,
     color: Vec<bool>,
