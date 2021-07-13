@@ -2,6 +2,7 @@ use algo::graph::{
     BreadthFirstPaths, Cycle, DepthFirstPaths, DepthFirstSearch, Graph, Paths, Search, SymbolGraph,
     TowColor, CC,
 };
+use std::fs;
 use std::path::PathBuf;
 use std::str::FromStr;
 
@@ -120,6 +121,24 @@ fn symbol_graph() {
     }
     adj.sort();
     assert_eq!(expect, adj);
+}
+
+#[test]
+fn degree_of_separation() {
+    let i = ROUTES;
+    let symbol = SymbolGraph::new(&i, " ");
+    let graph = symbol.G();
+    let source = "JFK";
+    let sink = "LAS";
+    let expect = vec!["JFK", "ORD", "PHX", "LAS"];
+    let finder = BreadthFirstPaths::new(graph, symbol.index(source).unwrap());
+    assert!(finder.has_path(symbol.index(sink).unwrap()));
+    let paths = finder.path_to(symbol.index(sink).unwrap()).unwrap();
+    let mut path_names = vec![];
+    for p in paths {
+        path_names.push(symbol.name(p).unwrap());
+    }
+    assert_eq!(expect, path_names);
 }
 
 #[test]
