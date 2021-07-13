@@ -1,4 +1,6 @@
+use crate::graph::parser::parse_list_str;
 use crate::graph::Graph;
+use std::collections::HashMap;
 
 /// Typical applications involve processing graphs defined in files or
 /// on web pages, using strings, not integer indices, to define and refer
@@ -34,32 +36,70 @@ use crate::graph::Graph;
 ///   2 ORD
 ///   ...
 ///
-pub struct SymbolGraph {}
+pub struct SymbolGraph<'a> {
+    st: HashMap<&'a str, usize>,
+    keys: Vec<&'a str>,
+    graph: Graph,
+}
 
-impl SymbolGraph {
-    /// build graph specified in i using delim to separate vertex names
-    pub fn new(i: &str, delim: &str) -> Self {
-        todo!()
-    }
-
+impl<'a> SymbolGraph<'a> {
     /// is key a vertex?
     pub fn contains(&self, key: &str) -> bool {
-        todo!()
+        self.st.contains_key(key)
     }
 
     /// index associated with key
-    pub fn index(&self, key: &str) -> usize {
-        todo!()
+    pub fn index(&self, key: &str) -> Option<usize> {
+        self.st.get(key).cloned()
     }
 
     /// key associated with index v
-    pub fn name(&self, v: usize) -> &str {
-        todo!()
+    pub fn name(&self, v: usize) -> Option<&str> {
+        self.keys.get(v).cloned()
     }
 
     /// underlying Graph
     #[allow(non_snake_case)]
     pub fn G(&self) -> &Graph {
-        todo!()
+        &self.graph
+    }
+}
+
+impl<'a> SymbolGraph<'a> {
+    /// build graph specified in i using delim to separate vertex names
+    pub fn new(i: &'a str, sep: &'a str) -> Self {
+        // First pass
+        //   builds the index, by reading strings to associate each
+        //   distinct string with an index.
+        let mut st = HashMap::new();
+        for l in i.lines() {
+            if let Ok((_, list)) = parse_list_str(l, sep) {
+                for v in list {
+                    if st.get(v).is_none() {
+                        st.insert(v, st.len());
+                    }
+                }
+            }
+        }
+
+        // Inverted index
+        // to get string keys is an array.
+        let mut keys = vec![""; st.len()];
+        for &name in st.keys() {
+            keys[*st.get(name).unwrap()] = name;
+        }
+
+        let mut graph = Graph::new(st.len());
+        for l in i.lines() {
+            if let Ok((_, list)) = parse_list_str(l, sep) {
+                let v = *st.get(list[0]).unwrap();
+                for &s in &list[1..] {
+                    let w = *st.get(s).unwrap();
+                    graph.add_edge(v, w);
+                }
+            }
+        }
+
+        Self { st, keys, graph }
     }
 }

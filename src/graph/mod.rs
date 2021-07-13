@@ -7,6 +7,7 @@ mod search;
 mod symbol_graph;
 
 pub use graph::Graph;
+pub use symbol_graph::SymbolGraph;
 
 // Since we consider a large number of graph processing algorithms,
 // our initial design goal is to decouple our implementations from

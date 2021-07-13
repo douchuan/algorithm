@@ -36,7 +36,7 @@
 //!   both requirements for typical applications and is the one that we will use
 //!   throughout this chapter.
 
-use crate::graph::parser::{parse_num, parse_nums};
+use crate::graph::parser::{parse_list_num, parse_num};
 use crate::ll::{linked_list::Iter, LinkedList};
 use std::str::FromStr;
 
@@ -150,8 +150,7 @@ impl FromStr for Graph {
         let mut graph = Self::new(nv);
         // line2...: links
         for s in lines {
-            if !s.is_empty() {
-                let (_, v) = parse_nums(s).ok().ok_or(())?;
+            if let Ok((_, v)) = parse_list_num(s) {
                 graph.add_edge(v[0], v[1]);
             }
         }

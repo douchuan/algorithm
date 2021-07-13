@@ -11,7 +11,7 @@ clippy:
 
 test:
 	#$(TEST) -- --nocapture
-	@$(TEST)
+	@$(TEST) $(ARGS)
 
 bench:
 	@$(BENCH)

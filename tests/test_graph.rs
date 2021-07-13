@@ -1,10 +1,13 @@
 use algo::graph::{
-    BreadthFirstPaths, Cycle, DepthFirstPaths, DepthFirstSearch, Graph, Paths, Search, TowColor, CC,
+    BreadthFirstPaths, Cycle, DepthFirstPaths, DepthFirstSearch, Graph, Paths, Search, SymbolGraph,
+    TowColor, CC,
 };
+use std::path::PathBuf;
 use std::str::FromStr;
 
 const TINY_G: &'static str = include_str!("res/graph/tinyG.txt");
 const TINY_CG: &'static str = include_str!("res/graph/tinyCG.txt");
+const ROUTES: &'static str = include_str!("res/graph/routes.txt");
 
 #[test]
 fn parser() {
@@ -49,8 +52,8 @@ fn parser() {
 
 #[test]
 fn search() {
-    let s = TINY_G;
-    let graph = Graph::from_str(s).unwrap();
+    let i = TINY_G;
+    let graph = Graph::from_str(i).unwrap();
     let search = DepthFirstSearch::new(&graph, 0);
     assert_ne!(search.count(), graph.V());
     assert!(vec![1, 2, 3, 4, 5, 6].iter().all(|&w| search.marked(w)));
@@ -59,16 +62,16 @@ fn search() {
 
 #[test]
 fn deep_first_paths() {
-    let s = TINY_CG;
-    let graph = Graph::from_str(s).unwrap();
+    let i = TINY_CG;
+    let graph = Graph::from_str(i).unwrap();
     let paths = DepthFirstPaths::new(&graph, 0);
     assert_eq!(paths.path_to(5), Some(vec![0, 2, 3, 5]));
 }
 
 #[test]
 fn breadth_first_paths() {
-    let s = TINY_CG;
-    let graph = Graph::from_str(s).unwrap();
+    let i = TINY_CG;
+    let graph = Graph::from_str(i).unwrap();
     let paths = BreadthFirstPaths::new(&graph, 0);
     assert_eq!(paths.path_to(4), Some(vec![0, 2, 4]));
     assert_eq!(paths.path_to(5), Some(vec![0, 5]));
@@ -76,8 +79,8 @@ fn breadth_first_paths() {
 
 #[test]
 fn bfs_connected_components() {
-    let s = TINY_G;
-    let graph = Graph::from_str(s).unwrap();
+    let i = TINY_G;
+    let graph = Graph::from_str(i).unwrap();
     let cc = CC::new(&graph);
     assert_eq!(cc.count(), 3);
     assert!(cc.connected(0, 5));
@@ -89,16 +92,39 @@ fn bfs_connected_components() {
 
 #[test]
 fn cycle() {
-    let s = TINY_G;
-    let graph = Graph::from_str(s).unwrap();
+    let i = TINY_G;
+    let graph = Graph::from_str(i).unwrap();
     let c = Cycle::new(&graph);
     assert!(c.has_cycle());
 }
 
 #[test]
 fn two_color() {
-    let s = TINY_G;
-    let graph = Graph::from_str(s).unwrap();
+    let i = TINY_G;
+    let graph = Graph::from_str(i).unwrap();
     let c = TowColor::new(&graph);
     assert!(!c.is_bipartite());
+}
+
+#[test]
+fn symbol_graph() {
+    let i = ROUTES;
+    let symbol = SymbolGraph::new(i, " ");
+    let graph = symbol.G();
+    let mut expect = vec!["ORD", "ATL", "MCO"];
+    expect.sort();
+    let mut adj = vec![];
+    let u = symbol.index("JFK").unwrap();
+    for &w in graph.adj(u) {
+        adj.push(symbol.name(w).unwrap());
+    }
+    adj.sort();
+    assert_eq!(expect, adj);
+}
+
+#[test]
+fn locate_file() {
+    let mut d = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    d.push("tests/res/graph/tinyCG.txt");
+    assert!(d.exists(), "d = {}", d.display());
 }
