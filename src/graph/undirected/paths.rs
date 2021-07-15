@@ -1,5 +1,6 @@
-use crate::graph::Graph;
-use crate::ll::LinkedList;
+use crate::graph::undirected::Graph;
+use crate::graph::IGraph;
+use crate::ll::linked_list::LinkedList;
 
 /// Finding paths
 /// Given a graph and a source vertex s, support queries

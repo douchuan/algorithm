@@ -1,4 +1,5 @@
-use crate::graph::Graph;
+use crate::graph::undirected::Graph;
+use crate::graph::IGraph;
 
 /// Connected components
 pub struct CC {

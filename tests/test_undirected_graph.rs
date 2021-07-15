@@ -1,8 +1,8 @@
-use algo::graph::{
+use algo::graph::undirected::{
     BreadthFirstPaths, Cycle, DepthFirstPaths, DepthFirstSearch, Graph, Paths, Search, SymbolGraph,
     TowColor, CC,
 };
-use std::fs;
+use algo::graph::IGraph;
 use std::path::PathBuf;
 use std::str::FromStr;
 

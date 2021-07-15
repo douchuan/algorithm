@@ -36,14 +36,36 @@
 //!   both requirements for typical applications and is the one that we will use
 //!   throughout this chapter.
 
-use crate::graph::parser::{parse_list_num, parse_num};
+use crate::graph::IGraph;
 use crate::ll::{linked_list::Iter, LinkedList};
-use std::str::FromStr;
 
 pub struct Graph {
     nv: usize, // num of vertices
     ne: usize, // num of edges
     adj: Vec<LinkedList<usize>>,
+}
+
+impl IGraph for Graph {
+    fn V(&self) -> usize {
+        self.nv
+    }
+
+    fn E(&self) -> usize {
+        self.ne
+    }
+
+    fn add_edge(&mut self, v: usize, w: usize) {
+        // Algorithhms 4th Edition by Robert Sedgewick, Kevin Wayne
+        // p538, Adjacency-lists data structure
+        // first adjacent vertex in input is last on list
+        self.adj[v].push_front(w);
+        self.adj[w].push_front(v);
+        self.ne += 1;
+    }
+
+    fn adj(&self, v: usize) -> Iter<'_, usize> {
+        self.adj[v].iter()
+    }
 }
 
 impl Graph {
@@ -55,33 +77,6 @@ impl Graph {
         }
 
         Self { nv, ne: 0, adj }
-    }
-
-    /// number of vertices
-    #[allow(non_snake_case)]
-    pub fn V(&self) -> usize {
-        self.nv
-    }
-
-    /// number of edges
-    #[allow(non_snake_case)]
-    pub fn E(&self) -> usize {
-        self.ne
-    }
-
-    /// add edge v-w to this graph
-    pub fn add_edge(&mut self, v: usize, w: usize) {
-        // Algorithhms 4th Edition by Robert Sedgewick, Kevin Wayne
-        // p538, Adjacency-listsdatastructure
-        // first adjacent vertex in input is last on list
-        self.adj[v as usize].push_front(w);
-        self.adj[w as usize].push_front(v);
-        self.ne += 1;
-    }
-
-    /// vertices adjacent to v
-    pub fn adj(&self, v: usize) -> Iter<'_, usize> {
-        self.adj[v].iter()
     }
 
     /// compute the degree of v
@@ -119,44 +114,4 @@ impl Graph {
     }
 }
 
-impl ToString for Graph {
-    fn to_string(&self) -> String {
-        let mut buf = Vec::new();
-        buf.push(format!("{} vertices, {} edges", self.nv, self.ne));
-        for v in 0..self.V() {
-            let adj = self
-                .adj(v)
-                .map(|v| v.to_string())
-                .collect::<Vec<String>>()
-                .join(" ");
-            buf.push(format!("{}: {}", v, adj));
-        }
-        buf.join("\n")
-    }
-}
-
-impl FromStr for Graph {
-    type Err = ();
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let mut lines = s.lines();
-        // line0: V
-        let s = lines.next().ok_or(())?;
-        let (_, nv) = parse_num(s).ok().ok_or(())?;
-        // line1: E
-        let s = lines.next().ok_or(())?;
-        let (_, ne) = parse_num::<usize>(s).ok().ok_or(())?;
-
-        let mut graph = Self::new(nv);
-        // line2...: links
-        for s in lines {
-            if let Ok((_, v)) = parse_list_num(s) {
-                graph.add_edge(v[0], v[1]);
-            }
-        }
-
-        debug_assert_eq!(ne, graph.ne);
-
-        Ok(graph)
-    }
-}
+graph_util!(Graph);

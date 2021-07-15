@@ -1,5 +1,6 @@
-use crate::graph::parser::parse_list_str;
-use crate::graph::Graph;
+use crate::graph::undirected::Graph;
+use crate::graph::util::parser::parse_list_str;
+use crate::graph::IGraph;
 use std::collections::HashMap;
 
 /// Typical applications involve processing graphs defined in files or
@@ -67,7 +68,7 @@ impl<'a> SymbolGraph<'a> {
 
 impl<'a> SymbolGraph<'a> {
     /// build graph specified in i using delim to separate vertex names
-    pub fn new(i: &'a str, sep: &'a str) -> Self {
+    pub fn new(i: &'a str, sep: &str) -> Self {
         // First pass
         //   builds the index, by reading strings to associate each
         //   distinct string with an index.
@@ -89,6 +90,8 @@ impl<'a> SymbolGraph<'a> {
             keys[*st.get(name).unwrap()] = name;
         }
 
+        // Second pass
+        //   builds the graph
         let mut graph = Graph::new(st.len());
         for l in i.lines() {
             if let Ok((_, list)) = parse_list_str(l, sep) {

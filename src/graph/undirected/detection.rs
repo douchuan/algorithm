@@ -1,4 +1,5 @@
-use crate::graph::Graph;
+use crate::graph::undirected::Graph;
+use crate::graph::IGraph;
 
 /// 检测环
 /// Is a given graph acylic (无环图) ?
