@@ -1,8 +1,8 @@
 ### Introduction
 
-My journey of algorithm in Rust.
+My journey of algorithms in Rust.
 
-Keywords: Algorithm, LeetCode, Rust
+Keywords: Algorithms, LeetCode, Rust
 
 ### Why Rust
 
