@@ -12,7 +12,6 @@
 //! If so, find the vertices on some such cycle, in order from
 //! some vertex back to itself.
 
-use crate::graph::directed::Digraph;
 use crate::graph::IGraph;
 use std::slice::Iter;
 
@@ -25,7 +24,7 @@ pub struct DirectedCycle {
 }
 
 impl DirectedCycle {
-    pub fn new(graph: &Digraph) -> Self {
+    pub fn new(graph: &Box<dyn IGraph>) -> Self {
         let marked = vec![false; graph.V()];
         let edge_to = vec![0; graph.V()];
         let cycle = None;
@@ -56,7 +55,7 @@ impl DirectedCycle {
 }
 
 impl DirectedCycle {
-    fn dfs(&mut self, graph: &Digraph, v: usize) {
+    fn dfs(&mut self, graph: &Box<dyn IGraph>, v: usize) {
         self.on_stack[v] = true;
         self.marked[v] = true;
         for &w in graph.adj(v) {

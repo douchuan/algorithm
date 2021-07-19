@@ -1,4 +1,3 @@
-use crate::graph::directed::Digraph;
 use crate::graph::IGraph;
 use std::collections::{linked_list, LinkedList};
 use std::slice::Iter;
@@ -12,7 +11,7 @@ pub struct DepthFirstOrders {
 }
 
 impl DepthFirstOrders {
-    pub fn new(graph: &Digraph) -> Self {
+    pub fn new(graph: &Box<dyn IGraph>) -> Self {
         let mut v = Self {
             marked: vec![false; graph.V()],
             pre: Vec::with_capacity(graph.V()),
@@ -43,7 +42,7 @@ impl DepthFirstOrders {
 }
 
 impl DepthFirstOrders {
-    fn dfs(&mut self, graph: &Digraph, v: usize) {
+    fn dfs(&mut self, graph: &Box<dyn IGraph>, v: usize) {
         self.pre.push(v);
 
         self.marked[v] = true;

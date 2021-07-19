@@ -35,6 +35,11 @@ pub trait IGraph {
     /// vertices adjacent to v
     fn adj(&self, v: usize) -> Iter<'_, usize>;
 
+    /// directed graph op
+    fn reverse(&self) -> Box<dyn IGraph> {
+        panic!("unsupported")
+    }
+
     fn stringify(&self) -> String {
         let mut buf = Vec::new();
         buf.push(format!("{} vertices, {} edges", self.V(), self.E()));

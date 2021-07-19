@@ -1,7 +1,7 @@
 use algo::graph::directed::{
-    Digraph, DirectedCycle, DirectedDFS, KosarajuSCC, SymbolGraph, Topological, TransitiveClosure,
+    Digraph, DirectedCycle, DirectedDFS, KosarajuSCC, Topological, TransitiveClosure,
 };
-use algo::graph::util::{BreadthFirstPaths, DepthFirstPaths, Paths};
+use algo::graph::util::{BreadthFirstPaths, DepthFirstPaths, Paths, SymbolGraph};
 use algo::graph::IGraph;
 use std::str::FromStr;
 
@@ -10,8 +10,7 @@ const JOBS: &'static str = include_str!("res/graph/jobs.txt");
 
 #[test]
 fn depth_first_paths() {
-    let i = TINY_DG;
-    let graph = Digraph::from_str(i).unwrap();
+    let graph = create_digraph();
     let paths = DepthFirstPaths::new(&graph, 3);
     for (v, expect_path) in vec![
         Some(vec![3, 5, 4, 2, 0]),    // 0
@@ -37,8 +36,7 @@ fn depth_first_paths() {
 
 #[test]
 fn breadth_first_paths() {
-    let i = TINY_DG;
-    let graph = Digraph::from_str(i).unwrap();
+    let graph = create_digraph();
     let paths = BreadthFirstPaths::new(&graph, 3);
     for (v, expect_path) in vec![
         Some(vec![3, 2, 0]),    // 0
@@ -66,8 +64,7 @@ fn breadth_first_paths() {
 
 #[test]
 fn search() {
-    let i = TINY_DG;
-    let graph = Digraph::from_str(i).unwrap();
+    let graph = create_digraph();
     let reach = DirectedDFS::new_single(&graph, 1);
     assert!(!reach.marked(0));
     assert!(reach.marked(1));
@@ -78,21 +75,19 @@ fn search() {
 
 #[test]
 fn cycle() {
-    let i = TINY_DG;
-    let graph = Digraph::from_str(i).unwrap();
+    let graph = create_digraph();
     let cycle = DirectedCycle::new(&graph);
     assert!(cycle.has_cycle());
 }
 
 #[test]
 fn topological() {
-    let i = TINY_DG;
-    let graph = Digraph::from_str(i).unwrap();
+    let graph = create_digraph();
     let cycle = Topological::new(&graph);
     assert!(!cycle.is_dag());
 
     let i = JOBS;
-    let symbol_graph = SymbolGraph::new(i, "/");
+    let symbol_graph = SymbolGraph::new(i, "/", |nv| Box::new(Digraph::new(nv)));
     let graph = symbol_graph.G();
     let cycle = Topological::new(graph);
     assert!(cycle.is_dag());
@@ -100,16 +95,14 @@ fn topological() {
 
 #[test]
 fn scc() {
-    let i = TINY_DG;
-    let graph = Digraph::from_str(i).unwrap();
+    let graph = create_digraph();
     let scc = KosarajuSCC::new(&graph);
     assert_eq!(5, scc.count());
 }
 
 #[test]
 fn transitive_closure() {
-    let i = TINY_DG;
-    let graph = Digraph::from_str(i).unwrap();
+    let graph = create_digraph();
     let tc = TransitiveClosure::new(&graph);
     let expect = vec![
         vec![1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0], // 0
@@ -137,4 +130,9 @@ fn transitive_closure() {
             );
         }
     }
+}
+
+fn create_digraph() -> Box<dyn IGraph> {
+    let i = TINY_DG;
+    Box::new(Digraph::from_str(i).unwrap())
 }

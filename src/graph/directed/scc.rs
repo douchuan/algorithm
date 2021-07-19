@@ -6,7 +6,7 @@
 //! a directed path from w to v. A digraph is strongly connected if
 //! all its vertices are strongly connected to one another.
 //!
-use crate::graph::directed::{DepthFirstOrders, Digraph};
+use crate::graph::directed::DepthFirstOrders;
 use crate::graph::IGraph;
 
 pub struct KosarajuSCC {
@@ -16,7 +16,7 @@ pub struct KosarajuSCC {
 }
 
 impl KosarajuSCC {
-    pub fn new(graph: &Digraph) -> Self {
+    pub fn new(graph: &Box<dyn IGraph>) -> Self {
         let mut scc = Self {
             marked: vec![false; graph.V()],
             id: vec![0; graph.V()],
@@ -47,7 +47,7 @@ impl KosarajuSCC {
 }
 
 impl KosarajuSCC {
-    fn dfs(&mut self, graph: &Digraph, v: usize) {
+    fn dfs(&mut self, graph: &Box<dyn IGraph>, v: usize) {
         self.marked[v] = true;
         self.id[v] = self.count;
         for &w in graph.adj(v) {

@@ -1,7 +1,6 @@
 //! Compute connected components using depth first search.
 //! Runs in O(E + V) time.
 
-use crate::graph::undirected::Graph;
 use crate::graph::IGraph;
 
 /// Connected components
@@ -12,7 +11,7 @@ pub struct CC {
 }
 
 impl CC {
-    pub fn new(g: &Graph) -> Self {
+    pub fn new(g: &Box<dyn IGraph>) -> Self {
         let mut cc = Self {
             count: 0,
             marked: vec![false; g.V()],
@@ -47,7 +46,7 @@ impl CC {
 }
 
 impl CC {
-    fn dfs(&mut self, g: &Graph, v: usize) {
+    fn dfs(&mut self, g: &Box<dyn IGraph>, v: usize) {
         self.marked[v] = true;
         self.id[v] = self.count;
         for &w in g.adj(v) {

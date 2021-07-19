@@ -27,6 +27,18 @@ impl IGraph for Digraph {
     fn adj(&self, v: usize) -> Iter<'_, usize> {
         self.adj[v].iter()
     }
+
+    /// reverse of this digraph
+    fn reverse(&self) -> Box<dyn IGraph> {
+        let mut r = Digraph::new(self.nv);
+        for v in 0..self.nv {
+            for &w in self.adj(v) {
+                r.add_edge(w, v);
+            }
+        }
+
+        Box::new(r)
+    }
 }
 
 impl Digraph {
@@ -38,18 +50,6 @@ impl Digraph {
         }
 
         Self { nv, ne: 0, adj }
-    }
-
-    /// reverse of this digraph
-    pub fn reverse(&self) -> Self {
-        let mut r = Digraph::new(self.nv);
-        for v in 0..self.nv {
-            for &w in self.adj(v) {
-                r.add_edge(w, v);
-            }
-        }
-
-        r
     }
 }
 

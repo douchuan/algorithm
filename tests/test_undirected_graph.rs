@@ -1,5 +1,5 @@
-use algo::graph::undirected::{Cycle, DepthFirstSearch, Graph, Search, SymbolGraph, TowColor, CC};
-use algo::graph::util::{BreadthFirstPaths, DepthFirstPaths, Paths};
+use algo::graph::undirected::{Cycle, DepthFirstSearch, Graph, Search, TowColor, CC};
+use algo::graph::util::{BreadthFirstPaths, DepthFirstPaths, Paths, SymbolGraph};
 use algo::graph::IGraph;
 use std::path::PathBuf;
 use std::str::FromStr;
@@ -51,8 +51,7 @@ fn parser() {
 
 #[test]
 fn search() {
-    let i = TINY_G;
-    let graph = Graph::from_str(i).unwrap();
+    let graph = create_graph(TINY_G);
     let search = DepthFirstSearch::new(&graph, 0);
     assert_ne!(search.count(), graph.V());
     assert!(vec![1, 2, 3, 4, 5, 6].iter().all(|&w| search.marked(w)));
@@ -61,8 +60,7 @@ fn search() {
 
 #[test]
 fn depth_first_paths() {
-    let i = TINY_CG;
-    let graph = Graph::from_str(i).unwrap();
+    let graph = create_graph(TINY_CG);
     let paths = DepthFirstPaths::new(&graph, 0);
     for (v, expect_path) in vec![
         Some(vec![0]),          // 0
@@ -81,8 +79,7 @@ fn depth_first_paths() {
 
 #[test]
 fn breadth_first_paths() {
-    let i = TINY_CG;
-    let graph = Graph::from_str(i).unwrap();
+    let graph = create_graph(TINY_CG);
     let paths = BreadthFirstPaths::new(&graph, 0);
     for (v, expect_path) in vec![
         Some(vec![0]),       // 0
@@ -103,8 +100,7 @@ fn breadth_first_paths() {
 
 #[test]
 fn bfs_connected_components() {
-    let i = TINY_G;
-    let graph = Graph::from_str(i).unwrap();
+    let graph = create_graph(TINY_G);
     let cc = CC::new(&graph);
     assert_eq!(cc.count(), 3);
     assert!(cc.connected(0, 5));
@@ -116,16 +112,14 @@ fn bfs_connected_components() {
 
 #[test]
 fn cycle() {
-    let i = TINY_G;
-    let graph = Graph::from_str(i).unwrap();
+    let graph = create_graph(TINY_G);
     let c = Cycle::new(&graph);
     assert!(c.has_cycle());
 }
 
 #[test]
 fn two_color() {
-    let i = TINY_G;
-    let graph = Graph::from_str(i).unwrap();
+    let graph = create_graph(TINY_G);
     let c = TowColor::new(&graph);
     assert!(!c.is_bipartite());
 }
@@ -133,7 +127,7 @@ fn two_color() {
 #[test]
 fn symbol_graph() {
     let i = ROUTES;
-    let symbol = SymbolGraph::new(i, " ");
+    let symbol = SymbolGraph::new(i, " ", |nv| Box::new(Graph::new(nv)));
     let graph = symbol.G();
     let mut expect = vec!["ORD", "ATL", "MCO"];
     expect.sort();
@@ -149,7 +143,7 @@ fn symbol_graph() {
 #[test]
 fn degree_of_separation() {
     let i = ROUTES;
-    let symbol = SymbolGraph::new(&i, " ");
+    let symbol = SymbolGraph::new(&i, " ", |nv| Box::new(Graph::new(nv)));
     let graph = symbol.G();
     let source = "JFK";
     let sink = "LAS";
@@ -169,4 +163,8 @@ fn locate_file() {
     let mut d = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     d.push("tests/res/graph/tinyCG.txt");
     assert!(d.exists(), "d = {}", d.display());
+}
+
+fn create_graph(i: &str) -> Box<dyn IGraph> {
+    Box::new(Graph::from_str(i).unwrap())
 }

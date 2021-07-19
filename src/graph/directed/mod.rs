@@ -8,11 +8,9 @@ mod order;
 mod scc;
 mod search;
 mod sort;
-mod symbol_graph;
 mod transitive_closure;
 
 pub use digraph::Digraph;
-pub use symbol_graph::SymbolGraph;
 
 pub use cycle::DirectedCycle;
 pub use order::DepthFirstOrders;

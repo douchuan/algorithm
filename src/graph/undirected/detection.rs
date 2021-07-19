@@ -1,4 +1,3 @@
-use crate::graph::undirected::Graph;
 use crate::graph::IGraph;
 
 /// 检测环
@@ -32,7 +31,7 @@ pub struct TowColor {
 }
 
 impl Cycle {
-    pub fn new(g: &Graph) -> Self {
+    pub fn new(g: &Box<dyn IGraph>) -> Self {
         let mut cc = Self {
             marked: vec![false; g.V()],
             has_cycle: false,
@@ -53,7 +52,7 @@ impl Cycle {
 }
 
 impl Cycle {
-    fn dfs(&mut self, g: &Graph, v: usize, u: usize) {
+    fn dfs(&mut self, g: &Box<dyn IGraph>, v: usize, u: usize) {
         self.marked[v] = true;
         for &w in g.adj(v) {
             if !self.marked[w] {
@@ -66,7 +65,7 @@ impl Cycle {
 }
 
 impl TowColor {
-    pub fn new(g: &Graph) -> Self {
+    pub fn new(g: &Box<dyn IGraph>) -> Self {
         let mut c = Self {
             marked: vec![false; g.V()],
             color: vec![false; g.V()],
@@ -88,7 +87,7 @@ impl TowColor {
 }
 
 impl TowColor {
-    fn dfs(&mut self, g: &Graph, v: usize) {
+    fn dfs(&mut self, g: &Box<dyn IGraph>, v: usize) {
         self.marked[v] = true;
         for &w in g.adj(v) {
             if !self.marked[w] {

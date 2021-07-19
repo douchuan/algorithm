@@ -1,4 +1,3 @@
-use crate::graph::directed::Digraph;
 use crate::graph::IGraph;
 
 pub struct DirectedDFS {
@@ -7,7 +6,7 @@ pub struct DirectedDFS {
 
 impl DirectedDFS {
     /// find vertices in G that are reachable from s
-    pub fn new_single(graph: &Digraph, s: usize) -> Self {
+    pub fn new_single(graph: &Box<dyn IGraph>, s: usize) -> Self {
         let marked = vec![false; graph.V()];
         let mut search = Self { marked };
         search.dfs(graph, s);
@@ -15,7 +14,7 @@ impl DirectedDFS {
     }
 
     /// find vertices in G that are reachable from sources
-    pub fn new_multi(graph: &Digraph, sources: &[usize]) -> Self {
+    pub fn new_multi(graph: &Box<dyn IGraph>, sources: &[usize]) -> Self {
         let marked = vec![false; graph.V()];
         let mut search = Self { marked };
         for &s in sources {
@@ -33,7 +32,7 @@ impl DirectedDFS {
 }
 
 impl DirectedDFS {
-    fn dfs(&mut self, graph: &Digraph, v: usize) {
+    fn dfs(&mut self, graph: &Box<dyn IGraph>, v: usize) {
         self.marked[v] = true;
         for &w in graph.adj(v) {
             if !self.marked[w] {

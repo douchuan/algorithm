@@ -12,7 +12,7 @@
 //! Query time: O(1).
 //! Space: O(V^2).
 
-use crate::graph::directed::{Digraph, DirectedDFS};
+use crate::graph::directed::DirectedDFS;
 use crate::graph::IGraph;
 
 pub struct TransitiveClosure {
@@ -21,7 +21,7 @@ pub struct TransitiveClosure {
 
 impl TransitiveClosure {
     /// Computes the transitive closure of the digraph
-    pub fn new(graph: &Digraph) -> Self {
+    pub fn new(graph: &Box<dyn IGraph>) -> Self {
         let mut tc = Vec::with_capacity(graph.V());
         for v in 0..graph.V() {
             tc.push(DirectedDFS::new_single(graph, v));

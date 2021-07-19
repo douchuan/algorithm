@@ -1,6 +1,7 @@
 //! A digraph has a topological order if and only if it is a DAG.
 
-use crate::graph::directed::{DepthFirstOrders, Digraph, DirectedCycle};
+use crate::graph::directed::{DepthFirstOrders, DirectedCycle};
+use crate::graph::IGraph;
 use std::slice::Iter;
 
 pub struct Topological {
@@ -8,7 +9,7 @@ pub struct Topological {
 }
 
 impl Topological {
-    pub fn new(graph: &Digraph) -> Self {
+    pub fn new(graph: &Box<dyn IGraph>) -> Self {
         let cycle_finder = DirectedCycle::new(graph);
         let order = if cycle_finder.has_cycle() {
             None

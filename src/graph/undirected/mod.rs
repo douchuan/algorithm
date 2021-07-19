@@ -17,10 +17,8 @@ pub use cc::CC;
 pub use detection::{Cycle, TowColor};
 pub use graph::Graph;
 pub use search::{DepthFirstSearch, Search};
-pub use symbol_graph::SymbolGraph;
 
 mod cc;
 mod detection;
 mod graph;
 mod search;
-mod symbol_graph;

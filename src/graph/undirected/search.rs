@@ -1,4 +1,3 @@
-use crate::graph::undirected::Graph;
 use crate::graph::IGraph;
 
 /// find vertices connected to a source vertex s
@@ -44,14 +43,14 @@ impl Search for DepthFirstSearch {
 // impl utils
 
 impl DepthFirstSearch {
-    pub fn new(g: &Graph, s: usize) -> Self {
+    pub fn new(g: &Box<dyn IGraph>, s: usize) -> Self {
         let marked = vec![false; g.V()];
         let mut h = Self { marked, count: 0 };
         h.dfs(g, s);
         h
     }
 
-    fn dfs(&mut self, g: &Graph, v: usize) {
+    fn dfs(&mut self, g: &Box<dyn IGraph>, v: usize) {
         self.marked[v] = true;
         self.count += 1;
         for &w in g.adj(v) {

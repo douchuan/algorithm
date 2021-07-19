@@ -100,7 +100,7 @@ impl Paths for BreadthFirstPaths {
 }
 
 impl DepthFirstPaths {
-    pub fn new(g: &dyn IGraph, s: usize) -> Self {
+    pub fn new(g: &Box<dyn IGraph>, s: usize) -> Self {
         let marked = vec![false; g.V()];
         let edge_to = vec![0; g.V()];
         let mut h = Self { marked, s, edge_to };
@@ -108,7 +108,7 @@ impl DepthFirstPaths {
         h
     }
 
-    fn dfs(&mut self, g: &dyn IGraph, v: usize) {
+    fn dfs(&mut self, g: &Box<dyn IGraph>, v: usize) {
         self.marked[v] = true;
         for &w in g.adj(v) {
             if !self.marked[w] {
@@ -120,7 +120,7 @@ impl DepthFirstPaths {
 }
 
 impl BreadthFirstPaths {
-    pub fn new(g: &dyn IGraph, s: usize) -> Self {
+    pub fn new(g: &Box<dyn IGraph>, s: usize) -> Self {
         let marked = vec![false; g.V()];
         let edge_to = vec![0; g.V()];
         let dist_to = vec![usize::MAX; g.V()];
@@ -142,7 +142,7 @@ impl BreadthFirstPaths {
         }
     }
 
-    fn bfs(&mut self, g: &dyn IGraph, s: usize) {
+    fn bfs(&mut self, g: &Box<dyn IGraph>, s: usize) {
         let mut queue = LinkedList::default();
         self.marked[s] = true;
         self.dist_to[s] = 0;
