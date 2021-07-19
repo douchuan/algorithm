@@ -1,3 +1,6 @@
+//! Compute connected components using depth first search.
+//! Runs in O(E + V) time.
+
 use crate::graph::undirected::Graph;
 use crate::graph::IGraph;
 

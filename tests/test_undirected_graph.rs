@@ -1,7 +1,5 @@
-use algo::graph::undirected::{
-    BreadthFirstPaths, Cycle, DepthFirstPaths, DepthFirstSearch, Graph, Paths, Search, SymbolGraph,
-    TowColor, CC,
-};
+use algo::graph::undirected::{Cycle, DepthFirstSearch, Graph, Search, SymbolGraph, TowColor, CC};
+use algo::graph::util::{BreadthFirstPaths, DepthFirstPaths, Paths};
 use algo::graph::IGraph;
 use std::path::PathBuf;
 use std::str::FromStr;
@@ -62,11 +60,23 @@ fn search() {
 }
 
 #[test]
-fn deep_first_paths() {
+fn depth_first_paths() {
     let i = TINY_CG;
     let graph = Graph::from_str(i).unwrap();
     let paths = DepthFirstPaths::new(&graph, 0);
-    assert_eq!(paths.path_to(5), Some(vec![0, 2, 3, 5]));
+    for (v, expect_path) in vec![
+        Some(vec![0]),          // 0
+        Some(vec![0, 2, 1]),    // 1
+        Some(vec![0, 2]),       // 2
+        Some(vec![0, 2, 3]),    // 3
+        Some(vec![0, 2, 3, 4]), // 4
+        Some(vec![0, 2, 3, 5]), // 5
+    ]
+    .iter()
+    .enumerate()
+    {
+        assert_eq!(expect_path, &paths.path_to(v));
+    }
 }
 
 #[test]
@@ -74,8 +84,21 @@ fn breadth_first_paths() {
     let i = TINY_CG;
     let graph = Graph::from_str(i).unwrap();
     let paths = BreadthFirstPaths::new(&graph, 0);
-    assert_eq!(paths.path_to(4), Some(vec![0, 2, 4]));
-    assert_eq!(paths.path_to(5), Some(vec![0, 5]));
+    for (v, expect_path) in vec![
+        Some(vec![0]),       // 0
+        Some(vec![0, 1]),    // 1
+        Some(vec![0, 2]),    // 2
+        Some(vec![0, 2, 3]), // 3
+        Some(vec![0, 2, 4]), // 4
+        Some(vec![0, 5]),    // 5
+    ]
+    .iter()
+    .enumerate()
+    {
+        assert_eq!(expect_path, &paths.path_to(v));
+        let expect_dist = expect_path.as_ref().map_or(usize::MAX, |v| v.len() - 1);
+        assert_eq!(expect_dist, paths.dist_to(v));
+    }
 }
 
 #[test]

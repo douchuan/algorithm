@@ -1,3 +1,10 @@
+//! The SymbolGraph represents an undirected graph, where the
+//! vertex names are arbitrary strings.
+//! By providing mappings between string vertex names and integers,
+//! it serves as a wrapper around the
+//! Graph data type, which assumes the vertex names are integers
+//! between 0 and V - 1.
+
 use crate::graph::directed::Digraph;
 use crate::graph::util::parser::parse_list_str;
 use crate::graph::IGraph;

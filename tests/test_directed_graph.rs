@@ -1,10 +1,68 @@
 use algo::graph::directed::{
-    Digraph, DirectedCycle, DirectedDFS, KosarajuSCC, SymbolGraph, Topological,
+    Digraph, DirectedCycle, DirectedDFS, KosarajuSCC, SymbolGraph, Topological, TransitiveClosure,
 };
+use algo::graph::util::{BreadthFirstPaths, DepthFirstPaths, Paths};
+use algo::graph::IGraph;
 use std::str::FromStr;
 
 const TINY_DG: &'static str = include_str!("res/graph/tinyDG.txt");
 const JOBS: &'static str = include_str!("res/graph/jobs.txt");
+
+#[test]
+fn depth_first_paths() {
+    let i = TINY_DG;
+    let graph = Digraph::from_str(i).unwrap();
+    let paths = DepthFirstPaths::new(&graph, 3);
+    for (v, expect_path) in vec![
+        Some(vec![3, 5, 4, 2, 0]),    // 0
+        Some(vec![3, 5, 4, 2, 0, 1]), // 1
+        Some(vec![3, 5, 4, 2]),       // 2
+        Some(vec![3]),                // 3
+        Some(vec![3, 5, 4]),          // 4
+        Some(vec![3, 5]),             // 5
+        None,                         // 6
+        None,                         // 7
+        None,                         // 8
+        None,                         // 9
+        None,                         // 10
+        None,                         // 11
+        None,                         // 12
+    ]
+    .iter()
+    .enumerate()
+    {
+        assert_eq!(expect_path, &paths.path_to(v));
+    }
+}
+
+#[test]
+fn breadth_first_paths() {
+    let i = TINY_DG;
+    let graph = Digraph::from_str(i).unwrap();
+    let paths = BreadthFirstPaths::new(&graph, 3);
+    for (v, expect_path) in vec![
+        Some(vec![3, 2, 0]),    // 0
+        Some(vec![3, 2, 0, 1]), // 1
+        Some(vec![3, 2]),       // 2
+        Some(vec![3]),          // 3
+        Some(vec![3, 5, 4]),    // 4
+        Some(vec![3, 5]),       // 5
+        None,                   // 6
+        None,                   // 7
+        None,                   // 8
+        None,                   // 9
+        None,                   // 10
+        None,                   // 11
+        None,                   // 12
+    ]
+    .iter()
+    .enumerate()
+    {
+        assert_eq!(expect_path, &paths.path_to(v));
+        let expect_dist = expect_path.as_ref().map_or(usize::MAX, |v| v.len() - 1);
+        assert_eq!(expect_dist, paths.dist_to(v));
+    }
+}
 
 #[test]
 fn search() {
@@ -46,4 +104,37 @@ fn scc() {
     let graph = Digraph::from_str(i).unwrap();
     let scc = KosarajuSCC::new(&graph);
     assert_eq!(5, scc.count());
+}
+
+#[test]
+fn transitive_closure() {
+    let i = TINY_DG;
+    let graph = Digraph::from_str(i).unwrap();
+    let tc = TransitiveClosure::new(&graph);
+    let expect = vec![
+        vec![1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0], // 0
+        vec![0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], // 1
+        vec![1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0], // 2
+        vec![1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0], // 3
+        vec![1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0], // 4
+        vec![1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0], // 5
+        vec![1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1], // 6
+        vec![1; 13],                                 // 7
+        vec![1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1], // 8
+        vec![1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1], // 9
+        vec![1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1], // 10
+        vec![1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1], // 11
+        vec![1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1], // 12
+    ];
+    for v in 0..graph.V() {
+        for w in 0..graph.V() {
+            assert_eq!(
+                expect[v][w],
+                if tc.reachable(v, w) { 1 } else { 0 },
+                "v = {}, w = {}, ",
+                v,
+                w
+            );
+        }
+    }
 }
