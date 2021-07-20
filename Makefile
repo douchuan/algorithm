@@ -20,8 +20,12 @@ stats:
 	@echo "codes: "
 	@cloc . --exclude-dir=target
 	@echo
+	@echo
 	@echo "commits: "
 	@git log --oneline | wc -l
+	@echo "first commit: "
+	@git rev-list --max-parents=0 HEAD | git --no-pager log --pretty=%cd --date=short --stdin
+	@echo
 	@echo
 	@echo "disk:"
 	@du -d 1 -h target
