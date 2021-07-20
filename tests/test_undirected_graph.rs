@@ -1,4 +1,4 @@
-use algo::graph::undirected::{Cycle, DepthFirstSearch, Graph, Search, TowColor, CC};
+use algo::graph::undirected::{Bipartite, Cycle, DepthFirstSearch, Graph, NonRecursiveDFS, CC};
 use algo::graph::util::{BreadthFirstPaths, DepthFirstPaths, Paths, SymbolGraph};
 use algo::graph::IGraph;
 use std::path::PathBuf;
@@ -50,16 +50,24 @@ fn parser() {
 }
 
 #[test]
-fn search() {
+fn dfs() {
     let graph = create_graph(TINY_G);
-    let search = DepthFirstSearch::new(&graph, 0);
-    assert_ne!(search.count(), graph.V());
-    assert!(vec![1, 2, 3, 4, 5, 6].iter().all(|&w| search.marked(w)));
-    assert!(vec![7, 8, 9, 10, 11, 12].iter().all(|&w| !search.marked(w)));
+    let dfs = DepthFirstSearch::new(&graph, 0);
+    assert_ne!(dfs.count(), graph.V());
+    assert!(vec![1, 2, 3, 4, 5, 6].iter().all(|&w| dfs.marked(w)));
+    assert!(vec![7, 8, 9, 10, 11, 12].iter().all(|&w| !dfs.marked(w)));
 }
 
 #[test]
-fn depth_first_paths() {
+fn non_recursive_dfs() {
+    let graph = create_graph(TINY_G);
+    let dfs = NonRecursiveDFS::new(&graph, 0);
+    assert!(vec![1, 2, 3, 4, 5, 6].iter().all(|&w| dfs.marked(w)));
+    assert!(vec![7, 8, 9, 10, 11, 12].iter().all(|&w| !dfs.marked(w)));
+}
+
+#[test]
+fn dfs_paths() {
     let graph = create_graph(TINY_CG);
     let paths = DepthFirstPaths::new(&graph, 0);
     for (v, expect_path) in vec![
@@ -78,7 +86,7 @@ fn depth_first_paths() {
 }
 
 #[test]
-fn breadth_first_paths() {
+fn bfs_paths() {
     let graph = create_graph(TINY_CG);
     let paths = BreadthFirstPaths::new(&graph, 0);
     for (v, expect_path) in vec![
@@ -99,15 +107,16 @@ fn breadth_first_paths() {
 }
 
 #[test]
-fn bfs_connected_components() {
+fn cc() {
     let graph = create_graph(TINY_G);
     let cc = CC::new(&graph);
     assert_eq!(cc.count(), 3);
-    assert!(cc.connected(0, 5));
-    assert!(!cc.connected(7, 9));
-    assert_eq!(cc.id(0), 0);
-    assert_eq!(cc.id(7), 1);
-    assert_eq!(cc.id(9), 2);
+    let mut components = vec![Vec::new(); cc.count()];
+    for v in 0..graph.V() {
+        components[cc.id(v)].push(v);
+    }
+    let expect = vec![vec![0, 1, 2, 3, 4, 5, 6], vec![7, 8], vec![9, 10, 11, 12]];
+    assert_eq!(expect, components);
 }
 
 #[test]
@@ -115,12 +124,16 @@ fn cycle() {
     let graph = create_graph(TINY_G);
     let c = Cycle::new(&graph);
     assert!(c.has_cycle());
+    assert_eq!(
+        vec![3usize, 5, 4, 3],
+        c.cycle().unwrap().cloned().collect::<Vec<_>>()
+    );
 }
 
 #[test]
 fn two_color() {
     let graph = create_graph(TINY_G);
-    let c = TowColor::new(&graph);
+    let c = Bipartite::new(&graph);
     assert!(!c.is_bipartite());
 }
 

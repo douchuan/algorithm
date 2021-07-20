@@ -6,19 +6,23 @@
 //!
 //! |  Problem                         |    Solution
 //! |----------------------------------|------------------------------------------
-//! | single source connectivity       |    DepthFirstSearch (search.rs)         |
+//! | single source connectivity       |    DepthFirstSearch (dfs)         |
 //! | single source paths              |    DepthFirstPaths (util/paths.rs)      |
 //! | single source shortest paths     |    BreadthFirstPaths (util/paths.rs)    |
 //! | connectivity                     |    CC (cc.rs)                           |
-//! | cycle detection                  |    Cycle (detection.rs)                 |
-//! | two-color (bipartite)            |    TwoColor (detection.rs)              |
+//! | cycle detection                  |    Cycle (bipartite)                 |
+//! | two-color (bipartite)            |    TwoColor (bipartite)              |
 //!
+pub use bipartite::Bipartite;
 pub use cc::CC;
-pub use detection::{Cycle, TowColor};
+pub use cycle::Cycle;
+pub use dfs::DepthFirstSearch;
+pub use dfs2::NonRecursiveDFS;
 pub use graph::Graph;
-pub use search::{DepthFirstSearch, Search};
 
+mod bipartite;
 mod cc;
-mod detection;
+mod cycle;
+mod dfs;
+mod dfs2;
 mod graph;
-mod search;

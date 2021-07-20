@@ -10,8 +10,8 @@ pub struct Topological {
 
 impl Topological {
     pub fn new(graph: &Box<dyn IGraph>) -> Self {
-        let cycle_finder = DirectedCycle::new(graph);
-        let order = if cycle_finder.has_cycle() {
+        let cycle = DirectedCycle::new(graph);
+        let order = if cycle.has_cycle() {
             None
         } else {
             let dfs = DepthFirstOrders::new(graph);

@@ -1,13 +1,5 @@
 use crate::graph::IGraph;
 
-/// 检测环
-/// Is a given graph acylic (无环图) ?
-/// 给定的图是无环图吗 ?
-pub struct Cycle {
-    marked: Vec<bool>,
-    has_cycle: bool,
-}
-
 /// 双色问题
 /// Can the vertices of a given graph be assigned one of two colors
 /// in such a way that no edge connects vertices of the same color?
@@ -24,77 +16,70 @@ pub struct Cycle {
 /// performers.
 /// Note that the graph is a bipartite graph—there are no edges connecting
 /// performers to performers or movies to movies.
-pub struct TowColor {
+pub struct Bipartite {
     marked: Vec<bool>,
     color: Vec<bool>,
-    is_two_colorable: bool,
+    edge_to: Vec<usize>,
+    cycle: Option<Vec<usize>>,
+    is_bipartite: bool,
 }
 
-impl Cycle {
+impl Bipartite {
     pub fn new(g: &Box<dyn IGraph>) -> Self {
-        let mut cc = Self {
-            marked: vec![false; g.V()],
-            has_cycle: false,
-        };
-
-        for s in 0..g.V() {
-            if !cc.marked[s] {
-                cc.dfs(g, s, s);
-            }
-        }
-
-        cc
-    }
-
-    pub fn has_cycle(&self) -> bool {
-        self.has_cycle
-    }
-}
-
-impl Cycle {
-    fn dfs(&mut self, g: &Box<dyn IGraph>, v: usize, u: usize) {
-        self.marked[v] = true;
-        for &w in g.adj(v) {
-            if !self.marked[w] {
-                self.dfs(g, w, v);
-            } else if w != u {
-                self.has_cycle = true;
-            }
-        }
-    }
-}
-
-impl TowColor {
-    pub fn new(g: &Box<dyn IGraph>) -> Self {
-        let mut c = Self {
+        let mut tc = Self {
             marked: vec![false; g.V()],
             color: vec![false; g.V()],
-            is_two_colorable: true,
+            edge_to: vec![0; g.V()],
+            cycle: None,
+            is_bipartite: true,
         };
 
         for s in 0..g.V() {
-            if !c.marked[s] {
-                c.dfs(g, s);
+            if !tc.marked[s] {
+                tc.dfs(g, s);
             }
         }
 
-        c
+        tc
     }
 
     pub fn is_bipartite(&self) -> bool {
-        self.is_two_colorable
+        self.is_bipartite
+    }
+
+    /// Returns the side of the bipartite that vertex v is on.
+    pub fn color(&self, v: usize) -> bool {
+        if !self.is_bipartite {
+            panic!("graph is not bipartite");
+        }
+        self.color[v]
     }
 }
 
-impl TowColor {
+impl Bipartite {
     fn dfs(&mut self, g: &Box<dyn IGraph>, v: usize) {
         self.marked[v] = true;
         for &w in g.adj(v) {
+            // short circuit if odd-length cycle found
+            if self.cycle.is_some() {
+                return;
+            }
+
             if !self.marked[w] {
+                self.edge_to[w] = v;
                 self.color[w] = !self.color[v];
                 self.dfs(g, w);
             } else if self.color[w] == self.color[v] {
-                self.is_two_colorable = false;
+                self.is_bipartite = false;
+                let mut cycle = Vec::new();
+                cycle.push(w);
+                let mut x = v;
+                while x != w {
+                    cycle.push(x);
+                    x = self.edge_to[x];
+                }
+                cycle.push(w);
+                self.cycle = Some(cycle);
             }
         }
     }

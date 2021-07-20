@@ -12,7 +12,7 @@ pub struct DepthFirstOrders {
 
 impl DepthFirstOrders {
     pub fn new(graph: &Box<dyn IGraph>) -> Self {
-        let mut v = Self {
+        let mut order = Self {
             marked: vec![false; graph.V()],
             pre: Vec::with_capacity(graph.V()),
             post: Vec::with_capacity(graph.V()),
@@ -20,12 +20,12 @@ impl DepthFirstOrders {
         };
 
         for s in 0..graph.V() {
-            if !v.marked[s] {
-                v.dfs(graph, s);
+            if !order.marked[s] {
+                order.dfs(graph, s);
             }
         }
 
-        v
+        order
     }
 
     pub fn pre(&self) -> Iter<'_, usize> {

@@ -7,22 +7,24 @@ pub struct DirectedDFS {
 impl DirectedDFS {
     /// find vertices in G that are reachable from s
     pub fn new_single(graph: &Box<dyn IGraph>, s: usize) -> Self {
-        let marked = vec![false; graph.V()];
-        let mut search = Self { marked };
-        search.dfs(graph, s);
-        search
+        let mut dfs = Self {
+            marked: vec![false; graph.V()],
+        };
+        dfs.dfs(graph, s);
+        dfs
     }
 
     /// find vertices in G that are reachable from sources
     pub fn new_multi(graph: &Box<dyn IGraph>, sources: &[usize]) -> Self {
-        let marked = vec![false; graph.V()];
-        let mut search = Self { marked };
+        let mut dfs = Self {
+            marked: vec![false; graph.V()],
+        };
         for &s in sources {
-            if !search.marked[s] {
-                search.dfs(graph, s);
+            if !dfs.marked[s] {
+                dfs.dfs(graph, s);
             }
         }
-        search
+        dfs
     }
 
     /// is v reachable?

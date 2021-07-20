@@ -25,22 +25,18 @@ pub struct DirectedCycle {
 
 impl DirectedCycle {
     pub fn new(graph: &Box<dyn IGraph>) -> Self {
-        let marked = vec![false; graph.V()];
-        let edge_to = vec![0; graph.V()];
-        let cycle = None;
-        let on_stack = vec![false; graph.V()];
-        let mut c = Self {
-            marked,
-            edge_to,
-            cycle,
-            on_stack,
+        let mut cycle = Self {
+            marked: vec![false; graph.V()],
+            edge_to: vec![0; graph.V()],
+            cycle: None,
+            on_stack: vec![false; graph.V()],
         };
         for s in 0..graph.V() {
-            if !c.marked[s] {
-                c.dfs(graph, s);
+            if !cycle.marked[s] {
+                cycle.dfs(graph, s);
             }
         }
-        c
+        cycle
     }
 
     /// does G have a directed cycle?
