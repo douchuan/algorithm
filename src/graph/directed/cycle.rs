@@ -12,14 +12,15 @@
 //! If so, find the vertices on some such cycle, in order from
 //! some vertex back to itself.
 
+use crate::common::Stack;
 use crate::graph::IGraph;
-use std::slice::Iter;
+use crate::ll::linked_list::Iter;
 
 /// cycle-finding
 pub struct DirectedCycle {
     marked: Vec<bool>,
     edge_to: Vec<usize>,
-    cycle: Option<Vec<usize>>,
+    cycle: Option<Stack<usize>>,
     on_stack: Vec<bool>,
 }
 
@@ -32,7 +33,7 @@ impl DirectedCycle {
             on_stack: vec![false; graph.V()],
         };
         for s in 0..graph.V() {
-            if !cycle.marked[s] {
+            if !cycle.marked[s] && cycle.cycle.is_none() {
                 cycle.dfs(graph, s);
             }
         }
@@ -55,13 +56,19 @@ impl DirectedCycle {
         self.on_stack[v] = true;
         self.marked[v] = true;
         for &w in graph.adj(v) {
-            if self.has_cycle() {
+            // short circuit if directed cycle found
+            if self.cycle.is_some() {
                 return;
-            } else if !self.marked[w] {
+            }
+
+            // found new vertex, so recur
+            if !self.marked[w] {
                 self.edge_to[w] = v;
                 self.dfs(graph, w);
-            } else if self.on_stack[w] {
-                let mut cycle = Vec::new();
+            }
+            // trace back directed cycle
+            else if self.on_stack[w] {
+                let mut cycle = Stack::new();
                 let mut x = v;
                 while x != w {
                     cycle.push(x);
@@ -69,7 +76,6 @@ impl DirectedCycle {
                 }
                 cycle.push(w);
                 cycle.push(v);
-                cycle.reverse();
                 self.cycle = Some(cycle);
             }
         }

@@ -30,7 +30,6 @@ impl NonRecursiveDFS {
     fn mark(&mut self, graph: &Box<dyn IGraph>, s: usize) {
         let mut adj = Vec::with_capacity(graph.V());
         for v in 0..graph.V() {
-            // adj[v].extend(graph.adj(v));
             adj.push(graph.adj(v));
         }
 
@@ -38,7 +37,7 @@ impl NonRecursiveDFS {
         stack.push(s);
         self.marked[s] = true;
 
-        while let Some(&v) = stack.last() {
+        while let Some(&v) = stack.peek() {
             if let Some(&w) = adj[v].next() {
                 if !self.marked[w] {
                     self.marked[w] = true;

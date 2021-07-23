@@ -1,5 +1,6 @@
+use crate::common::Stack;
 use crate::graph::IGraph;
-use std::collections::{linked_list, LinkedList};
+use crate::ll::linked_list;
 use std::slice::Iter;
 
 pub struct DepthFirstOrders {
@@ -7,7 +8,7 @@ pub struct DepthFirstOrders {
 
     pre: Vec<usize>,
     post: Vec<usize>,
-    rev_post: LinkedList<usize>,
+    rev_post: Stack<usize>,
 }
 
 impl DepthFirstOrders {
@@ -16,7 +17,7 @@ impl DepthFirstOrders {
             marked: vec![false; graph.V()],
             pre: Vec::with_capacity(graph.V()),
             post: Vec::with_capacity(graph.V()),
-            rev_post: LinkedList::new(),
+            rev_post: Stack::new(),
         };
 
         for s in 0..graph.V() {
@@ -53,6 +54,6 @@ impl DepthFirstOrders {
         }
 
         self.post.push(v);
-        self.rev_post.push_front(v);
+        self.rev_post.push(v);
     }
 }

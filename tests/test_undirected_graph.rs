@@ -15,11 +15,11 @@ fn parser() {
     assert_eq!("abc\n".strip_suffix("\n"), Some("abc"));
 
     //test parser
-    let s = TINY_G;
-    let s = s.strip_suffix("\n").unwrap_or(s);
-    let graph = Graph::from_str(s).unwrap();
-    assert_eq!(graph.E(), 13);
+    let i = TINY_G;
+    let i = i.strip_suffix("\n").unwrap_or(i);
+    let graph = Graph::from_str(i).unwrap();
     assert_eq!(graph.V(), 13);
+    assert_eq!(graph.E(), 13);
 
     let expect = vec![6, 2, 1, 5];
     let adj0 = graph.adj(0);
@@ -124,10 +124,7 @@ fn cycle() {
     let graph = create_graph(TINY_G);
     let c = Cycle::new(&graph);
     assert!(c.has_cycle());
-    assert_eq!(
-        vec![3usize, 5, 4, 3],
-        c.cycle().unwrap().cloned().collect::<Vec<_>>()
-    );
+    assert!(c.cycle().unwrap().eq(vec![3, 4, 5, 3].iter()));
 }
 
 #[test]

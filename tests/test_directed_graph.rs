@@ -6,11 +6,21 @@ use algo::graph::IGraph;
 use std::str::FromStr;
 
 const TINY_DG: &'static str = include_str!("res/graph/tinyDG.txt");
+const TINY_DAG: &'static str = include_str!("res/graph/tinyDAG.txt");
 const JOBS: &'static str = include_str!("res/graph/jobs.txt");
 
 #[test]
-fn depth_first_paths() {
-    let graph = create_digraph();
+fn parser() {
+    //test parser
+    let i = TINY_DG;
+    let graph = Digraph::from_str(i).unwrap();
+    assert_eq!(graph.V(), 13);
+    assert_eq!(graph.E(), 22);
+}
+
+#[test]
+fn dfs_paths() {
+    let graph = create_digraph(TINY_DG);
     let paths = DepthFirstPaths::new(&graph, 3);
     for (v, expect_path) in vec![
         Some(vec![3, 5, 4, 2, 0]),    // 0
@@ -35,8 +45,8 @@ fn depth_first_paths() {
 }
 
 #[test]
-fn breadth_first_paths() {
-    let graph = create_digraph();
+fn bfs_paths() {
+    let graph = create_digraph(TINY_DG);
     let paths = BreadthFirstPaths::new(&graph, 3);
     for (v, expect_path) in vec![
         Some(vec![3, 2, 0]),    // 0
@@ -64,7 +74,7 @@ fn breadth_first_paths() {
 
 #[test]
 fn search() {
-    let graph = create_digraph();
+    let graph = create_digraph(TINY_DG);
     let reach = DirectedDFS::new_single(&graph, 1);
     assert!(!reach.marked(0));
     assert!(reach.marked(1));
@@ -75,14 +85,20 @@ fn search() {
 
 #[test]
 fn cycle() {
-    let graph = create_digraph();
+    let graph = create_digraph(TINY_DG);
     let cycle = DirectedCycle::new(&graph);
     assert!(cycle.has_cycle());
+    assert!(cycle.cycle().unwrap().eq(vec![3, 5, 4, 3].iter()));
+
+    //DAG
+    let graph = create_digraph(TINY_DAG);
+    let cycle = DirectedCycle::new(&graph);
+    assert!(!cycle.has_cycle());
 }
 
 #[test]
 fn topological() {
-    let graph = create_digraph();
+    let graph = create_digraph(TINY_DG);
     let cycle = Topological::new(&graph);
     assert!(!cycle.is_dag());
 
@@ -95,14 +111,14 @@ fn topological() {
 
 #[test]
 fn scc() {
-    let graph = create_digraph();
+    let graph = create_digraph(TINY_DG);
     let scc = KosarajuSCC::new(&graph);
     assert_eq!(5, scc.count());
 }
 
 #[test]
 fn transitive_closure() {
-    let graph = create_digraph();
+    let graph = create_digraph(TINY_DG);
     let tc = TransitiveClosure::new(&graph);
     let expect = vec![
         vec![1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0], // 0
@@ -132,7 +148,6 @@ fn transitive_closure() {
     }
 }
 
-fn create_digraph() -> Box<dyn IGraph> {
-    let i = TINY_DG;
+fn create_digraph(i: &str) -> Box<dyn IGraph> {
     Box::new(Digraph::from_str(i).unwrap())
 }

@@ -1,6 +1,7 @@
 use nom::bytes::complete::{is_not, tag};
 use nom::character::complete::{digit1, space0};
 use nom::multi::separated_list1;
+use nom::number::complete::float;
 use nom::sequence::tuple;
 use nom::IResult;
 use std::fmt::Debug;
@@ -15,6 +16,11 @@ where
     Ok((i, v.parse().unwrap()))
 }
 
+pub fn parse_float(i: &str) -> nom::IResult<&str, f32> {
+    let (i, (_, v)) = tuple((space0, float))(i)?;
+    Ok((i, v))
+}
+
 /// 用空格分割的两个数字
 /// "1 2"
 pub fn parse_list_num<K>(i: &str) -> nom::IResult<&str, Vec<K>>
@@ -24,6 +30,11 @@ where
 {
     let sep = " ";
     separated_list1(tag(sep), parse_num)(i)
+}
+
+pub fn parse_list_float(i: &str) -> nom::IResult<&str, Vec<f32>> {
+    let sep = " ";
+    separated_list1(tag(sep), parse_float)(i)
 }
 
 /// 用sep分割的字符串
@@ -49,4 +60,5 @@ fn t() {
         parse_list_str("aaa, (1991)/bbb, 111/ccc (C)", "/"),
         Ok(("", vec!["aaa, (1991)", "bbb, 111", "ccc (C)"]))
     );
+    assert_eq!(parse_list_float("4 5 0.35"), Ok(("", vec![4.0, 5.0, 0.35])));
 }

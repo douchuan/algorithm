@@ -31,12 +31,6 @@ impl TransitiveClosure {
 
     /// Is there a directed path from vertex v to vertex w in the digraph?
     pub fn reachable(&self, v: usize, w: usize) -> bool {
-        #[allow(non_snake_case)]
-        let V = self.tc.len();
-        if v < V && w < V {
-            self.tc[v].marked(w)
-        } else {
-            false
-        }
+        self.tc[v].marked(w)
     }
 }

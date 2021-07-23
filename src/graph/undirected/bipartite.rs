@@ -1,3 +1,4 @@
+use crate::common::Stack;
 use crate::graph::IGraph;
 
 /// 双色问题
@@ -20,7 +21,7 @@ pub struct Bipartite {
     marked: Vec<bool>,
     color: Vec<bool>,
     edge_to: Vec<usize>,
-    cycle: Option<Vec<usize>>,
+    cycle: Option<Stack<usize>>,
     is_bipartite: bool,
 }
 
@@ -71,7 +72,7 @@ impl Bipartite {
                 self.dfs(g, w);
             } else if self.color[w] == self.color[v] {
                 self.is_bipartite = false;
-                let mut cycle = Vec::new();
+                let mut cycle = Stack::new();
                 cycle.push(w);
                 let mut x = v;
                 while x != w {

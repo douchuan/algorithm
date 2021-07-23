@@ -13,12 +13,13 @@
 //! Each instance method takes O(1) time.
 //! It uses O(V) extra space (not including the graph).
 
+use crate::common::Stack;
 use crate::graph::IGraph;
-use std::slice::Iter;
+use crate::ll::linked_list::Iter;
 
 pub struct Cycle {
     marked: Vec<bool>,
-    cycle: Option<Vec<usize>>,
+    cycle: Option<Stack<usize>>,
     edge_to: Vec<usize>,
 }
 
@@ -65,7 +66,7 @@ impl Cycle {
                 self.edge_to[w] = v;
                 self.dfs(g, w, v);
             } else if w != u {
-                let mut cycle = Vec::new();
+                let mut cycle = Stack::new();
                 let mut x = v;
                 while x != w {
                     cycle.push(x);
@@ -85,7 +86,7 @@ impl Cycle {
         for v in 0..graph.V() {
             for &w in graph.adj(v) {
                 if self.marked[w] {
-                    let mut cycle = Vec::with_capacity(3);
+                    let mut cycle = Stack::new();
                     cycle.push(v);
                     cycle.push(w);
                     cycle.push(v);

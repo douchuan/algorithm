@@ -3,7 +3,7 @@
 //! 根据堆的性质，可以很容易地从堆顶获取最小(或最大)元素。我们可
 //! 以从待排序的元素构建一个堆，然后不断将最小元素弹出直到堆变空。
 
-use crate::common::heap::{self, BinaryHeap};
+use crate::common::max_heap::{self, BinaryHeap};
 
 pub fn sort<T>(a: &[T]) -> Vec<T>
 where
@@ -30,12 +30,12 @@ where
     T: Ord,
 {
     // 构建最大堆
-    heap::build_heap(a);
+    max_heap::build_heap(a);
 
     let mut i = a.len();
     while i > 1 {
         i -= 1;
         a.swap(0, i);
-        heap::heapify(&mut a[0..i], 0);
+        max_heap::heapify(&mut a[0..i], 0);
     }
 }
