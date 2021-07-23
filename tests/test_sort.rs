@@ -99,16 +99,6 @@ fn shell() {
 }
 
 #[test]
-fn heap_sort() {
-    let data = sort::util::plan_data();
-    for (t, expect) in data {
-        let mut tt = sort::heap::sort(&t);
-        tt.reverse();
-        assert_eq!(tt, expect, "tt = {:?}, expect = {:?}", tt, expect);
-    }
-}
-
-#[test]
 fn heap_sort_floyd() {
     let data = sort::util::plan_data();
     for (t, expect) in data {

@@ -49,8 +49,6 @@ impl<T: Default> MinPQ<T> {
             n: 0,
         };
 
-        // fixme: 0 作为 pq 的起始位置
-        // placeholder, 0 element not used
         pq.pq.push(T::default());
 
         pq
@@ -80,8 +78,6 @@ impl<T: PartialOrd + Default> MinPQ<T> {
             n,
         };
 
-        // fixme: 0 作为 pq 的起始位置
-        // placeholder, 0 element not used
         pq.pq.push(T::default());
 
         for k in keys {
@@ -150,8 +146,6 @@ impl<T: Default> MaxPQ<T> {
             n: 0,
         };
 
-        // fixme: 0 作为 pq 的起始位置
-        // placeholder, 0 element not used
         pq.pq.push(T::default());
 
         pq
@@ -181,8 +175,6 @@ impl<T: PartialOrd + Default> MaxPQ<T> {
             n,
         };
 
-        // fixme: 0 作为 pq 的起始位置
-        // placeholder, 0 element not used
         pq.pq.push(T::default());
 
         for k in keys {

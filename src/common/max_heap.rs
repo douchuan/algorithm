@@ -32,7 +32,7 @@ macro_rules! parent {
 
 /// 用数组实现隐式二叉堆 (最大堆)
 pub struct BinaryHeap<K> {
-    keys: Vec<K>,
+    keys: Vec<K>, // 索引从0开始
 }
 
 impl<K> BinaryHeap<K>
