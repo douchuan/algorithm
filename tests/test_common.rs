@@ -1,6 +1,26 @@
-use algo::common::{MaxPQ, MinPQ, Stack};
+use algo::common::{MaxPQ, MinPQ, Queue, Stack};
 
 const TOBE: &'static str = include_str!("res/common/tobe.txt");
+
+#[test]
+fn queue() {
+    let v: Vec<&str> = TOBE.split(' ').collect();
+    let mut queue = Queue::new();
+    let mut r = Vec::new();
+    for s in v {
+        match s {
+            "-" => {
+                if let Some(s) = queue.dequeue() {
+                    r.push(s);
+                }
+            }
+            _ => queue.enqueue(s),
+        }
+    }
+
+    assert_eq!("to be or not to be", r.join(" "));
+    assert_eq!(2, queue.len());
+}
 
 #[test]
 fn stack() {
