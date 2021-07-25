@@ -30,9 +30,11 @@
 
 mod edge;
 mod ewgraph;
+mod lazy_prim_mst;
 
 pub use edge::Edge;
 pub use ewgraph::EWGraph;
+pub use lazy_prim_mst::LazyPrimMST;
 
 pub trait MST {
     /// Returns the edges in a minimum spanning tree (or forest)
