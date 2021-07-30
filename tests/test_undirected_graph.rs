@@ -70,8 +70,8 @@ fn non_recursive_dfs() {
 fn dfs_paths() {
     let graph = create_graph(TINY_CG);
     let paths = DepthFirstPaths::new(&graph, 0);
-    for (v, expect_path) in vec![
-        Some(vec![0]),          // 0
+    for (v, expect) in vec![
+        Some(vec![0usize]),     // 0
         Some(vec![0, 2, 1]),    // 1
         Some(vec![0, 2]),       // 2
         Some(vec![0, 2, 3]),    // 3
@@ -81,7 +81,10 @@ fn dfs_paths() {
     .iter()
     .enumerate()
     {
-        assert_eq!(expect_path, &paths.path_to(v));
+        let paths: Option<Vec<usize>> = paths
+            .path_to(v)
+            .and_then(|paths| Some(paths.iter().map(|&v| v).collect()));
+        assert_eq!(expect, &paths);
     }
 }
 
@@ -89,8 +92,8 @@ fn dfs_paths() {
 fn bfs_paths() {
     let graph = create_graph(TINY_CG);
     let paths = BreadthFirstPaths::new(&graph, 0);
-    for (v, expect_path) in vec![
-        Some(vec![0]),       // 0
+    for (v, expect) in vec![
+        Some(vec![0usize]),  // 0
         Some(vec![0, 1]),    // 1
         Some(vec![0, 2]),    // 2
         Some(vec![0, 2, 3]), // 3
@@ -100,8 +103,13 @@ fn bfs_paths() {
     .iter()
     .enumerate()
     {
-        assert_eq!(expect_path, &paths.path_to(v));
-        let expect_dist = expect_path.as_ref().map_or(usize::MAX, |v| v.len() - 1);
+        {
+            let paths: Option<Vec<usize>> = paths
+                .path_to(v)
+                .and_then(|paths| Some(paths.iter().map(|&v| v).collect()));
+            assert_eq!(expect, &paths);
+        }
+        let expect_dist = expect.as_ref().map_or(usize::MAX, |v| v.len() - 1);
         assert_eq!(expect_dist, paths.dist_to(v));
     }
 }

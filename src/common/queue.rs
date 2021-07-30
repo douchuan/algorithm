@@ -22,26 +22,32 @@ impl<T> Queue<T> {
         Self { ll }
     }
 
+    /// Adds the item to this queue
     pub fn enqueue(&mut self, v: T) {
         self.ll.push_back(v);
     }
 
+    /// Removes and returns the item on this queue that was least recently added
     pub fn dequeue(&mut self) -> Option<T> {
         self.ll.pop_front()
     }
 
+    /// Returns the item least recently added to this queue
     pub fn peek(&self) -> Option<&T> {
         self.ll.first()
     }
 
+    /// Returns an iterator that iterates over the items in this queue in FIFO order
     pub fn iter(&self) -> Iter<'_, T> {
         self.ll.iter()
     }
 
+    /// Returns the number of items in this queue
     pub fn len(&self) -> usize {
         self.ll.len()
     }
 
+    /// Returns true if this queue is empty
     pub fn is_empty(&self) -> bool {
         self.ll.is_empty()
     }

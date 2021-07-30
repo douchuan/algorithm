@@ -1,7 +1,7 @@
 #[macro_use]
 pub(crate) mod macros;
 
-pub(crate) mod parser;
+pub mod parser;
 mod paths;
 mod symbol_graph;
 

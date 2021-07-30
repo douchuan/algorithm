@@ -1,4 +1,5 @@
 #![feature(iter_partition_in_place)]
+#![feature(stmt_expr_attributes)]
 #![feature(test)]
 extern crate test;
 

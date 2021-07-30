@@ -1,4 +1,7 @@
-use algo::graph::mst::EWGraph;
+#[macro_use]
+extern crate approx;
+
+use algo::graph::mst::{EWGraph, LazyPrimMST, MST};
 use algo::graph::IEWGraph;
 use std::str::FromStr;
 
@@ -7,7 +10,7 @@ const TINY_EWG: &'static str = include_str!("res/graph/tinyEWG.txt");
 #[test]
 fn parse() {
     let i = TINY_EWG;
-    let graph = EWGraph::from_str(i).unwrap();
+    let graph = create_graph(i);
     assert_eq!(graph.V(), 8);
     assert_eq!(graph.E(), 16);
     /*
@@ -22,4 +25,21 @@ fn parse() {
     7: 2-7 0.34000  1-7 0.19000  0-7 0.16000  5-7 0.28000  4-7 0.37000
          */
     // println!("{}", graph.to_string());
+}
+
+#[test]
+fn lazy_prim_mst() {
+    let i = TINY_EWG;
+    let g = create_graph(i);
+    let mst = LazyPrimMST::new(&g);
+    assert_relative_eq!(1.81, mst.weight());
+    assert!(mst.check(&g));
+
+    // for e in mst.edges() {
+    //     println!("{}", e.to_string());
+    // }
+}
+
+fn create_graph(i: &str) -> Box<dyn IEWGraph> {
+    Box::new(EWGraph::from_str(i).unwrap())
 }

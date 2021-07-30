@@ -14,7 +14,7 @@ where
         match xs[m].cmp(&k) {
             Ordering::Equal => return Some(m),
             Ordering::Less => l = m + 1,
-            _ => u = m,
+            Ordering::Greater => u = m,
         }
     }
 

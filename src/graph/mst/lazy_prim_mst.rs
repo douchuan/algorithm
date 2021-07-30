@@ -1,5 +1,5 @@
-use crate::common::{MinPQ, Queue};
-use crate::graph::mst::Edge;
+use crate::common::{Queue, PQ, UF};
+use crate::graph::mst::{Edge, MST};
 use crate::graph::IEWGraph;
 use crate::ll::linked_list::Iter;
 
@@ -7,7 +7,7 @@ pub struct LazyPrimMST {
     weight: f32,
     mst: Queue<Edge>,
     marked: Vec<bool>,
-    pq: MinPQ<Edge>,
+    pq: PQ<Edge>,
 }
 
 impl LazyPrimMST {
@@ -16,21 +16,25 @@ impl LazyPrimMST {
             weight: 0.0,
             mst: Queue::new(),
             marked: vec![false; g.V()],
-            pq: MinPQ::new(),
+            pq: PQ::new_min_pq(1),
         };
+
         for v in 0..g.V() {
             if !mst.marked[v] {
                 mst.prim(g, v);
             }
         }
+
         mst
     }
+}
 
-    pub fn edges(&self) -> Iter<'_, Edge> {
+impl MST for LazyPrimMST {
+    fn edges(&self) -> Iter<'_, Edge> {
         self.mst.iter()
     }
 
-    pub fn weight(&self) -> f32 {
+    fn weight(&self) -> f32 {
         self.weight
     }
 }
@@ -39,19 +43,21 @@ impl LazyPrimMST {
     fn prim(&mut self, g: &Box<dyn IEWGraph>, s: usize) {
         self.scan(g, s);
         while !self.pq.is_empty() {
-            let e = self.pq.del_min().unwrap();
+            let e = self.pq.dequeue().unwrap();
             let v = e.either();
             let w = e.other(v);
             debug_assert!(self.marked[v] || self.marked[w]);
             if self.marked[v] && self.marked[w] {
                 continue;
             }
+
             self.mst.enqueue(e);
             self.weight += e.weight();
-            if self.marked[v] {
+
+            if !self.marked[v] {
                 self.scan(g, v);
             }
-            if self.marked[w] {
+            if !self.marked[w] {
                 self.scan(g, w);
             }
         }
@@ -61,8 +67,58 @@ impl LazyPrimMST {
         self.marked[v] = true;
         for e in g.adj(v) {
             if !self.marked[e.other(v)] {
-                self.pq.insert(*e);
+                self.pq.enqueue(*e);
             }
         }
+    }
+}
+
+impl LazyPrimMST {
+    pub fn check(&self, g: &Box<dyn IEWGraph>) -> bool {
+        // check that it is acyclic
+        let mut uf = UF::new(g.V());
+        for e in self.edges() {
+            let v = e.either();
+            let w = e.other(v);
+            if uf.find(v) == uf.find(w) {
+                return false;
+            }
+            uf.union(v, w);
+        }
+
+        // check that it is a spanning forest
+        for e in g.edges() {
+            let v = e.either();
+            let w = e.other(v);
+            if uf.find(v) != uf.find(w) {
+                return false;
+            }
+        }
+
+        // check that it is a minimal spanning forest (cut optimality conditions)
+        for e in self.edges() {
+            // all edges in MST except e
+            uf = UF::new(g.V());
+            for f in self.mst.iter() {
+                if f != e {
+                    let x = f.either();
+                    let y = f.other(x);
+                    uf.union(x, y);
+                }
+            }
+
+            // check that e is min weight edge in crossing cut
+            for f in g.edges() {
+                let x = f.either();
+                let y = f.other(x);
+                if uf.find(x) != uf.find(y) {
+                    if f.weight() < e.weight() {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        true
     }
 }

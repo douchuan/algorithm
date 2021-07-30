@@ -10,11 +10,14 @@ clippy:
 	@$(CARGO) clippy
 
 test:
-	#$(TEST) -- --nocapture
+	#@$(TEST) -- --nocapture
 	@$(TEST) $(ARGS)
 
 bench:
 	@$(BENCH)
+
+eg_quadratic:
+	@$(CARGO) run --example quadratic
 
 stats:
 	@echo "codes: "

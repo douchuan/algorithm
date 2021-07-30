@@ -1,3 +1,4 @@
+use crate::common::Queue;
 use crate::graph::IGraph;
 use crate::ll::linked_list::LinkedList;
 
@@ -9,9 +10,7 @@ pub trait Paths {
     /// is there a path from s to v ?
     fn has_path(&self, v: usize) -> bool;
     /// path from s to v; None if no such path
-    fn path_to(&self, v: usize) -> Option<Vec<usize>>;
-    /// true when v < g.V()
-    fn valid_vertex(&self, v: usize) -> bool;
+    fn path_to(&self, v: usize) -> Option<LinkedList<usize>>;
 }
 
 /// Run depth-first search on an undirected graph.
@@ -39,63 +38,49 @@ pub struct BreadthFirstPaths {
 
 impl Paths for DepthFirstPaths {
     fn has_path(&self, v: usize) -> bool {
-        self.valid_vertex(v) && self.marked[v]
+        self.marked[v]
     }
 
-    fn path_to(&self, v: usize) -> Option<Vec<usize>> {
+    fn path_to(&self, v: usize) -> Option<LinkedList<usize>> {
         if self.has_path(v) {
-            let mut paths = Vec::new();
+            let mut paths = LinkedList::default();
             let s = self.s;
             let mut x = v;
 
             while x != s {
-                paths.push(x);
+                paths.push_front(x);
                 x = self.edge_to[x];
             }
-            paths.push(s);
-            paths.reverse();
+            paths.push_front(s);
 
             Some(paths)
         } else {
             None
         }
-    }
-
-    fn valid_vertex(&self, v: usize) -> bool {
-        #[allow(non_snake_case)]
-        let V = self.marked.len();
-        v < V
     }
 }
 
 impl Paths for BreadthFirstPaths {
     fn has_path(&self, v: usize) -> bool {
-        self.valid_vertex(v) && self.marked[v]
+        self.marked[v]
     }
 
-    fn path_to(&self, v: usize) -> Option<Vec<usize>> {
+    fn path_to(&self, v: usize) -> Option<LinkedList<usize>> {
         if self.has_path(v) {
-            let mut paths = Vec::new();
+            let mut paths = LinkedList::default();
             let s = self.s;
             let mut x = v;
 
             while x != s {
-                paths.push(x);
+                paths.push_front(x);
                 x = self.edge_to[x];
             }
-            paths.push(s);
-            paths.reverse();
+            paths.push_front(s);
 
             Some(paths)
         } else {
             None
         }
-    }
-
-    fn valid_vertex(&self, v: usize) -> bool {
-        #[allow(non_snake_case)]
-        let V = self.marked.len();
-        v < V
     }
 }
 
@@ -135,25 +120,21 @@ impl BreadthFirstPaths {
     }
 
     pub fn dist_to(&self, v: usize) -> usize {
-        if !self.valid_vertex(v) {
-            usize::MAX
-        } else {
-            self.dist_to[v]
-        }
+        self.dist_to[v]
     }
 
     fn bfs(&mut self, g: &Box<dyn IGraph>, s: usize) {
-        let mut queue = LinkedList::default();
+        let mut queue = Queue::new();
         self.marked[s] = true;
         self.dist_to[s] = 0;
-        queue.push_back(s);
-        while let Some(v) = queue.pop_front() {
+        queue.enqueue(s);
+        while let Some(v) = queue.dequeue() {
             for &w in g.adj(v) {
                 if !self.marked[w] {
                     self.edge_to[w] = v;
                     self.dist_to[w] = self.dist_to[v] + 1;
                     self.marked[w] = true;
-                    queue.push_back(w);
+                    queue.enqueue(w);
                 }
             }
         }

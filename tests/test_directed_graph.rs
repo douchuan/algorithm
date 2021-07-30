@@ -22,25 +22,28 @@ fn parser() {
 fn dfs_paths() {
     let graph = create_digraph(TINY_DG);
     let paths = DepthFirstPaths::new(&graph, 3);
-    for (v, expect_path) in vec![
-        Some(vec![3, 5, 4, 2, 0]),    // 0
-        Some(vec![3, 5, 4, 2, 0, 1]), // 1
-        Some(vec![3, 5, 4, 2]),       // 2
-        Some(vec![3]),                // 3
-        Some(vec![3, 5, 4]),          // 4
-        Some(vec![3, 5]),             // 5
-        None,                         // 6
-        None,                         // 7
-        None,                         // 8
-        None,                         // 9
-        None,                         // 10
-        None,                         // 11
-        None,                         // 12
+    for (v, expect) in vec![
+        Some(vec![3usize, 5, 4, 2, 0]), // 0
+        Some(vec![3, 5, 4, 2, 0, 1]),   // 1
+        Some(vec![3, 5, 4, 2]),         // 2
+        Some(vec![3]),                  // 3
+        Some(vec![3, 5, 4]),            // 4
+        Some(vec![3, 5]),               // 5
+        None,                           // 6
+        None,                           // 7
+        None,                           // 8
+        None,                           // 9
+        None,                           // 10
+        None,                           // 11
+        None,                           // 12
     ]
     .iter()
     .enumerate()
     {
-        assert_eq!(expect_path, &paths.path_to(v));
+        let paths: Option<Vec<usize>> = paths
+            .path_to(v)
+            .and_then(|paths| Some(paths.iter().map(|&v| v).collect()));
+        assert_eq!(expect, &paths);
     }
 }
 
@@ -48,7 +51,7 @@ fn dfs_paths() {
 fn bfs_paths() {
     let graph = create_digraph(TINY_DG);
     let paths = BreadthFirstPaths::new(&graph, 3);
-    for (v, expect_path) in vec![
+    for (v, expect) in vec![
         Some(vec![3, 2, 0]),    // 0
         Some(vec![3, 2, 0, 1]), // 1
         Some(vec![3, 2]),       // 2
@@ -66,8 +69,13 @@ fn bfs_paths() {
     .iter()
     .enumerate()
     {
-        assert_eq!(expect_path, &paths.path_to(v));
-        let expect_dist = expect_path.as_ref().map_or(usize::MAX, |v| v.len() - 1);
+        {
+            let paths: Option<Vec<usize>> = paths
+                .path_to(v)
+                .and_then(|paths| Some(paths.iter().map(|&v| v).collect()));
+            assert_eq!(expect, &paths);
+        }
+        let expect_dist = expect.as_ref().map_or(usize::MAX, |v| v.len() - 1);
         assert_eq!(expect_dist, paths.dist_to(v));
     }
 }

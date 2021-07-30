@@ -32,13 +32,14 @@ mod edge;
 mod ewgraph;
 mod lazy_prim_mst;
 
+use crate::ll::linked_list::Iter;
 pub use edge::Edge;
 pub use ewgraph::EWGraph;
 pub use lazy_prim_mst::LazyPrimMST;
 
 pub trait MST {
     /// Returns the edges in a minimum spanning tree (or forest)
-    fn edges(&self) -> Vec<Edge>;
+    fn edges(&self) -> Iter<'_, Edge>;
     /// Returns the sum of the edge weights in a minimum spanning tree (or forest)
     fn weight(&self) -> f32;
 }
