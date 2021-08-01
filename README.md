@@ -25,6 +25,8 @@ My journey of algorithms in Rust.
 
 - minimum spanning trees (MST)
   - Lazy version of Prim’s MST algorithm (LazyPrimMST)
+  - Prim’s algorithm (PrimMST)
+  - Kruskal’s algorithm (KruskalMST)
 
 - search
   - Binary Search (binary.rs)

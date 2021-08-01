@@ -30,12 +30,14 @@
 
 mod edge;
 mod ewgraph;
+mod kruskal_mst;
 mod lazy_prim_mst;
 mod prim_mst;
 
 use crate::ll::linked_list::Iter;
 pub use edge::Edge;
 pub use ewgraph::EWGraph;
+pub use kruskal_mst::KruskalMST;
 pub use lazy_prim_mst::LazyPrimMST;
 pub use prim_mst::PrimMST;
 

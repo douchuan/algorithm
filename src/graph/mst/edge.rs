@@ -43,6 +43,14 @@ impl PartialEq for Edge {
     }
 }
 
+impl Ord for Edge {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.weight.partial_cmp(&other.weight).unwrap()
+    }
+}
+
+impl Eq for Edge {}
+
 impl ToString for Edge {
     fn to_string(&self) -> String {
         format!("{}-{} {:.5}", self.v, self.w, self.weight)
