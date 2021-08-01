@@ -2,14 +2,25 @@ use crate::common::{IndexPQ, UF};
 use crate::graph::mst::Edge;
 use crate::graph::IEWGraph;
 
+/// The PrimMST represents a data type for computing a
+/// minimum spanning tree in an edge-weighted graph.
+/// The edge weights can be positive, zero, or negative and need not
+/// be distinct. If the graph is not connected, it computes a minimum
+/// spanning forest, which is the union of minimum spanning trees
+/// in each connected component. The weight() method returns the
+/// weight of a minimum spanning tree and the edges() method
+/// returns its edges.
+/// This implementation uses Prim's algorithm with an indexed
+/// binary heap.
 pub struct PrimMST {
     edge_to: Vec<Option<Edge>>, // edgeTo[v] = shortest edge from tree vertex to non-tree vertex
     dist_to: Vec<f32>,          // distTo[v] = weight of shortest such edge
     marked: Vec<bool>,          // marked[v] = true if v on tree, false otherwise
-    pq: IndexPQ<f32>,
+    pq: IndexPQ<f32>,           // eligible crossing edges
 }
 
 impl PrimMST {
+    /// Compute a minimum spanning tree (or forest) of an edge-weighted graph
     pub fn new(g: &Box<dyn IEWGraph>) -> Self {
         let gv = g.V();
         let mut mst = Self {
@@ -28,6 +39,7 @@ impl PrimMST {
         mst
     }
 
+    /// Returns the edges in a minimum spanning tree (or forest)
     pub fn edges(&self) -> Vec<Edge> {
         let mut mst = Vec::new();
         for e in self.edge_to.iter() {
@@ -38,6 +50,7 @@ impl PrimMST {
         mst
     }
 
+    /// Returns the sum of the edge weights in a minimum spanning tree (or forest)
     pub fn weight(&self) -> f32 {
         let mut weight = 0.0;
         for e in self.edge_to.iter() {
@@ -48,6 +61,7 @@ impl PrimMST {
         weight
     }
 
+    /// run Prim's algorithm in graph G, starting from vertex s
     fn prim(&mut self, g: &Box<dyn IEWGraph>, s: usize) {
         let _ = self.pq.enqueue(s, 0.0);
         while !self.pq.is_empty() {
