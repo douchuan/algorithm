@@ -189,17 +189,17 @@ impl<T: PartialOrd + Copy + Clone> IndexPQ<T> {
 
     /// MinPQ: Removes a minimum key and returns its associated index
     /// MaxPQ: Removes a maximum key and returns its associated index
-    pub fn dequeue(&mut self) -> Option<i32> {
+    pub fn dequeue(&mut self) -> Option<usize> {
         if self.n == 0 {
             None
         } else {
-            let min = self.pq[1];
+            let min = self.pq[1] as usize;
             self.exch(1, self.n);
             self.n -= 1;
             self.sink(1);
-            debug_assert_eq!(self.pq[self.n + 1], min);
-            self.qp[min as usize] = -1; // delete
-            let _ = self.keys[min as usize].take();
+            debug_assert_eq!(self.pq[self.n + 1], min as i32);
+            self.qp[min] = -1; // delete
+            let _ = self.keys[min].take();
             self.pq[self.n + 1] = -1;
             Some(min)
         }

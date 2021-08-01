@@ -1,7 +1,7 @@
 #[macro_use]
 extern crate approx;
 
-use algo::graph::mst::{EWGraph, LazyPrimMST, MST};
+use algo::graph::mst::{EWGraph, LazyPrimMST, PrimMST, MST};
 use algo::graph::IEWGraph;
 use std::str::FromStr;
 
@@ -32,6 +32,19 @@ fn lazy_prim_mst() {
     let i = TINY_EWG;
     let g = create_graph(i);
     let mst = LazyPrimMST::new(&g);
+    assert_relative_eq!(1.81, mst.weight());
+    assert!(mst.check(&g));
+
+    // for e in mst.edges() {
+    //     println!("{}", e.to_string());
+    // }
+}
+
+#[test]
+fn prim_mst() {
+    let i = TINY_EWG;
+    let g = create_graph(i);
+    let mst = PrimMST::new(&g);
     assert_relative_eq!(1.81, mst.weight());
     assert!(mst.check(&g));
 
