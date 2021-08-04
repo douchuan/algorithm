@@ -21,7 +21,7 @@ pub struct PrimMST {
 
 impl PrimMST {
     /// Compute a minimum spanning tree (or forest) of an edge-weighted graph
-    pub fn new(g: &Box<dyn IEWGraph>) -> Self {
+    pub fn new(g: &dyn IEWGraph) -> Self {
         let gv = g.V();
         let mut mst = Self {
             edge_to: vec![None; gv],
@@ -62,7 +62,7 @@ impl PrimMST {
     }
 
     /// run Prim's algorithm in graph G, starting from vertex s
-    fn prim(&mut self, g: &Box<dyn IEWGraph>, s: usize) {
+    fn prim(&mut self, g: &dyn IEWGraph, s: usize) {
         let _ = self.pq.enqueue(s, 0.0);
         while !self.pq.is_empty() {
             let v = self.pq.dequeue().unwrap();
@@ -70,7 +70,7 @@ impl PrimMST {
         }
     }
 
-    fn scan(&mut self, g: &Box<dyn IEWGraph>, v: usize) {
+    fn scan(&mut self, g: &dyn IEWGraph, v: usize) {
         self.marked[v] = true;
         for e in g.adj(v) {
             let w = e.other(v);
@@ -89,14 +89,14 @@ impl PrimMST {
         }
     }
 
-    pub fn check(&self, g: &Box<dyn IEWGraph>) -> bool {
+    pub fn check(&self, g: &dyn IEWGraph) -> Result<(), String> {
         // check that it is acyclic
         let mut uf = UF::new(g.V());
         for e in self.edges() {
             let v = e.either();
             let w = e.other(v);
             if uf.find(v) == uf.find(w) {
-                return false;
+                return Err("Not a forest".to_string());
             }
             uf.union(v, w);
         }
@@ -106,7 +106,7 @@ impl PrimMST {
             let v = e.either();
             let w = e.other(v);
             if uf.find(v) != uf.find(w) {
-                return false;
+                return Err("Not a spanning forest".to_string());
             }
         }
 
@@ -129,12 +129,15 @@ impl PrimMST {
                 let y = f.other(x);
                 if uf.find(x) != uf.find(y) {
                     if f.weight() < e.weight() {
-                        return false;
+                        return Err(format!(
+                            "Edge {} violates cut optimality conditions",
+                            f.to_string()
+                        ));
                     }
                 }
             }
         }
 
-        true
+        Ok(())
     }
 }

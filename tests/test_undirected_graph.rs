@@ -52,7 +52,7 @@ fn parser() {
 #[test]
 fn dfs() {
     let graph = create_graph(TINY_G);
-    let dfs = DepthFirstSearch::new(&graph, 0);
+    let dfs = DepthFirstSearch::new(graph.as_ref(), 0);
     assert_ne!(dfs.count(), graph.V());
     assert!(vec![1, 2, 3, 4, 5, 6].iter().all(|&w| dfs.marked(w)));
     assert!(vec![7, 8, 9, 10, 11, 12].iter().all(|&w| !dfs.marked(w)));
@@ -61,7 +61,7 @@ fn dfs() {
 #[test]
 fn non_recursive_dfs() {
     let graph = create_graph(TINY_G);
-    let dfs = NonRecursiveDFS::new(&graph, 0);
+    let dfs = NonRecursiveDFS::new(graph.as_ref(), 0);
     assert!(vec![1, 2, 3, 4, 5, 6].iter().all(|&w| dfs.marked(w)));
     assert!(vec![7, 8, 9, 10, 11, 12].iter().all(|&w| !dfs.marked(w)));
 }
@@ -69,7 +69,7 @@ fn non_recursive_dfs() {
 #[test]
 fn dfs_paths() {
     let graph = create_graph(TINY_CG);
-    let paths = DepthFirstPaths::new(&graph, 0);
+    let paths = DepthFirstPaths::new(graph.as_ref(), 0);
     for (v, expect) in vec![
         Some(vec![0usize]),     // 0
         Some(vec![0, 2, 1]),    // 1
@@ -91,7 +91,7 @@ fn dfs_paths() {
 #[test]
 fn bfs_paths() {
     let graph = create_graph(TINY_CG);
-    let paths = BreadthFirstPaths::new(&graph, 0);
+    let paths = BreadthFirstPaths::new(graph.as_ref(), 0);
     for (v, expect) in vec![
         Some(vec![0usize]),  // 0
         Some(vec![0, 1]),    // 1
@@ -117,7 +117,7 @@ fn bfs_paths() {
 #[test]
 fn cc() {
     let graph = create_graph(TINY_G);
-    let cc = CC::new(&graph);
+    let cc = CC::new(graph.as_ref());
     assert_eq!(cc.count(), 3);
     let mut components = vec![Vec::new(); cc.count()];
     for v in 0..graph.V() {
@@ -130,7 +130,7 @@ fn cc() {
 #[test]
 fn cycle() {
     let graph = create_graph(TINY_G);
-    let c = Cycle::new(&graph);
+    let c = Cycle::new(graph.as_ref());
     assert!(c.has_cycle());
     assert!(c.cycle().unwrap().eq(vec![3, 4, 5, 3].iter()));
 }
@@ -138,7 +138,7 @@ fn cycle() {
 #[test]
 fn two_color() {
     let graph = create_graph(TINY_G);
-    let c = Bipartite::new(&graph);
+    let c = Bipartite::new(graph.as_ref());
     assert!(!c.is_bipartite());
 }
 
@@ -166,7 +166,7 @@ fn degree_of_separation() {
     let source = "JFK";
     let sink = "LAS";
     let expect = vec!["JFK", "ORD", "PHX", "LAS"];
-    let finder = BreadthFirstPaths::new(graph, symbol.index(source).unwrap());
+    let finder = BreadthFirstPaths::new(graph.as_ref(), symbol.index(source).unwrap());
     assert!(finder.has_path(symbol.index(sink).unwrap()));
     let paths = finder.path_to(symbol.index(sink).unwrap()).unwrap();
     let mut path_names = vec![];

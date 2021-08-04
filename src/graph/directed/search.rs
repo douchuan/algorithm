@@ -6,7 +6,7 @@ pub struct DirectedDFS {
 
 impl DirectedDFS {
     /// find vertices in G that are reachable from s
-    pub fn new_single(graph: &Box<dyn IGraph>, s: usize) -> Self {
+    pub fn new_single(graph: &dyn IGraph, s: usize) -> Self {
         let mut dfs = Self {
             marked: vec![false; graph.V()],
         };
@@ -15,7 +15,7 @@ impl DirectedDFS {
     }
 
     /// find vertices in G that are reachable from sources
-    pub fn new_multi(graph: &Box<dyn IGraph>, sources: &[usize]) -> Self {
+    pub fn new_multi(graph: &dyn IGraph, sources: &[usize]) -> Self {
         let mut dfs = Self {
             marked: vec![false; graph.V()],
         };
@@ -34,7 +34,7 @@ impl DirectedDFS {
 }
 
 impl DirectedDFS {
-    fn dfs(&mut self, graph: &Box<dyn IGraph>, v: usize) {
+    fn dfs(&mut self, graph: &dyn IGraph, v: usize) {
         self.marked[v] = true;
         for &w in graph.adj(v) {
             if !self.marked[w] {

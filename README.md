@@ -12,7 +12,7 @@
 #### graph
 
 - directed graph
-  - directed cycle detection (DirectedCycle)
+  - cycle detection (DirectedCycle, EdgeWeightedDigraphCycle)
   - strong connectivity in digraphs (KosarajuSCC)
   - topological sort (Topological)
   - transitive closure (TransitiveClosure)
@@ -21,6 +21,8 @@
   - Lazy version of Prim’s MST algorithm (LazyPrimMST)
   - Prim’s algorithm (PrimMST)
   - Kruskal’s algorithm (KruskalMST)
+- shortest paths
+  - Dijkstra’s algorithm (DijkstraSP, DijkstraAllPairsSP)
 - undirected graph
   - bipartite (Bipartite)
   - connected components (CC)

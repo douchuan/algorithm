@@ -16,13 +16,13 @@ pub struct KosarajuSCC {
 }
 
 impl KosarajuSCC {
-    pub fn new(graph: &Box<dyn IGraph>) -> Self {
+    pub fn new(graph: &dyn IGraph) -> Self {
         let mut scc = Self {
             marked: vec![false; graph.V()],
             id: vec![0; graph.V()],
             count: 0,
         };
-        let order = DepthFirstOrders::new(&graph.reverse());
+        let order = DepthFirstOrders::from(graph.reverse().as_ref());
         for &s in order.rev_post() {
             if !scc.marked[s] {
                 scc.dfs(graph, s);
@@ -47,7 +47,7 @@ impl KosarajuSCC {
 }
 
 impl KosarajuSCC {
-    fn dfs(&mut self, graph: &Box<dyn IGraph>, v: usize) {
+    fn dfs(&mut self, graph: &dyn IGraph, v: usize) {
         self.marked[v] = true;
         self.id[v] = self.count;
         for &w in graph.adj(v) {

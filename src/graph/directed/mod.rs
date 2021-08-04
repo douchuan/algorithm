@@ -12,7 +12,7 @@ mod transitive_closure;
 
 pub use digraph::Digraph;
 
-pub use cycle::DirectedCycle;
+pub use cycle::{DirectedCycle, EdgeWeightedDigraphCycle};
 pub use order::DepthFirstOrders;
 pub use scc::KosarajuSCC;
 pub use search::DirectedDFS;

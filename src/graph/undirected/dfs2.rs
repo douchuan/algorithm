@@ -13,7 +13,7 @@ pub struct NonRecursiveDFS {
 }
 
 impl NonRecursiveDFS {
-    pub fn new(graph: &Box<dyn IGraph>, s: usize) -> Self {
+    pub fn new(graph: &dyn IGraph, s: usize) -> Self {
         let mut dfs = Self {
             marked: vec![false; graph.V()],
         };
@@ -27,7 +27,7 @@ impl NonRecursiveDFS {
 }
 
 impl NonRecursiveDFS {
-    fn mark(&mut self, graph: &Box<dyn IGraph>, s: usize) {
+    fn mark(&mut self, graph: &dyn IGraph, s: usize) {
         let mut adj = Vec::with_capacity(graph.V());
         for v in 0..graph.V() {
             adj.push(graph.adj(v));

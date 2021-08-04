@@ -16,10 +16,12 @@
 #[macro_use]
 pub mod util;
 use crate::graph::mst::Edge;
+use crate::graph::shortest::DirectedEdge;
 use crate::ll::linked_list::Iter;
 
 pub mod directed;
 pub mod mst; // minimum spanning trees
+pub mod shortest; // shortest path
 pub mod undirected;
 
 pub trait IGraph {
@@ -41,20 +43,6 @@ pub trait IGraph {
     fn reverse(&self) -> Box<dyn IGraph> {
         panic!("No Support");
     }
-
-    fn stringify(&self) -> String {
-        let mut buf = Vec::new();
-        buf.push(format!("{} vertices, {} edges", self.V(), self.E()));
-        for v in 0..self.V() {
-            let adj = self
-                .adj(v)
-                .map(|v| v.to_string())
-                .collect::<Vec<String>>()
-                .join(" ");
-            buf.push(format!("{}: {}", v, adj));
-        }
-        buf.join("\n")
-    }
 }
 
 /// Edge weighted graph
@@ -68,7 +56,7 @@ pub trait IEWGraph {
     fn E(&self) -> usize;
 
     /// Adds the undirected edge e to this edge-weighted graph
-    fn add_edge(&mut self, e: Edge);
+    fn add_edge(&mut self, v: usize, w: usize, weight: f32);
 
     /// Returns the edges incident on vertex v
     fn adj(&self, v: usize) -> Iter<'_, Edge>;
@@ -78,18 +66,54 @@ pub trait IEWGraph {
 
     /// Returns the degree of vertex v
     fn degree(&self, v: usize) -> usize;
-
-    fn stringify(&self) -> String {
-        let mut buf = Vec::new();
-        buf.push(format!("{} {}", self.V(), self.E()));
-        for v in 0..self.V() {
-            let adj = self
-                .adj(v)
-                .map(|v| v.to_string())
-                .collect::<Vec<String>>()
-                .join("  ");
-            buf.push(format!("{}: {}", v, adj));
-        }
-        buf.join("\n")
-    }
 }
+
+/// Edge weighted graph
+pub trait IEWDigraph {
+    /// number of vertices
+    #[allow(non_snake_case)]
+    fn V(&self) -> usize;
+
+    /// number of edges
+    #[allow(non_snake_case)]
+    fn E(&self) -> usize;
+
+    /// Adds the directed edge e to this edge-weighted graph
+    fn add_edge(&mut self, v: usize, w: usize, weight: f32);
+
+    /// Returns the edges incident on vertex v
+    fn adj(&self, v: usize) -> Iter<'_, DirectedEdge>;
+
+    /// Returns all edges in this edge-weighted graph
+    fn edges(&self) -> Vec<DirectedEdge>;
+
+    /// Returns the degree of vertex v
+    fn out_degree(&self, v: usize) -> usize;
+
+    /// Returns the number of directed edges incident to vertex
+    fn in_degree(&self, v: usize) -> usize;
+}
+
+macro_rules! impl_to_string {
+    ($G: ty) => {
+        impl ToString for $G {
+            fn to_string(&self) -> String {
+                let mut buf = Vec::new();
+                buf.push(format!("{} {}", self.V(), self.E()));
+                for v in 0..self.V() {
+                    let adj = self
+                        .adj(v)
+                        .map(|v| v.to_string())
+                        .collect::<Vec<String>>()
+                        .join("  ");
+                    buf.push(format!("{}: {}", v, adj));
+                }
+                buf.join("\n")
+            }
+        }
+    };
+}
+
+impl_to_string!(dyn IGraph);
+impl_to_string!(dyn IEWGraph);
+impl_to_string!(dyn IEWDigraph);

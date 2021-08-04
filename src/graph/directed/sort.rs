@@ -9,12 +9,12 @@ pub struct Topological {
 }
 
 impl Topological {
-    pub fn new(graph: &Box<dyn IGraph>) -> Self {
-        let cycle = DirectedCycle::new(graph);
+    pub fn new(graph: &dyn IGraph) -> Self {
+        let cycle = DirectedCycle::from(graph);
         let order = if cycle.has_cycle() {
             None
         } else {
-            let dfs = DepthFirstOrders::new(graph);
+            let dfs = DepthFirstOrders::from(graph);
             Some(dfs.rev_post().cloned().collect())
         };
 

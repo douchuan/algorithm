@@ -26,7 +26,7 @@ pub struct Bipartite {
 }
 
 impl Bipartite {
-    pub fn new(g: &Box<dyn IGraph>) -> Self {
+    pub fn new(g: &dyn IGraph) -> Self {
         let mut tc = Self {
             marked: vec![false; g.V()],
             color: vec![false; g.V()],
@@ -58,7 +58,7 @@ impl Bipartite {
 }
 
 impl Bipartite {
-    fn dfs(&mut self, g: &Box<dyn IGraph>, v: usize) {
+    fn dfs(&mut self, g: &dyn IGraph, v: usize) {
         self.marked[v] = true;
         for &w in g.adj(v) {
             // short circuit if odd-length cycle found

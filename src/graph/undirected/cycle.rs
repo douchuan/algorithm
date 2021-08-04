@@ -24,7 +24,7 @@ pub struct Cycle {
 }
 
 impl Cycle {
-    pub fn new(g: &Box<dyn IGraph>) -> Self {
+    pub fn new(g: &dyn IGraph) -> Self {
         let mut cycle = Self {
             marked: vec![false; g.V()],
             cycle: None,
@@ -54,7 +54,7 @@ impl Cycle {
 }
 
 impl Cycle {
-    fn dfs(&mut self, g: &Box<dyn IGraph>, v: usize, u: usize) {
+    fn dfs(&mut self, g: &dyn IGraph, v: usize, u: usize) {
         self.marked[v] = true;
         for &w in g.adj(v) {
             // short circuit if cycle already found
@@ -80,7 +80,7 @@ impl Cycle {
     }
 
     // does this graph have two parallel edges?
-    fn has_parallel_edges(&mut self, graph: &Box<dyn IGraph>) -> bool {
+    fn has_parallel_edges(&mut self, graph: &dyn IGraph) -> bool {
         self.marked.fill(false);
 
         for v in 0..graph.V() {

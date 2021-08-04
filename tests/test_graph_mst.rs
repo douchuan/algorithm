@@ -27,39 +27,42 @@ fn parse() {
     // println!("{}", graph.to_string());
 }
 
+#[allow(non_snake_case)]
 #[test]
-fn lazy_prim_mst() {
+fn lazy_Prim_mst() {
     let i = TINY_EWG;
     let g = create_graph(i);
-    let mst = LazyPrimMST::new(&g);
+    let mst = LazyPrimMST::new(g.as_ref());
     assert_relative_eq!(1.81, mst.weight());
-    assert!(mst.check(&g));
+    assert!(mst.check(g.as_ref()).is_ok());
 
     // for e in mst.edges() {
     //     println!("{}", e.to_string());
     // }
 }
 
+#[allow(non_snake_case)]
 #[test]
-fn prim_mst() {
+fn Prim_mst() {
     let i = TINY_EWG;
     let g = create_graph(i);
-    let mst = PrimMST::new(&g);
+    let mst = PrimMST::new(g.as_ref());
     assert_relative_eq!(1.81, mst.weight());
-    assert!(mst.check(&g));
+    assert!(mst.check(g.as_ref()).is_ok());
 
     // for e in mst.edges() {
     //     println!("{}", e.to_string());
     // }
 }
 
+#[allow(non_snake_case)]
 #[test]
-fn kruskal_mst() {
+fn Kruskal_mst() {
     let i = TINY_EWG;
     let g = create_graph(i);
-    let mst = KruskalMST::new(&g);
+    let mst = KruskalMST::new(g.as_ref());
     assert_relative_eq!(1.81, mst.weight());
-    assert!(mst.check(&g));
+    assert!(mst.check(g.as_ref()).is_ok());
 
     // for e in mst.edges() {
     //     println!("{}", e.to_string());

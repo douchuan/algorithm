@@ -36,7 +36,7 @@ pub struct CC {
 }
 
 impl CC {
-    pub fn new(g: &Box<dyn IGraph>) -> Self {
+    pub fn new(g: &dyn IGraph) -> Self {
         let mut cc = Self {
             count: 0,
             marked: vec![false; g.V()],
@@ -77,7 +77,7 @@ impl CC {
 }
 
 impl CC {
-    fn dfs(&mut self, g: &Box<dyn IGraph>, v: usize) {
+    fn dfs(&mut self, g: &dyn IGraph, v: usize) {
         self.marked[v] = true;
         self.id[v] = self.count;
         self.size[self.count] += 1;

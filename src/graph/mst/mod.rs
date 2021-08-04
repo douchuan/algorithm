@@ -27,16 +27,22 @@
 //! starting with all edges colored gray, find a cut with no black edges,
 //! color its minimum-weight edge black, and continue until V - 1 edges
 //! have been colored black.
+//!
+//! | algorithm    |  space |  time     |
+//! |------------------------------------
+//! | lazy Prim    |  E     |  E log E  |
+//! | eager Prim   |  V     |  E log V  |
+//! | Kruskal      |  E     |  E log E  |
 
 mod edge;
-mod ewgraph;
+mod ew_graph;
 mod kruskal_mst;
 mod lazy_prim_mst;
 mod prim_mst;
 
 use crate::ll::linked_list::Iter;
 pub use edge::Edge;
-pub use ewgraph::EWGraph;
+pub use ew_graph::EWGraph;
 pub use kruskal_mst::KruskalMST;
 pub use lazy_prim_mst::LazyPrimMST;
 pub use prim_mst::PrimMST;

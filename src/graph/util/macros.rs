@@ -1,12 +1,6 @@
 #[macro_export]
 macro_rules! graph_util {
     ($Graph: ty) => {
-        impl ToString for $Graph {
-            fn to_string(&self) -> String {
-                self.stringify()
-            }
-        }
-
         impl std::str::FromStr for $Graph {
             type Err = ();
 
@@ -40,12 +34,6 @@ macro_rules! graph_util {
 #[macro_export]
 macro_rules! weighted_graph_util {
     ($Graph: ty) => {
-        impl ToString for $Graph {
-            fn to_string(&self) -> String {
-                self.stringify()
-            }
-        }
-
         impl std::str::FromStr for $Graph {
             type Err = ();
 
@@ -65,8 +53,7 @@ macro_rules! weighted_graph_util {
                 for s in lines {
                     if let Ok((_, v)) = parser::parse_list_float(s) {
                         debug_assert_eq!(3, v.len());
-                        let e = Edge::new(v[0] as usize, v[1] as usize, v[2]);
-                        graph.add_edge(e);
+                        graph.add_edge(v[0] as usize, v[1] as usize, v[2]);
                     }
                 }
 

@@ -9,7 +9,7 @@ pub struct KruskalMST {
 }
 
 impl KruskalMST {
-    pub fn new(g: &Box<dyn IEWGraph>) -> Self {
+    pub fn new(g: &dyn IEWGraph) -> Self {
         let mut edges = g.edges();
         edges.sort(); // sorted by weight
 
@@ -35,14 +35,14 @@ impl KruskalMST {
         Self { mst, weight }
     }
 
-    pub fn check(&self, g: &Box<dyn IEWGraph>) -> bool {
+    pub fn check(&self, g: &dyn IEWGraph) -> Result<(), String> {
         // check that it is acyclic
         let mut uf = UF::new(g.V());
         for e in self.edges() {
             let v = e.either();
             let w = e.other(v);
             if uf.find(v) == uf.find(w) {
-                return false;
+                return Err("Not a forest".to_string());
             }
             uf.union(v, w);
         }
@@ -52,7 +52,7 @@ impl KruskalMST {
             let v = e.either();
             let w = e.other(v);
             if uf.find(v) != uf.find(w) {
-                return false;
+                return Err("Not a spanning forest".to_string());
             }
         }
 
@@ -74,13 +74,16 @@ impl KruskalMST {
                 let y = f.other(x);
                 if uf.find(x) != uf.find(y) {
                     if f.weight() < e.weight() {
-                        return false;
+                        return Err(format!(
+                            "Edge {} violates cut optimality conditions",
+                            f.to_string()
+                        ));
                     }
                 }
             }
         }
 
-        true
+        Ok(())
     }
 }
 

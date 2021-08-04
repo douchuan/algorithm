@@ -1,13 +1,13 @@
 use std::cmp::Ordering;
 
 #[derive(Copy, Clone)]
-pub struct Edge {
+pub struct DirectedEdge {
     v: usize,
     w: usize,
     weight: f32,
 }
 
-impl Edge {
+impl DirectedEdge {
     pub fn new(v: usize, w: usize, weight: f32) -> Self {
         if weight.is_nan() {
             panic!("Weight is NaN");
@@ -19,48 +19,42 @@ impl Edge {
         self.weight
     }
 
-    pub fn either(&self) -> usize {
+    pub fn from(&self) -> usize {
         self.v
     }
 
-    pub fn other(&self, v: usize) -> usize {
-        if self.v == v {
-            self.w
-        } else if self.w == v {
-            self.v
-        } else {
-            panic!("illegal vertex")
-        }
+    pub fn to(&self) -> usize {
+        self.w
     }
 }
 
-impl PartialOrd for Edge {
+impl PartialOrd for DirectedEdge {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         self.weight.partial_cmp(&other.weight)
     }
 }
 
-impl PartialEq for Edge {
+impl PartialEq for DirectedEdge {
     fn eq(&self, other: &Self) -> bool {
         self.weight == other.weight
     }
 }
 
-impl Ord for Edge {
+impl Ord for DirectedEdge {
     fn cmp(&self, other: &Self) -> Ordering {
         self.weight.partial_cmp(&other.weight).unwrap()
     }
 }
 
-impl Eq for Edge {}
+impl Eq for DirectedEdge {}
 
-impl ToString for Edge {
+impl ToString for DirectedEdge {
     fn to_string(&self) -> String {
-        format!("{}-{} {:.5}", self.v, self.w, self.weight)
+        format!("{}->{} {:5.2}", self.v, self.w, self.weight)
     }
 }
 
-// 用于MinPQ中的0号元素
+/*
 impl Default for Edge {
     fn default() -> Self {
         Self {
@@ -70,3 +64,4 @@ impl Default for Edge {
         }
     }
 }
+*/

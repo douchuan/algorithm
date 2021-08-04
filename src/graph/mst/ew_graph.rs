@@ -30,9 +30,8 @@ impl IEWGraph for EWGraph {
         self.ne
     }
 
-    fn add_edge(&mut self, e: Edge) {
-        let v = e.either();
-        let w = e.other(v);
+    fn add_edge(&mut self, v: usize, w: usize, weight: f32) {
+        let e = Edge::new(v, w, weight);
         self.adj[v].push_front(e);
         self.adj[w].push_front(e);
         self.ne += 1;

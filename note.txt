@@ -14,5 +14,5 @@ todo
     3.2 plot
     3.3 读写本地文件
 
-
+4. 画图展示Dijkstra’s algorithm的动态构建过程 (p657)
 

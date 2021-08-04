@@ -21,7 +21,7 @@ pub struct TransitiveClosure {
 
 impl TransitiveClosure {
     /// Computes the transitive closure of the digraph
-    pub fn new(graph: &Box<dyn IGraph>) -> Self {
+    pub fn new(graph: &dyn IGraph) -> Self {
         let mut tc = Vec::with_capacity(graph.V());
         for v in 0..graph.V() {
             tc.push(DirectedDFS::new_single(graph, v));

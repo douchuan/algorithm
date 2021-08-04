@@ -20,7 +20,7 @@ pub struct DepthFirstSearch {
 }
 
 impl DepthFirstSearch {
-    pub fn new(g: &Box<dyn IGraph>, s: usize) -> Self {
+    pub fn new(g: &dyn IGraph, s: usize) -> Self {
         let mut dfs = Self {
             marked: vec![false; g.V()],
             count: 0,
@@ -44,7 +44,7 @@ impl DepthFirstSearch {
 }
 
 impl DepthFirstSearch {
-    fn dfs(&mut self, g: &Box<dyn IGraph>, v: usize) {
+    fn dfs(&mut self, g: &dyn IGraph, v: usize) {
         self.marked[v] = true;
         self.count += 1;
         for &w in g.adj(v) {
