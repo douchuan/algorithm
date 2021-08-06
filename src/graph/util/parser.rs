@@ -61,4 +61,12 @@ fn t() {
         Ok(("", vec!["aaa, (1991)", "bbb, 111", "ccc (C)"]))
     );
     assert_eq!(parse_list_float("4 5 0.35"), Ok(("", vec![4.0, 5.0, 0.35])));
+    assert_eq!(
+        parse_list_float("41.0  3  1 7 9"),
+        Ok(("", vec![41.0, 3.0, 1.0, 7.0, 9.0]))
+    );
+    assert_eq!(
+        parse_list_float("6 4 -1.25"),
+        Ok(("", vec![6.0, 4.0, -1.25]))
+    );
 }

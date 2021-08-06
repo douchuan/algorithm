@@ -4,15 +4,27 @@ use crate::graph::directed::{DepthFirstOrders, DirectedCycle, EdgeWeightedDigrap
 use crate::graph::{IEWDigraph, IGraph};
 use std::slice::Iter;
 
+/// The Topological represents a data type for
+/// determining a topological order of a directed acyclic graph (DAG).
+/// A digraph has a topological order if and only if it is a DAG.
+/// The has_order operation determines whether the digraph has
+/// a topological order, and if so, the order operation
+/// returns one.
+/// This implementation uses depth-first search.
 pub struct Topological {
     order: Option<Vec<usize>>,
 }
 
 impl Topological {
-    pub fn is_dag(&self) -> bool {
+    /// Does the digraph have a topological order?
+    /// true if the digraph has a topological order (or equivalently,
+    /// if the digraph is a DAG), and false otherwise
+    pub fn has_order(&self) -> bool {
         self.order.is_some()
     }
 
+    /// Returns a topological order if the digraph has a topologial order,
+    /// and None otherwise.
     pub fn order(&self) -> Option<Iter<'_, usize>> {
         self.order.as_ref().and_then(|v| Some(v.iter()))
     }

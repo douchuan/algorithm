@@ -2,11 +2,14 @@
 extern crate approx;
 
 use algo::graph::directed::{DepthFirstOrders, EdgeWeightedDigraphCycle};
-use algo::graph::shortest::{DijkstraAllPairsSP, DijkstraSP, EWDigraph};
+use algo::graph::shortest::{AcyclicLP, AcyclicSP, DijkstraAllPairsSP, DijkstraSP, EWDigraph, CPM};
 use algo::graph::IEWDigraph;
 use std::str::FromStr;
 
 const TINY_EWD: &'static str = include_str!("res/graph/tinyEWD.txt");
+const TINY_EWD_NEGATIVE: &'static str = include_str!("res/graph/tinyEWDn.txt");
+const TINY_EWDAG: &'static str = include_str!("res/graph/tinyEWDAG.txt");
+const JOBS_PC: &'static str = include_str!("res/graph/jobsPC.txt");
 
 #[test]
 fn parse() {
@@ -25,7 +28,7 @@ fn parse() {
     6: 6->4  0.93  6->0  0.58  6->2  0.40
     7: 7->3  0.39  7->5  0.28
         */
-    println!("{}", graph.to_string());
+    // println!("{}", graph.to_string());
 }
 
 #[test]
@@ -77,6 +80,83 @@ fn Dijkstra_all_pairs_sp() {
     let graph = create_graph(i);
     let all = DijkstraAllPairsSP::new(graph.as_ref());
     assert!(all.has_path(0, 1));
+}
+
+#[test]
+fn acyclic_sp() {
+    let i = TINY_EWDAG;
+    let graph = create_graph(i);
+    let sp = AcyclicSP::new(graph.as_ref(), 5).unwrap();
+    for (i, (weight, size)) in vec![
+        (0.73, 2), // (dist_to(i), path_to(i).len())
+        (0.32, 1),
+        (0.62, 2),
+        (0.61, 2),
+        (0.35, 1),
+        (0.0, 0),
+        (1.13, 3),
+        (0.28, 1),
+    ]
+    .iter()
+    .enumerate()
+    {
+        assert_eq!(*size, sp.path_to(i).map_or(0, |path| path.len()));
+        assert_relative_eq!(*weight, sp.dist_to(i));
+    }
+}
+
+#[test]
+fn acyclic_lp() {
+    let i = TINY_EWDAG;
+    let graph = create_graph(i);
+    let sp = AcyclicLP::new(graph.as_ref(), 5).unwrap();
+    for (i, (weight, size)) in vec![
+        (2.44, 5), // (dist_to(i), path_to(i).len())
+        (0.32, 1),
+        (2.77, 6),
+        (0.61, 2),
+        (2.06, 4),
+        (0.0, 0),
+        (1.13, 3),
+        (2.43, 5),
+    ]
+    .iter()
+    .enumerate()
+    {
+        assert_eq!(*size, sp.path_to(i).map_or(0, |path| path.len()));
+        assert_relative_eq!(*weight, sp.dist_to(i));
+    }
+}
+
+#[test]
+fn cpm() {
+    use std::convert::TryFrom;
+    let i = JOBS_PC;
+    let cpm = CPM::try_from(i).unwrap();
+    assert_eq!(173.0, cpm.finish_time());
+
+    /*
+     job   start  finish
+    --------------------
+       0     0.0    41.0
+       1    41.0    92.0
+       2   123.0   173.0
+       3    91.0   127.0
+       4    70.0   108.0
+       5     0.0    45.0
+       6    70.0    91.0
+       7    41.0    73.0
+       8    91.0   123.0
+       9    41.0    70.0
+    Finish time:   173.0
+    */
+    println!(" job   start  finish");
+    println!("--------------------");
+    let n = cpm.len();
+    for i in 0..n {
+        println!("{:>4} {:7.1} {:7.1}", i, cpm.dist_to(i), cpm.dist_to(i + n));
+    }
+    println!("Finish time: {:7.1}", cpm.finish_time());
 }
 
 fn create_graph(i: &str) -> Box<dyn IEWDigraph> {

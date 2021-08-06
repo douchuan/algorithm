@@ -119,13 +119,13 @@ fn cycle() {
 fn topological() {
     let graph = create_digraph(TINY_DG);
     let cycle = Topological::from(graph.as_ref());
-    assert!(!cycle.is_dag());
+    assert!(!cycle.has_order());
 
     let i = JOBS;
     let symbol_graph = SymbolGraph::new(i, "/", |nv| Box::new(Digraph::new(nv)));
     let graph = symbol_graph.G();
     let cycle = Topological::from(graph.as_ref());
-    assert!(cycle.is_dag());
+    assert!(cycle.has_order());
 }
 
 #[test]
