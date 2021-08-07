@@ -36,7 +36,7 @@ pub struct DirectedCycle {
 /// digraph has a directed cycle and, if so, the cycle operation
 /// returns one.
 /// This implementation uses depth-first search.
-pub struct EdgeWeightedDigraphCycle {
+pub struct EdgeWeightedDirectedCycle {
     cycle: Option<Stack<DirectedEdge>>,
     edge_to: Vec<Option<DirectedEdge>>,
     marked: Vec<bool>,
@@ -55,7 +55,7 @@ impl DirectedCycle {
     }
 }
 
-impl EdgeWeightedDigraphCycle {
+impl EdgeWeightedDirectedCycle {
     /// does G have a directed cycle?
     pub fn has_cycle(&self) -> bool {
         self.cycle.is_some()
@@ -132,7 +132,7 @@ impl DirectedCycle {
     }
 }
 
-impl EdgeWeightedDigraphCycle {
+impl EdgeWeightedDirectedCycle {
     fn new(nv: usize) -> Self {
         Self {
             cycle: None,
@@ -227,4 +227,4 @@ macro_rules! impl_from {
 }
 
 impl_from!(&dyn IGraph, DirectedCycle);
-impl_from!(&dyn IEWDigraph, EdgeWeightedDigraphCycle);
+impl_from!(&dyn IEWDigraph, EdgeWeightedDirectedCycle);

@@ -1,13 +1,16 @@
 #[macro_use]
 extern crate approx;
 
-use algo::graph::directed::{DepthFirstOrders, EdgeWeightedDigraphCycle};
-use algo::graph::shortest::{AcyclicLP, AcyclicSP, DijkstraAllPairsSP, DijkstraSP, EWDigraph, CPM};
+use algo::graph::directed::{DepthFirstOrders, EdgeWeightedDirectedCycle};
+use algo::graph::shortest::{
+    AcyclicLP, AcyclicSP, BellmanFordSP, DijkstraAllPairsSP, DijkstraSP, EWDigraph, CPM,
+};
 use algo::graph::IEWDigraph;
 use std::str::FromStr;
 
 const TINY_EWD: &'static str = include_str!("res/graph/tinyEWD.txt");
 const TINY_EWD_NEGATIVE: &'static str = include_str!("res/graph/tinyEWDn.txt");
+const TINY_EWD_NEGATIVE_CYCLE: &'static str = include_str!("res/graph/tinyEWDnc.txt");
 const TINY_EWDAG: &'static str = include_str!("res/graph/tinyEWDAG.txt");
 const JOBS_PC: &'static str = include_str!("res/graph/jobsPC.txt");
 
@@ -43,7 +46,7 @@ fn dfs() {
 fn cycle() {
     let i = TINY_EWD;
     let graph = create_graph(i);
-    let cycle = EdgeWeightedDigraphCycle::from(graph.as_ref());
+    let cycle = EdgeWeightedDirectedCycle::from(graph.as_ref());
     assert!(cycle.check().is_ok());
 }
 
@@ -157,6 +160,25 @@ fn cpm() {
         println!("{:>4} {:7.1} {:7.1}", i, cpm.dist_to(i), cpm.dist_to(i + n));
     }
     println!("Finish time: {:7.1}", cpm.finish_time());
+}
+
+#[allow(non_snake_case)]
+#[test]
+fn Bellman_Ford_sp() {
+    let i = TINY_EWD_NEGATIVE;
+    let g = create_graph(i);
+    let sp = BellmanFordSP::new(g.as_ref(), 0);
+    assert!(!sp.has_negative_cycle());
+    assert!(sp.negative_cycle().is_none());
+    assert!(sp.check(g.as_ref(), 0).is_ok());
+
+    // negative cycle
+    let i = TINY_EWD_NEGATIVE_CYCLE;
+    let g = create_graph(i);
+    let sp = BellmanFordSP::new(g.as_ref(), 0);
+    assert!(sp.has_negative_cycle());
+    assert!(sp.negative_cycle().is_some());
+    assert!(sp.check(g.as_ref(), 0).is_ok());
 }
 
 fn create_graph(i: &str) -> Box<dyn IEWDigraph> {

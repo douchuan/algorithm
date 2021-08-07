@@ -1,6 +1,6 @@
 //! A digraph has a topological order if and only if it is a DAG.
 
-use crate::graph::directed::{DepthFirstOrders, DirectedCycle, EdgeWeightedDigraphCycle};
+use crate::graph::directed::{DepthFirstOrders, DirectedCycle, EdgeWeightedDirectedCycle};
 use crate::graph::{IEWDigraph, IGraph};
 use std::slice::Iter;
 
@@ -49,4 +49,4 @@ macro_rules! impl_from {
 }
 
 impl_from!(&dyn IGraph, DirectedCycle);
-impl_from!(&dyn IEWDigraph, EdgeWeightedDigraphCycle);
+impl_from!(&dyn IEWDigraph, EdgeWeightedDirectedCycle);
