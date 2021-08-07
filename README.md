@@ -81,7 +81,7 @@ never worry about system crash.
   - Shell's Sort (shell.rs)
   - Tournament Tree Sort (tree_selection.rs)
 
-#### Running
+### Running
 
 ```
 # setup Rust Toolchain
