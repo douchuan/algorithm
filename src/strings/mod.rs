@@ -1,1 +1,1 @@
-mod alphabet;
+pub mod alphabet;

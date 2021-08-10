@@ -3,6 +3,9 @@
 #![feature(test)]
 extern crate test;
 
+#[macro_use]
+extern crate lazy_static;
+
 pub mod common;
 pub mod dp;
 pub mod graph;
