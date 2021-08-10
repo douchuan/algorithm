@@ -1,3 +1,5 @@
+#![allow(clippy::many_single_char_names)]
+
 use crate::common::{Queue, PQ, UF};
 use crate::graph::mst::{Edge, MST};
 use crate::graph::IEWGraph;
@@ -14,7 +16,7 @@ impl LazyPrimMST {
     pub fn new(g: &dyn IEWGraph) -> Self {
         let mut mst = Self {
             weight: 0.0,
-            mst: Queue::new(),
+            mst: Queue::default(),
             marked: vec![false; g.V()],
             pq: PQ::new_min_pq(1),
         };
@@ -111,13 +113,11 @@ impl LazyPrimMST {
             for f in g.edges() {
                 let x = f.either();
                 let y = f.other(x);
-                if uf.find(x) != uf.find(y) {
-                    if f.weight() < e.weight() {
-                        return Err(format!(
-                            "Edge {} violates cut optimality conditions",
-                            f.to_string()
-                        ));
-                    }
+                if uf.find(x) != uf.find(y) && f.weight() < e.weight() {
+                    return Err(format!(
+                        "Edge {} violates cut optimality conditions",
+                        f.to_string()
+                    ));
                 }
             }
         }

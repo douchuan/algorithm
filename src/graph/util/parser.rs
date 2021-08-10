@@ -1,4 +1,4 @@
-use nom::bytes::complete::{is_not, tag};
+use nom::bytes::complete::{is_not, tag, take_till};
 use nom::character::complete::{digit1, space0};
 use nom::multi::separated_list1;
 use nom::number::complete::float;
@@ -7,7 +7,7 @@ use nom::IResult;
 use std::fmt::Debug;
 use std::str::FromStr;
 
-pub fn parse_num<K>(i: &str) -> nom::IResult<&str, K>
+pub fn parse_num<K>(i: &str) -> IResult<&str, K>
 where
     K: FromStr,
     <K as FromStr>::Err: Debug,
@@ -16,14 +16,14 @@ where
     Ok((i, v.parse().unwrap()))
 }
 
-pub fn parse_float(i: &str) -> nom::IResult<&str, f32> {
+pub fn parse_float(i: &str) -> IResult<&str, f32> {
     let (i, (_, v)) = tuple((space0, float))(i)?;
     Ok((i, v))
 }
 
 /// 用空格分割的两个数字
 /// "1 2"
-pub fn parse_list_num<K>(i: &str) -> nom::IResult<&str, Vec<K>>
+pub fn parse_list_num<K>(i: &str) -> IResult<&str, Vec<K>>
 where
     K: FromStr,
     <K as FromStr>::Err: Debug,
@@ -32,7 +32,7 @@ where
     separated_list1(tag(sep), parse_num)(i)
 }
 
-pub fn parse_list_float(i: &str) -> nom::IResult<&str, Vec<f32>> {
+pub fn parse_list_float(i: &str) -> IResult<&str, Vec<f32>> {
     let sep = " ";
     separated_list1(tag(sep), parse_float)(i)
 }
@@ -40,6 +40,13 @@ pub fn parse_list_float(i: &str) -> nom::IResult<&str, Vec<f32>> {
 /// 用sep分割的字符串
 pub fn parse_list_str<'a>(i: &'a str, sep: &str) -> IResult<&'a str, Vec<&'a str>> {
     separated_list1(tag(sep), is_not(sep))(i)
+}
+
+// USD 1  0.741  0.657  1.061  1.005
+pub fn parse_list_rates(i: &str) -> IResult<&str, (&str, Vec<f32>)> {
+    let (i, name) = take_till(|c| c == ' ')(i)?;
+    let (i, rates) = parse_list_float(i)?;
+    Ok((i, (name, rates)))
 }
 
 #[test]
@@ -69,4 +76,8 @@ fn t() {
         parse_list_float("6 4 -1.25"),
         Ok(("", vec![6.0, 4.0, -1.25]))
     );
+    assert_eq!(
+        parse_list_rates("USD 1  0.741  0.657  1.061  1.005"),
+        Ok(("", ("USD", vec![1.0, 0.741, 0.657, 1.061, 1.005])))
+    )
 }

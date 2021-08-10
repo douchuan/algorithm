@@ -60,8 +60,8 @@ impl<'a> SymbolGraph<'a> {
 
     /// underlying Graph
     #[allow(non_snake_case)]
-    pub fn G(&self) -> &Box<dyn IGraph> {
-        &self.graph
+    pub fn G(&self) -> &dyn IGraph {
+        self.graph.as_ref()
     }
 }
 

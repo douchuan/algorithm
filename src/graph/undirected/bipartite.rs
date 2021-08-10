@@ -72,7 +72,7 @@ impl Bipartite {
                 self.dfs(g, w);
             } else if self.color[w] == self.color[v] {
                 self.is_bipartite = false;
-                let mut cycle = Stack::new();
+                let mut cycle = Stack::default();
                 cycle.push(w);
                 let mut x = v;
                 while x != w {

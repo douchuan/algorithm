@@ -16,12 +16,14 @@ pub struct Queue<T> {
     ll: LinkedList<T>,
 }
 
-impl<T> Queue<T> {
-    pub fn new() -> Self {
+impl<T> Default for Queue<T> {
+    fn default() -> Self {
         let ll = LinkedList::default();
         Self { ll }
     }
+}
 
+impl<T> Queue<T> {
     /// Adds the item to this queue
     pub fn enqueue(&mut self, v: T) {
         self.ll.push_back(v);

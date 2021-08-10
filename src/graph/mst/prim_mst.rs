@@ -41,24 +41,15 @@ impl PrimMST {
 
     /// Returns the edges in a minimum spanning tree (or forest)
     pub fn edges(&self) -> Vec<Edge> {
-        let mut mst = Vec::new();
-        for e in self.edge_to.iter() {
-            if let Some(e) = e {
-                mst.push(*e);
-            }
-        }
-        mst
+        self.edge_to.iter().cloned().flatten().collect()
     }
 
     /// Returns the sum of the edge weights in a minimum spanning tree (or forest)
     pub fn weight(&self) -> f32 {
-        let mut weight = 0.0;
-        for e in self.edge_to.iter() {
-            if let Some(e) = e {
-                weight += e.weight();
-            }
-        }
-        weight
+        self.edge_to
+            .iter()
+            .flatten()
+            .fold(0.0, |acc, e| acc + e.weight())
     }
 
     /// run Prim's algorithm in graph G, starting from vertex s
@@ -127,13 +118,11 @@ impl PrimMST {
             for f in g.edges() {
                 let x = f.either();
                 let y = f.other(x);
-                if uf.find(x) != uf.find(y) {
-                    if f.weight() < e.weight() {
-                        return Err(format!(
-                            "Edge {} violates cut optimality conditions",
-                            f.to_string()
-                        ));
-                    }
+                if uf.find(x) != uf.find(y) && f.weight() < e.weight() {
+                    return Err(format!(
+                        "Edge {} violates cut optimality conditions",
+                        f.to_string()
+                    ));
                 }
             }
         }

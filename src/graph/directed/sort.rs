@@ -26,7 +26,7 @@ impl Topological {
     /// Returns a topological order if the digraph has a topologial order,
     /// and None otherwise.
     pub fn order(&self) -> Option<Iter<'_, usize>> {
-        self.order.as_ref().and_then(|v| Some(v.iter()))
+        self.order.as_ref().map(|v| v.iter())
     }
 }
 

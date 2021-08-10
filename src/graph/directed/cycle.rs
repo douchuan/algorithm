@@ -51,7 +51,7 @@ impl DirectedCycle {
 
     /// vertices on a cycle (if one exists)
     pub fn cycle(&self) -> Option<Iter<'_, usize>> {
-        self.cycle.as_ref().and_then(|v| Some(v.iter()))
+        self.cycle.as_ref().map(|v| v.iter())
     }
 }
 
@@ -63,7 +63,7 @@ impl EdgeWeightedDirectedCycle {
 
     /// vertices on a cycle (if one exists)
     pub fn cycle(&self) -> Option<Iter<'_, DirectedEdge>> {
-        self.cycle.as_ref().and_then(|v| Some(v.iter()))
+        self.cycle.as_ref().map(|v| v.iter())
     }
 }
 
@@ -93,7 +93,7 @@ impl DirectedCycle {
             }
             // trace back directed cycle
             else if self.on_stack[w] {
-                let mut cycle = Stack::new();
+                let mut cycle = Stack::default();
                 let mut x = v;
                 while x != w {
                     cycle.push(x);
@@ -108,26 +108,22 @@ impl DirectedCycle {
     }
 
     pub fn check(&self) -> Result<(), String> {
-        match self.cycle() {
-            Some(cycle) => {
-                let mut first = -1;
-                let mut last = -1;
-                for &v in cycle {
-                    if first == -1 {
-                        first = v as i32;
-                    }
-                    last = v as i32;
+        if let Some(cycle) = self.cycle() {
+            let mut first = -1;
+            let mut last = -1;
+            for &v in cycle {
+                if first == -1 {
+                    first = v as i32;
                 }
-                if first != last {
-                    return Err(format!(
-                        "cycle begins with {} and ends with {}",
-                        first, last
-                    ));
-                }
+                last = v as i32;
             }
-            None => (),
+            if first != last {
+                return Err(format!(
+                    "cycle begins with {} and ends with {}",
+                    first, last
+                ));
+            }
         }
-
         Ok(())
     }
 }
@@ -159,7 +155,7 @@ impl EdgeWeightedDirectedCycle {
             }
             // trace back directed cycle
             else if self.on_stack[w] {
-                let mut cycle = Stack::new();
+                let mut cycle = Stack::default();
                 let mut f = *e;
                 while f.from() != w {
                     cycle.push(f);
@@ -173,34 +169,31 @@ impl EdgeWeightedDirectedCycle {
     }
 
     pub fn check(&self) -> Result<(), String> {
-        match self.cycle() {
-            Some(cycle) => {
-                let mut first: Option<&DirectedEdge> = None;
-                let mut last: Option<&DirectedEdge> = None;
-                for e in cycle {
-                    if first.is_none() {
-                        first = Some(e);
-                    }
-                    if last.is_some() {
-                        if last.unwrap().to() != e.from() {
-                            return Err(format!(
-                                "cycle edges {} and {} not incident",
-                                last.unwrap().to_string(),
-                                e.to_string()
-                            ));
-                        }
-                    }
-                    last = Some(e);
+        if let Some(cycle) = self.cycle() {
+            let mut first: Option<&DirectedEdge> = None;
+            let mut last: Option<&DirectedEdge> = None;
+            for e in cycle {
+                if first.is_none() {
+                    first = Some(e);
                 }
-                if last.unwrap().to() != first.unwrap().from() {
-                    return Err(format!(
-                        "cycle edges {} and {} not incident",
-                        last.unwrap().to_string(),
-                        first.unwrap().to_string()
-                    ));
+                if let Some(last) = last {
+                    if last.to() != e.from() {
+                        return Err(format!(
+                            "cycle edges {} and {} not incident",
+                            last.to_string(),
+                            e.to_string()
+                        ));
+                    }
                 }
+                last = Some(e);
             }
-            _ => (),
+            if last.unwrap().to() != first.unwrap().from() {
+                return Err(format!(
+                    "cycle edges {} and {} not incident",
+                    last.unwrap().to_string(),
+                    first.unwrap().to_string()
+                ));
+            }
         }
         Ok(())
     }

@@ -33,7 +33,7 @@ impl NonRecursiveDFS {
             adj.push(graph.adj(v));
         }
 
-        let mut stack = Stack::new();
+        let mut stack = Stack::default();
         stack.push(s);
         self.marked[s] = true;
 

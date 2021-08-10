@@ -1,3 +1,5 @@
+#![allow(clippy::many_single_char_names)]
+
 use crate::common::{Queue, UF};
 use crate::graph::mst::{Edge, MST};
 use crate::graph::IEWGraph;
@@ -13,7 +15,7 @@ impl KruskalMST {
         let mut edges = g.edges();
         edges.sort(); // sorted by weight
 
-        let mut mst = Queue::new();
+        let mut mst = Queue::default();
         let mut weight = 0.0;
         let mut uf = UF::new(g.V());
         let mut i = 0;
@@ -72,13 +74,11 @@ impl KruskalMST {
             for f in g.edges() {
                 let x = f.either();
                 let y = f.other(x);
-                if uf.find(x) != uf.find(y) {
-                    if f.weight() < e.weight() {
-                        return Err(format!(
-                            "Edge {} violates cut optimality conditions",
-                            f.to_string()
-                        ));
-                    }
+                if uf.find(x) != uf.find(y) && f.weight() < e.weight() {
+                    return Err(format!(
+                        "Edge {} violates cut optimality conditions",
+                        f.to_string()
+                    ));
                 }
             }
         }

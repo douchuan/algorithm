@@ -7,12 +7,14 @@ pub struct Stack<T> {
     ll: LinkedList<T>,
 }
 
-impl<T> Stack<T> {
-    pub fn new() -> Self {
+impl<T> Default for Stack<T> {
+    fn default() -> Self {
         let ll = LinkedList::default();
         Self { ll }
     }
+}
 
+impl<T> Stack<T> {
     /// Adds the item to this stack.
     pub fn push(&mut self, v: T) {
         self.ll.push_front(v);

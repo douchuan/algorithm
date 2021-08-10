@@ -124,7 +124,7 @@ impl BreadthFirstPaths {
     }
 
     fn bfs(&mut self, g: &dyn IGraph, s: usize) {
-        let mut queue = Queue::new();
+        let mut queue = Queue::default();
         self.marked[s] = true;
         self.dist_to[s] = 0;
         queue.enqueue(s);

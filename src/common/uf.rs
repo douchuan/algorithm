@@ -84,10 +84,7 @@ pub struct UF {
 
 impl QuickFindUF {
     pub fn new(n: usize) -> Self {
-        let mut id = vec![0; n];
-        for i in 0..n {
-            id[i] = i;
-        }
+        let id = (0..n).collect();
         Self { id, count: n }
     }
 
@@ -119,10 +116,7 @@ impl QuickFindUF {
 
 impl QuickUnionUF {
     pub fn new(n: usize) -> Self {
-        let mut parent = vec![0; n];
-        for i in 0..n {
-            parent[i] = i;
-        }
+        let parent = (0..n).collect();
         Self { parent, count: n }
     }
 
@@ -151,11 +145,7 @@ impl QuickUnionUF {
 
 impl WeightedQuickUnionUF {
     pub fn new(n: usize) -> Self {
-        let mut parent = vec![0; n];
-        for i in 0..n {
-            parent[i] = i;
-        }
-
+        let parent = (0..n).collect();
         Self {
             parent,
             size: vec![1; n],
@@ -192,11 +182,7 @@ impl WeightedQuickUnionUF {
 
 impl UF {
     pub fn new(n: usize) -> Self {
-        let mut parent = vec![0; n];
-        for i in 0..n {
-            parent[i] = i;
-        }
-
+        let parent = (0..n).collect();
         Self {
             parent,
             rank: vec![0; n],

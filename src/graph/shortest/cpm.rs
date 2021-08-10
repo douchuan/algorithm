@@ -1,3 +1,5 @@
+#![allow(clippy::many_single_char_names)]
+
 use crate::graph::shortest::{AcyclicLP, EWDigraph};
 use crate::graph::util::parser;
 use crate::graph::IEWDigraph;

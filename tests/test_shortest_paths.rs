@@ -3,7 +3,7 @@ extern crate approx;
 
 use algo::graph::directed::{DepthFirstOrders, EdgeWeightedDirectedCycle};
 use algo::graph::shortest::{
-    AcyclicLP, AcyclicSP, BellmanFordSP, DijkstraAllPairsSP, DijkstraSP, EWDigraph, CPM,
+    AcyclicLP, AcyclicSP, Arbitrage, BellmanFordSP, DijkstraAllPairsSP, DijkstraSP, EWDigraph, CPM,
 };
 use algo::graph::IEWDigraph;
 use std::str::FromStr;
@@ -13,6 +13,7 @@ const TINY_EWD_NEGATIVE: &'static str = include_str!("res/graph/tinyEWDn.txt");
 const TINY_EWD_NEGATIVE_CYCLE: &'static str = include_str!("res/graph/tinyEWDnc.txt");
 const TINY_EWDAG: &'static str = include_str!("res/graph/tinyEWDAG.txt");
 const JOBS_PC: &'static str = include_str!("res/graph/jobsPC.txt");
+const RATES: &'static str = include_str!("res/graph/rates.txt");
 
 #[test]
 fn parse() {
@@ -179,6 +180,26 @@ fn Bellman_Ford_sp() {
     assert!(sp.has_negative_cycle());
     assert!(sp.negative_cycle().is_some());
     assert!(sp.check(g.as_ref(), 0).is_ok());
+}
+
+#[test]
+fn arbitrage() {
+    use std::convert::TryFrom;
+    let i = RATES;
+    let arbitrage = Arbitrage::try_from(i).unwrap();
+
+    /*
+    1000.00000 USD =  741.00000 EUR
+     741.00000 EUR = 1012.20605 CAD
+    1012.20605 CAD = 1007.14502 USD
+         */
+    let mut stake = 1000.0;
+    assert_relative_eq!(1007.14497, arbitrage.calc(stake).unwrap());
+    let cycle = arbitrage.opportunity_cycle().unwrap();
+    for it in cycle {
+        println!("{:10.5} {} = {:10.5} {}", stake, it.0, stake * it.2, it.1);
+        stake *= it.2;
+    }
 }
 
 fn create_graph(i: &str) -> Box<dyn IEWDigraph> {

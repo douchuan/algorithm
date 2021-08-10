@@ -29,7 +29,7 @@ impl BellmanFordSP {
             dist_to: vec![f32::MAX; nv],
             edge_to: vec![None; nv],
             on_queue: vec![false; nv],
-            queue: Queue::new(),
+            queue: Queue::default(),
             cost: 0,
             cycle: None,
         };
@@ -60,6 +60,9 @@ impl BellmanFordSP {
                 }
             }
 
+            // digraph has a negative cycle reachable from the
+            // source if and only if the queue is nonempty after
+            // the Vth pass through all the edges
             self.cost += 1;
             if self.cost % g.V() == 0 {
                 self.find_negative_cycle();
@@ -95,7 +98,7 @@ impl BellmanFordSP {
     /// Returns a negative cycle reachable from the source vertex s, or None
     /// if there is no such cycle.
     pub fn negative_cycle(&self) -> Option<std::slice::Iter<'_, DirectedEdge>> {
-        self.cycle.as_ref().and_then(|v| Some(v.iter()))
+        self.cycle.as_ref().map(|v| v.iter())
     }
 
     // check optimality conditions: either
@@ -105,13 +108,13 @@ impl BellmanFordSP {
     // (ii') for all edges e = v->w on the SPT: distTo[w] == distTo[v] + e.weight()
     pub fn check(&self, g: &dyn IEWDigraph, s: usize) -> Result<(), String> {
         // has a negative cycle
-        if let Some(cycle) = self.cycle.clone() {
+        if let Some(cycle) = self.cycle.as_ref() {
             let mut weight = 0.0;
             for e in cycle {
                 weight += e.weight();
             }
             if weight >= 0.0 {
-                return Err(format!("weight of netative cycle = {}", weight));
+                return Err(format!("weight of negative cycle = {}", weight));
             }
         }
         // no negative cycle reachable from source
@@ -120,10 +123,8 @@ impl BellmanFordSP {
                 return Err("dist_to[s] and edge_to[s] inconsistent".to_string());
             }
             for v in 0..g.V() {
-                if v != s {
-                    if self.edge_to[v].is_none() && self.dist_to[v] != f32::MAX {
-                        return Err("dist_to[] and edge_to[] inconsistent".to_string());
-                    }
+                if v != s && self.edge_to[v].is_none() && self.dist_to[v] != f32::MAX {
+                    return Err("dist_to[] and edge_to[] inconsistent".to_string());
                 }
             }
 

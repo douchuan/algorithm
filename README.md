@@ -54,6 +54,7 @@ never worry about system crash.
   - Prim’s algorithm (PrimMST)
   - Kruskal’s algorithm (KruskalMST)
 - shortest paths
+  - arbitrage problem (Arbitrage)
   - Acyclic edge-weighted digraphs (AcyclicSP, AcyclicLP)
   - Critical path method for parallel precedence-constrained job scheduling (CPM)
   - Dijkstra’s algorithm (DijkstraSP, DijkstraAllPairsSP)

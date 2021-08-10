@@ -10,7 +10,7 @@ const TINY_UF: &'static str = include_str!("res/common/tinyUF.txt");
 #[test]
 fn queue() {
     let v: Vec<&str> = TOBE.split(' ').collect();
-    let mut queue = Queue::new();
+    let mut queue = Queue::default();
     let mut r = Vec::new();
     for s in v {
         match s {
@@ -30,7 +30,7 @@ fn queue() {
 #[test]
 fn stack() {
     let v: Vec<&str> = TOBE.split(' ').collect();
-    let mut stack = Stack::new();
+    let mut stack = Stack::default();
     let mut r = Vec::new();
     for s in v {
         match s {
@@ -90,7 +90,7 @@ fn max_pq() {
 #[test]
 fn index_min_pq() {
     fn queue(i: &str) -> Queue<&str> {
-        let mut queue = Queue::new();
+        let mut queue = Queue::default();
         for s in i.split_whitespace() {
             queue.enqueue(s);
         }
@@ -124,7 +124,7 @@ fn index_min_pq() {
 #[test]
 fn index_max_pq() {
     fn queue(i: &str) -> Queue<&str> {
-        let mut queue = Queue::new();
+        let mut queue = Queue::default();
         for s in i.split_whitespace() {
             queue.enqueue(s);
         }

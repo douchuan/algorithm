@@ -166,7 +166,7 @@ fn degree_of_separation() {
     let source = "JFK";
     let sink = "LAS";
     let expect = vec!["JFK", "ORD", "PHX", "LAS"];
-    let finder = BreadthFirstPaths::new(graph.as_ref(), symbol.index(source).unwrap());
+    let finder = BreadthFirstPaths::new(graph, symbol.index(source).unwrap());
     assert!(finder.has_path(symbol.index(sink).unwrap()));
     let paths = finder.path_to(symbol.index(sink).unwrap()).unwrap();
     let mut path_names = vec![];

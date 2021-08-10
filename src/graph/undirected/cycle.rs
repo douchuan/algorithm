@@ -49,7 +49,7 @@ impl Cycle {
 
     /// Returns a cycle in the graph G.
     pub fn cycle(&self) -> Option<Iter<'_, usize>> {
-        self.cycle.as_ref().and_then(|v| Some(v.iter()))
+        self.cycle.as_ref().map(|v| v.iter())
     }
 }
 
@@ -66,7 +66,7 @@ impl Cycle {
                 self.edge_to[w] = v;
                 self.dfs(g, w, v);
             } else if w != u {
-                let mut cycle = Stack::new();
+                let mut cycle = Stack::default();
                 let mut x = v;
                 while x != w {
                     cycle.push(x);
@@ -86,7 +86,7 @@ impl Cycle {
         for v in 0..graph.V() {
             for &w in graph.adj(v) {
                 if self.marked[w] {
-                    let mut cycle = Stack::new();
+                    let mut cycle = Stack::default();
                     cycle.push(v);
                     cycle.push(w);
                     cycle.push(v);
