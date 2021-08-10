@@ -46,6 +46,7 @@ impl PartialEq for Edge {
     }
 }
 
+// todo: eliminate, used by KruskalMST
 impl Ord for Edge {
     fn cmp(&self, other: &Self) -> Ordering {
         self.weight.partial_cmp(&other.weight).unwrap()

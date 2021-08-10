@@ -13,7 +13,11 @@ pub struct KruskalMST {
 impl KruskalMST {
     pub fn new(g: &dyn IEWGraph) -> Self {
         let mut edges = g.edges();
-        edges.sort(); // sorted by weight
+        // When applicable, unstable sorting is preferred because it is
+        // generally faster than stable sorting and it doesn’t allocate
+        // auxiliary memory. See sort_unstable.
+        // edges.sort();
+        edges.sort_unstable(); // sorted by weight
 
         let mut mst = Queue::default();
         let mut weight = 0.0;
