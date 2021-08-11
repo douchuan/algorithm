@@ -1,7 +1,10 @@
-use algo::strings::alphabet;
+use algo::strings::{alphabet, Count};
+
+const ABRA: &'static str = include_str!("res/strings/abra.txt");
+const PI: &'static str = include_str!("res/strings/pi.txt");
 
 #[test]
-fn t_alphabet() {
+fn alphabet() {
     let s = "NowIsTheTimeForAllGoodMen";
     let encoded = alphabet::BASE64.to_indices(s);
     let decoded = alphabet::BASE64.to_chars(&encoded);
@@ -16,4 +19,20 @@ fn t_alphabet() {
     let encoded = alphabet::DECIMAL.to_indices(s);
     let decoded = alphabet::DECIMAL.to_chars(&encoded);
     assert_eq!(s, decoded);
+}
+
+#[test]
+fn count() {
+    use std::convert::TryFrom;
+
+    let counter = Count::try_from("ABCDR").unwrap();
+    let r = counter.compute(ABRA);
+    assert_eq!(vec![5, 2, 1, 1, 2], r);
+
+    let counter = Count::try_from("0123456789").unwrap();
+    let r = counter.compute(PI);
+    assert_eq!(
+        vec![9999, 10137, 9908, 10026, 9971, 10026, 10028, 10025, 9978, 9902],
+        r
+    );
 }
