@@ -1,4 +1,4 @@
-use algo::strings::{alphabet, Count};
+use algo::strings::{alphabet, Alphabet, Count};
 
 const ABRA: &'static str = include_str!("res/strings/abra.txt");
 const PI: &'static str = include_str!("res/strings/pi.txt");
@@ -25,12 +25,11 @@ fn alphabet() {
 fn count() {
     use std::convert::TryFrom;
 
-    let counter = Count::try_from("ABCDR").unwrap();
-    let r = counter.compute(ABRA);
+    let alphabet = Alphabet::try_from("ABCDR").unwrap();
+    let r = Count::compute(&alphabet, ABRA);
     assert_eq!(vec![5, 2, 1, 1, 2], r);
 
-    let counter = Count::try_from("0123456789").unwrap();
-    let r = counter.compute(PI);
+    let r = Count::compute(&alphabet::DECIMAL, PI);
     assert_eq!(
         vec![9999, 10137, 9908, 10026, 9971, 10026, 10028, 10025, 9978, 9902],
         r
