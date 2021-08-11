@@ -123,7 +123,7 @@ impl DijkstraSP {
             }
             let e = self.edge_to[w].unwrap();
             let v = e.from();
-            if self.dist_to[v] + e.weight() != self.dist_to[w] {
+            if (self.dist_to[v] + e.weight() - self.dist_to[w]).abs() > f32::EPSILON {
                 return Err(format!("edge {} on shortest path not tight", e.to_string()));
             }
         }

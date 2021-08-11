@@ -12,11 +12,10 @@ impl Count {
         let alphabet = &self.alphabet;
         let mut count = vec![0; alphabet.radix()];
         for c in s.chars() {
-            match alphabet.to_index(c) {
-                Some(&i) if i >= 0 => {
+            if let Some(&i) = alphabet.to_index(c) {
+                if i >= 0 {
                     count[i as usize] += 1;
                 }
-                _ => (),
             }
         }
         count

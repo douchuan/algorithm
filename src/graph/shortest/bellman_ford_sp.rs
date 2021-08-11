@@ -145,7 +145,7 @@ impl BellmanFordSP {
                     if w != e.to() {
                         return Err(format!("illegal edge {}", e.to_string()));
                     }
-                    if self.dist_to[v] + e.weight() != self.dist_to[w] {
+                    if (self.dist_to[v] + e.weight() - self.dist_to[w]).abs() > f32::EPSILON {
                         return Err(format!("edge {} on shortest path not tight", e.to_string()));
                     }
                 }
