@@ -4,8 +4,7 @@
 //! operations, along with methods for peeking at the first item,
 //! testing if the queue is empty, and iterating through
 //! the items in FIFO order.
-//! This implementation uses a singly linked list with a static nested class for
-//! linked-list nodes.
+//! This implementation uses a singly linked list.
 //! The enqueue, dequeue, peek, size, and is-empty
 //! operations all take constant time in the worst case.
 

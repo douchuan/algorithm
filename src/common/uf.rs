@@ -1,3 +1,5 @@
+//! 此处实现了多种union-find算法，UF算法性能最好
+
 use std::cmp::Ordering;
 
 /// The QuickUnionUF represents a union–find data type

@@ -91,3 +91,9 @@ never worry about system crash.
 # setup Rust Toolchain
 make test
 ```
+
+### Roadmap
+
+- Implement algorithms in book
+- Finish exercises
+- Algorithms visualization (Easy to study and short learning curve)

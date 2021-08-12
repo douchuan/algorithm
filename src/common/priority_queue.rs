@@ -56,6 +56,7 @@ impl<T: PartialOrd + Default> PQ<T> {
             comparator,
         };
 
+        // 虽然此处初始化了0号元素, 但0号元素并不参与算法过程，
         pq.pq.push(T::default());
 
         pq
