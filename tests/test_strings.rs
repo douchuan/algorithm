@@ -2,6 +2,7 @@ use algo::strings::{alphabet, Alphabet, Count, LSD};
 
 const ABRA: &'static str = include_str!("res/strings/abra.txt");
 const PI: &'static str = include_str!("res/strings/pi.txt");
+const WORDS3: &'static str = include_str!("res/strings/words3.txt");
 
 #[test]
 fn alphabet() {
@@ -38,8 +39,21 @@ fn count() {
 
 #[test]
 fn lsd_radix_sort() {
-    let mut strs = vec!["ccc", "bbb", "aaa"];
-    let w = strs[0].len();
-    LSD::sort(&mut strs, w);
-    assert_eq!(vec!["aaa", "bbb", "ccc"], strs);
+    let i = WORDS3;
+    let mut a = Vec::new();
+    for line in i.lines() {
+        for s in line.split_whitespace() {
+            a.push(s);
+        }
+    }
+    let w = a[0].len();
+    LSD::sort(&mut a, w);
+    assert_eq!(
+        vec![
+            "all", "bad", "bed", "bug", "dad", "dim", "dug", "egg", "fee", "few", "for", "gig",
+            "hut", "ilk", "jam", "jay", "jot", "joy", "men", "nob", "now", "owl", "rap", "sky",
+            "sob", "tag", "tap", "tar", "tip", "wad", "was", "wee", "yes", "yet", "zoo"
+        ],
+        a
+    );
 }
