@@ -77,13 +77,14 @@ never worry about system crash.
   - Insertion Sort (insert.rs)
   - Merge Sort (merge.rs)
   - Quick Sort (quick.rs)
-  - Robert. W. Floyd Heap sort (floyd_sort)
+  - Robert. W. Floyd Heap sort (floyd.rs)
   - Selection Sort (selection.rs)
   - Shell's Sort (shell.rs)
   - Tournament Tree Sort (tree_selection.rs)
 
 #### Strings
   - Character-indexed arrays (alphabet.rs, count.rs)
+  - LSD radix sort (LSD)
 
 ### Running
 

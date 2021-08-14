@@ -103,7 +103,7 @@ fn heap_sort_floyd() {
     let data = sort::util::plan_data();
     for (t, expect) in data {
         let mut tt = t.clone();
-        sort::heap::floyd_sort(&mut tt);
+        sort::floyd::sort(&mut tt);
         assert_eq!(tt, expect, "t = {:?}, expect = {:?}", t, expect);
     }
 }

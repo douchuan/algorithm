@@ -8,7 +8,7 @@
 /// 就地排序，小 -> 大
 use crate::common::max_heap;
 
-pub fn floyd_sort<T>(a: &mut [T])
+pub fn sort<T>(a: &mut [T])
 where
     T: Ord,
 {
