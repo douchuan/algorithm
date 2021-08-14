@@ -1,7 +1,7 @@
 use algo::strings::{alphabet, Alphabet, Count};
 
-const ABRA: &'static str = include_str!("res/strings/abra.txt");
-const PI: &'static str = include_str!("res/strings/pi.txt");
+const ABRA: &'static str = include_str!("../res/strings/abra.txt");
+const PI: &'static str = include_str!("../res/strings/pi.txt");
 
 #[test]
 fn alphabet() {

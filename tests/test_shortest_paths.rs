@@ -8,12 +8,12 @@ use algo::graph::shortest::{
 use algo::graph::IEWDigraph;
 use std::str::FromStr;
 
-const TINY_EWD: &'static str = include_str!("res/graph/tinyEWD.txt");
-const TINY_EWD_NEGATIVE: &'static str = include_str!("res/graph/tinyEWDn.txt");
-const TINY_EWD_NEGATIVE_CYCLE: &'static str = include_str!("res/graph/tinyEWDnc.txt");
-const TINY_EWDAG: &'static str = include_str!("res/graph/tinyEWDAG.txt");
-const JOBS_PC: &'static str = include_str!("res/graph/jobsPC.txt");
-const RATES: &'static str = include_str!("res/graph/rates.txt");
+const TINY_EWD: &'static str = include_str!("../res/graph/tinyEWD.txt");
+const TINY_EWD_NEGATIVE: &'static str = include_str!("../res/graph/tinyEWDn.txt");
+const TINY_EWD_NEGATIVE_CYCLE: &'static str = include_str!("../res/graph/tinyEWDnc.txt");
+const TINY_EWDAG: &'static str = include_str!("../res/graph/tinyEWDAG.txt");
+const JOBS_PC: &'static str = include_str!("../res/graph/jobsPC.txt");
+const RATES: &'static str = include_str!("../res/graph/rates.txt");
 
 #[test]
 fn parse() {

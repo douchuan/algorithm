@@ -5,8 +5,8 @@ use algo::common::{QuickUnionUF, WeightedQuickUnionUF, UF};
 use std::str::FromStr;
 use test::Bencher;
 
-const TINY_UF: &'static str = include_str!("../tests/res/common/tinyUF.txt");
-const MEDIUM_UF: &'static str = include_str!("../tests/res/common/mediumUF.txt");
+const TINY_UF: &'static str = include_str!("../res/common/tinyUF.txt");
+const MEDIUM_UF: &'static str = include_str!("../res/common/mediumUF.txt");
 
 #[bench]
 fn weighted_quf(b: &mut Bencher) {

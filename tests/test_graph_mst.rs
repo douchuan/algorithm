@@ -5,7 +5,7 @@ use algo::graph::mst::{EWGraph, KruskalMST, LazyPrimMST, PrimMST, MST};
 use algo::graph::IEWGraph;
 use std::str::FromStr;
 
-const TINY_EWG: &'static str = include_str!("res/graph/tinyEWG.txt");
+const TINY_EWG: &'static str = include_str!("../res/graph/tinyEWG.txt");
 
 #[test]
 fn parse() {

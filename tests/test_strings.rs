@@ -1,8 +1,8 @@
 use algo::strings::{alphabet, Alphabet, Count, LSD};
 
-const ABRA: &'static str = include_str!("res/strings/abra.txt");
-const PI: &'static str = include_str!("res/strings/pi.txt");
-const WORDS3: &'static str = include_str!("res/strings/words3.txt");
+const ABRA: &'static str = include_str!("../res/strings/abra.txt");
+const PI: &'static str = include_str!("../res/strings/pi.txt");
+const WORDS3: &'static str = include_str!("../res/strings/words3.txt");
 
 #[test]
 fn alphabet() {

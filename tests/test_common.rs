@@ -3,9 +3,9 @@ use algo::common::{
 };
 use std::str::FromStr;
 
-const TOBE: &'static str = include_str!("res/common/tobe.txt");
-const TINY_UF: &'static str = include_str!("res/common/tinyUF.txt");
-// const M_UF: &'static str = include_str!("res/common/mediumUF.txt");
+const TOBE: &'static str = include_str!("../res/common/tobe.txt");
+const TINY_UF: &'static str = include_str!("../res/common/tinyUF.txt");
+// const M_UF: &'static str = include_str!("../res/common/mediumUF.txt");
 
 #[test]
 fn queue() {

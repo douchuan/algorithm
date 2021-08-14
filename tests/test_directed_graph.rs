@@ -6,9 +6,9 @@ use algo::graph::util::{BreadthFirstPaths, DepthFirstPaths, Paths, SymbolGraph};
 use algo::graph::IGraph;
 use std::str::FromStr;
 
-const TINY_DG: &'static str = include_str!("res/graph/tinyDG.txt");
-const TINY_DAG: &'static str = include_str!("res/graph/tinyDAG.txt");
-const JOBS: &'static str = include_str!("res/graph/jobs.txt");
+const TINY_DG: &'static str = include_str!("../res/graph/tinyDG.txt");
+const TINY_DAG: &'static str = include_str!("../res/graph/tinyDAG.txt");
+const JOBS: &'static str = include_str!("../res/graph/jobs.txt");
 
 #[test]
 fn parser() {

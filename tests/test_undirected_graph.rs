@@ -4,9 +4,9 @@ use algo::graph::IGraph;
 use std::path::PathBuf;
 use std::str::FromStr;
 
-const TINY_G: &'static str = include_str!("res/graph/tinyG.txt");
-const TINY_CG: &'static str = include_str!("res/graph/tinyCG.txt");
-const ROUTES: &'static str = include_str!("res/graph/routes.txt");
+const TINY_G: &'static str = include_str!("../res/graph/tinyG.txt");
+const TINY_CG: &'static str = include_str!("../res/graph/tinyCG.txt");
+const ROUTES: &'static str = include_str!("../res/graph/routes.txt");
 
 #[test]
 fn parser() {
@@ -179,7 +179,7 @@ fn degree_of_separation() {
 #[test]
 fn locate_file() {
     let mut d = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    d.push("tests/res/graph/tinyCG.txt");
+    d.push("res/graph/tinyCG.txt");
     assert!(d.exists(), "d = {}", d.display());
 }
 

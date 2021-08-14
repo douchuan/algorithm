@@ -4,7 +4,7 @@ extern crate test;
 use algo::strings::LSD;
 use test::Bencher;
 
-const WORDS3: &'static str = include_str!("../tests/res/strings/words3.txt");
+const WORDS3: &'static str = include_str!("../res/strings/words3.txt");
 
 #[allow(non_snake_case)]
 #[bench]
