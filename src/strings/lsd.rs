@@ -1,3 +1,26 @@
+//! LSD string sort
+//!
+//! The first string-sorting method that we consider is known
+//! as least-significant-digit first (LSD) string sort. Consider
+//! the following motivating application:
+//! Suppose that a highway engineer sets up a device that records
+//! the license plate numbers of all vehicles using a busy highway
+//! for a given period of time and wants to know the number of
+//! different vehicles that used the highway. As you know from
+//! Section 2.1, one easy way to solve this problem is to sort the
+//! numbers, then make a pass through to count the different values,
+//! as in Dedup (page 490). License plates are a mixture of numbers
+//! and letters, so it is natural to represent them as strings.
+//! In the simplest situation (such as the California license
+//! plate examples at right) the strings all have the same number
+//! of characters. This situation is often found in sort
+//! applications—for example, telephone numbers, bank account numbers,
+//! and IP addresses are typically fixed-length strings.
+//!
+//! If the strings are each of length W,
+//! we sort the strings W times with key-indexed counting, using
+//! each of the positions as the key, proceeding from right to left.
+
 /// The LSD provides static methods for sorting an
 /// array of w-character strings or 32-bit integers
 /// using LSD radix sort.
