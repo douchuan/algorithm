@@ -85,6 +85,7 @@ never worry about system crash.
 #### Strings
   - Character-indexed arrays (alphabet.rs, count.rs)
   - LSD radix sort (LSD)
+  - MSD radix sort (MSD)
 
 ### Running
 
