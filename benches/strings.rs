@@ -8,35 +8,43 @@ const WORDS3: &'static str = include_str!("../res/strings/words3.txt");
 
 #[allow(non_snake_case)]
 #[bench]
-fn std_Vec_sort(b: &mut Bencher) {
+fn sort_str_std_Vec(b: &mut Bencher) {
     let i = WORDS3;
-    let mut a_words = Vec::new();
-    for line in i.lines() {
-        for s in line.split_whitespace() {
-            a_words.push(s);
-        }
-    }
-
+    let mut words = extract_words(i);
     b.iter(|| {
-        let mut a = a_words.clone();
-        a.sort();
+        words.sort();
     });
 }
 
 #[allow(non_snake_case)]
 #[bench]
-fn LSD_radix_sort(b: &mut Bencher) {
-    let i = WORDS3;
-    let mut a_words = Vec::new();
-    for line in i.lines() {
-        for s in line.split_whitespace() {
-            a_words.push(s);
-        }
-    }
-
+fn sort_i32_std_Vec(b: &mut Bencher) {
+    let mut nums: Vec<i32> = (0..1000).rev().collect();
     b.iter(|| {
-        let mut a = a_words.clone();
-        let w = a[0].len();
-        LSD::sort(&mut a, w);
+        nums.sort();
     });
+}
+
+#[allow(non_snake_case)]
+#[bench]
+fn sort_str_LSD_radix(b: &mut Bencher) {
+    let i = WORDS3;
+    let mut words = extract_words(i);
+    let w = words[0].len();
+    b.iter(|| {
+        LSD::sort(&mut words, w);
+    });
+}
+
+#[allow(non_snake_case)]
+#[bench]
+fn sort_i32_LSD_radix(b: &mut Bencher) {
+    let mut nums: Vec<i32> = (0..1000).rev().collect();
+    b.iter(|| {
+        LSD::sort_i32(&mut nums);
+    });
+}
+
+fn extract_words(i: &str) -> Vec<&str> {
+    i.split_whitespace().collect()
 }

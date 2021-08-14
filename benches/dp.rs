@@ -18,7 +18,7 @@ fn make_changes_iter(b: &mut Bencher) {
     b.iter(|| dp::coin::make_change_iter(&coins, MAKE_CHANGES_AMOUNT));
 }
 
-static BENCH_N: usize = 40;
+static BENCH_N: usize = 20;
 
 #[bench]
 fn fib_classic_recursive(b: &mut Bencher) {

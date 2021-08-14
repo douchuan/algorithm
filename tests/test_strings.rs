@@ -40,12 +40,7 @@ fn count() {
 #[test]
 fn lsd_radix_sort() {
     let i = WORDS3;
-    let mut a = Vec::new();
-    for line in i.lines() {
-        for s in line.split_whitespace() {
-            a.push(s);
-        }
-    }
+    let mut a = extract_words(i);
     let w = a[0].len();
     LSD::sort(&mut a, w);
     assert_eq!(
@@ -56,4 +51,15 @@ fn lsd_radix_sort() {
         ],
         a
     );
+}
+
+#[test]
+fn lsd_radix_sort_i32() {
+    let mut a: Vec<i32> = (0..10).rev().collect();
+    LSD::sort_i32(&mut a);
+    assert_eq!((0..10).collect::<Vec<i32>>(), a);
+}
+
+fn extract_words(i: &str) -> Vec<&str> {
+    i.split_whitespace().collect()
 }
