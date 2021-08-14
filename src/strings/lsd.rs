@@ -33,18 +33,19 @@ impl LSD {
     /// `w` the number of characters per string
     pub fn sort<T: AsRef<str> + ?Sized>(a: &mut [&T], w: usize) {
         let n = a.len();
-        let R = 256; // extend ASCII alphabet size
-                     // a[0] just for init helper, no practical significance
+        // extend ASCII alphabet size
+        let R = 256;
+        // a[0] just for init helper, no practical significance
         let mut aux = vec![a[0]; n];
+        let mut count = vec![0; R + 1];
 
         for d in (0..w).rev() {
             // sort by key-indexed counting on d-th character
 
             // compute frequency counts
-            // Notes: count.len() is R + 1
-            let mut count = vec![0; R + 1];
+            count.fill(0);
             for i in 0..n {
-                let c = a[i].as_ref().chars().nth(d).unwrap();
+                let c = a[i].as_ref().as_bytes()[d];
                 count[c as usize + 1] += 1;
             }
 
@@ -55,7 +56,7 @@ impl LSD {
 
             // move data
             for i in 0..n {
-                let c = a[i].as_ref().chars().nth(d).unwrap();
+                let c = a[i].as_ref().as_bytes()[d];
                 let j = &mut count[c as usize];
                 aux[*j] = a[i];
                 *j += 1;

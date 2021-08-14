@@ -51,6 +51,19 @@ fn lsd_radix_sort() {
         ],
         a
     );
+
+    // license plate data
+    let mut a = vec![
+        "4PGC938", "2IYE230", "3CIO720", "1ICK750", "1OHV845", "4JZY524", "1ICK750", "3CIO720",
+        "1OHV845", "1OHV845", "2RLA629", "2RLA629", "3ATW723",
+    ];
+    let w = a[0].len();
+    LSD::sort(&mut a, w);
+    let expect = vec![
+        "1ICK750", "1ICK750", "1OHV845", "1OHV845", "1OHV845", "2IYE230", "2RLA629", "2RLA629",
+        "3ATW723", "3CIO720", "3CIO720", "4JZY524", "4PGC938",
+    ];
+    assert_eq!(expect, a);
 }
 
 #[test]
