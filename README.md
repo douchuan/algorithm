@@ -96,6 +96,6 @@ make test
 
 ### Roadmap
 
-- Implement algorithms in book
-- Finish exercises
+- Implement algorithms in in the textbook
+  [Algorithms, 4th Edition](http://amzn.to/13VNJi7)
 - Algorithms visualization (Easy to study and short learning curve)
