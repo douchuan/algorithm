@@ -4,6 +4,7 @@ use algo::strings::{alphabet, Alphabet, Count, LSD, MSD};
 const ABRA: &'static str = include_str!("../res/strings/abra.txt");
 const PI: &'static str = include_str!("../res/strings/pi.txt");
 const WORDS3: &'static str = include_str!("../res/strings/words3.txt");
+const SHELLS: &'static str = include_str!("../res/strings/shells.txt");
 
 #[test]
 fn alphabet() {
@@ -120,29 +121,13 @@ fn LSD_radix_sort_i32_opt() {
 
 #[test]
 fn MSD_radix_sort() {
-    let i = WORDS3;
+    let i = SHELLS;
     let mut a = extract_words(i);
     MSD::sort(&mut a);
     assert_eq!(
-        vec![
-            "all", "bad", "bed", "bug", "dad", "dim", "dug", "egg", "fee", "few", "for", "gig",
-            "hut", "ilk", "jam", "jay", "jot", "joy", "men", "nob", "now", "owl", "rap", "sky",
-            "sob", "tag", "tap", "tar", "tip", "wad", "was", "wee", "yes", "yet", "zoo"
-        ],
+        vec!["are", "by", "sea", "seashells", "seashells", "sells", "sells", "she", "she", "shells", "shore", "surely", "the", "the" ],
         a
     );
-
-    // license plate data
-    let mut a = vec![
-        "4PGC938", "2IYE230", "3CIO720", "1ICK750", "1OHV845", "4JZY524", "1ICK750", "3CIO720",
-        "1OHV845", "1OHV845", "2RLA629", "2RLA629", "3ATW723",
-    ];
-    MSD::sort(&mut a);
-    let expect = vec![
-        "1ICK750", "1ICK750", "1OHV845", "1OHV845", "1OHV845", "2IYE230", "2RLA629", "2RLA629",
-        "3ATW723", "3CIO720", "3CIO720", "4JZY524", "4PGC938",
-    ];
-    assert_eq!(expect, a);
 }
 
 fn extract_words(i: &str) -> Vec<&str> {
