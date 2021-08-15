@@ -25,6 +25,10 @@
 /// The LSD provides static methods for sorting an
 /// array of w-character strings or 32-bit integers
 /// using LSD radix sort.
+const R_ASCII: usize = 256; // extend ASCII alphabet size
+const BITS_PER_BYTE: usize = 8;
+const R_I32: usize = 1 << BITS_PER_BYTE;
+
 pub struct LSD;
 
 impl LSD {
@@ -33,8 +37,7 @@ impl LSD {
     /// `w` the number of characters per string
     pub fn sort<T: AsRef<str> + ?Sized>(a: &mut [&T], w: usize) {
         let n = a.len();
-        // extend ASCII alphabet size
-        let R = 256;
+
         // a[0] just for init helper, no practical significance
         let mut aux = vec![a[0]; n];
 
@@ -42,23 +45,22 @@ impl LSD {
             // sort by key-indexed counting on d-th character
 
             // compute frequency counts
-            let mut count = vec![0; R + 1];
+            let mut count = [0; R_ASCII + 1];
             for i in 0..n {
                 let c = a[i].as_ref().as_bytes()[d];
                 count[c as usize + 1] += 1;
             }
 
             // compute cumulates
-            for r in 0..R {
+            for r in 0..R_ASCII {
                 count[r + 1] += count[r];
             }
 
             // move data
             for i in 0..n {
                 let c = a[i].as_ref().as_bytes()[d];
-                let j = &mut count[c as usize];
-                aux[*j] = a[i];
-                *j += 1;
+                aux[count[c as usize]] = a[i];
+                count[c as usize] += 1;
             }
 
             // copy back
@@ -69,44 +71,32 @@ impl LSD {
     }
 
     pub fn sort_opt<T: AsRef<str> + ?Sized>(a: &mut [&T], w: usize) {
-        // extend ASCII alphabet size
-        let R = 256;
-
         let n = a.len();
         let aux_size = std::mem::size_of::<&T>() * n;
         let aux = unsafe { libc::malloc(aux_size) as *mut &T };
-        let count_size = std::mem::size_of::<isize>() * (R + 1);
-        let count = unsafe { libc::malloc(count_size) as *mut isize };
 
         for d in (0..w).rev() {
             // sort by key-indexed counting on d-th character
 
             // compute frequency counts
-            unsafe {
-                libc::memset(count as *mut libc::c_void, 0, count_size);
-            }
+            let mut count = [0; R_ASCII + 1];
             for i in 0..n {
                 let c = a[i].as_ref().as_bytes()[d];
-                unsafe {
-                    *count.offset(c as isize + 1) += 1;
-                }
+                count[c as usize + 1] += 1;
             }
 
             // compute cumulates
-            for r in 0..R {
-                unsafe {
-                    *count.offset((r + 1) as isize) += *count.offset(r as isize);
-                }
+            for r in 0..R_ASCII {
+                count[r + 1] += count[r];
             }
 
             // move data
             for i in 0..n {
                 let c = a[i].as_ref().as_bytes()[d];
                 unsafe {
-                    let at = count.offset(c as isize);
-                    *aux.offset(*at) = a[i];
-                    *at += 1;
+                    *aux.offset(count[c as usize] as isize) = a[i];
                 }
+                count[c as usize] += 1;
             }
 
             // copy back
@@ -117,33 +107,26 @@ impl LSD {
 
         unsafe {
             libc::free(aux as *mut libc::c_void);
-            libc::free(count as *mut libc::c_void);
         }
     }
 
     pub fn sort_i32(a: &mut [i32]) {
-        let BITS_PER_BYTE = 8;
         let BITS = 32;
-        let R = 1 << BITS_PER_BYTE;
-        let MASK = R - 1;
+        let MASK = R_I32 - 1;
         let w = BITS / BITS_PER_BYTE;
-
-        // assert_eq!(256, R);
-        // assert_eq!(255, MASK);
-        // assert_eq!(4, w);
 
         let n = a.len();
         let mut aux = vec![0; n];
         for d in 0..w {
             // compute frequency counts
-            let mut count = vec![0; R + 1];
+            let mut count = [0; R_I32 + 1];
             for i in 0..n {
                 let c = (a[i] >> BITS_PER_BYTE * d) & MASK as i32;
                 count[c as usize + 1] += 1;
             }
 
             // compute cumulates
-            for r in 0..R {
+            for r in 0..R_I32 {
                 count[r + 1] += count[r];
             }
 
@@ -171,6 +154,65 @@ impl LSD {
             for i in 0..n {
                 a[i] = aux[i];
             }
+        }
+    }
+
+    pub fn sort_i32_opt(a: &mut [i32]) {
+        let BITS = 32;
+        let MASK = R_I32 - 1; // assert_eq!(255, MASK);
+        let w = BITS / BITS_PER_BYTE; // assert_eq!(4, w);
+
+        let n = a.len();
+        let aux_size = std::mem::size_of::<i32>() * n;
+        let aux = unsafe { libc::malloc(aux_size) as *mut i32 };
+
+        for d in 0..w {
+            // compute frequency counts
+            let mut count = [0; R_I32 + 1];
+            for i in 0..n {
+                let c = (a[i] >> BITS_PER_BYTE * d) & MASK as i32;
+                count[c as usize + 1] += 1;
+            }
+
+            // compute cumulates
+            for r in 0..R_I32 {
+                count[r + 1] += count[r];
+            }
+
+            // for most significant byte, 0x80-0xFF comes before 0x00-0x7F
+            #[cfg(target_endian = "big")]
+            unsafe {
+                if d == w - 1 {
+                    let shift1 = count[R_I32] - count[R_I32 / 2];
+                    let shift2 = count[R_I32 / 2];
+                    for r in 0..R_I32 / 2 {
+                        count[r] += shift1;
+                    }
+                    for r in R / 2..R_I32 {
+                        count[r] -= shift2;
+                    }
+                }
+            }
+
+            // move data
+            for i in 0..n {
+                let c = (a[i] >> BITS_PER_BYTE * d) & MASK as i32;
+                unsafe {
+                    *aux.offset(count[c as usize]) = a[i];
+                }
+                count[c as usize] += 1;
+            }
+
+            // copy back
+            for i in 0..n {
+                unsafe {
+                    a[i] = *aux.offset(i as isize);
+                }
+            }
+        }
+
+        unsafe {
+            libc::free(aux as *mut libc::c_void);
         }
     }
 }

@@ -56,6 +56,15 @@ fn sort_i32_LSD_radix(b: &mut Bencher) {
     });
 }
 
+#[allow(non_snake_case)]
+#[bench]
+fn sort_i32_LSD_radix_opt(b: &mut Bencher) {
+    let mut nums: Vec<i32> = (0..1000).rev().collect();
+    b.iter(|| {
+        LSD::sort_i32_opt(&mut nums);
+    });
+}
+
 fn extract_words(i: &str) -> Vec<&str> {
     i.split_whitespace().collect()
 }
