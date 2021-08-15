@@ -49,7 +49,7 @@ impl LSD {
     /// Rearranges the array of w-character strings in ascending order.
     /// `a` the array to be sorted
     /// `w` the number of characters per string
-    pub fn sort<T: AsRef<str> + ?Sized>(a: &mut [&T], w: usize) {
+    pub fn sort<T: AsRef<str> + Copy>(a: &mut [T], w: usize) {
         let n = a.len();
 
         // a[0] just for init helper, no practical significance
@@ -84,10 +84,10 @@ impl LSD {
         }
     }
 
-    pub fn sort_opt<T: AsRef<str> + ?Sized>(a: &mut [&T], w: usize) {
+    pub fn sort_opt<T: AsRef<str> + Copy>(a: &mut [T], w: usize) {
         let n = a.len();
-        let aux_size = std::mem::size_of::<&T>() * n;
-        let aux = unsafe { libc::malloc(aux_size) as *mut &T };
+        let aux_size = std::mem::size_of::<T>() * n;
+        let aux = unsafe { libc::malloc(aux_size) as *mut T };
 
         for d in (0..w).rev() {
             // sort by key-indexed counting on d-th character

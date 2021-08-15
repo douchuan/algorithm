@@ -6,18 +6,18 @@ const CUTOFF: usize = 15; // cutoff to insertion sort
 pub struct MSD;
 
 impl MSD {
-    pub fn sort<T: AsRef<str> + ?Sized>(a: &mut [&T]) {
+    pub fn sort<T: AsRef<str> + Copy>(a: &mut [T]) {
         let n = a.len();
         let mut aux = vec![a[0]; n];
         Self::do_sort(a, 0, n - 1, 0, &mut aux);
     }
 
-    fn do_sort<'a, T: AsRef<str> + ?Sized>(
-        a: &mut [&'a T],
+    fn do_sort<'a, T: AsRef<str> + Copy>(
+        a: &mut [T],
         lo: usize,
         hi: usize,
         d: usize,
-        aux: &mut [&'a T],
+        aux: &mut [T],
     ) {
         // cutoff to insertion sort for small subarrays
         if hi <= lo + CUTOFF {
@@ -61,17 +61,18 @@ impl MSD {
         }
     }
 
-    fn char_at<T: AsRef<str> + ?Sized>(s: &T, d: usize) -> i32 {
-        let len = s.as_ref().len();
+    fn char_at<T: AsRef<str> + Copy>(s: T, d: usize) -> i32 {
+        let s = s.as_ref();
+        let len = s.len();
         debug_assert!(d <= len);
         if d == len {
             -1
         } else {
-            s.as_ref().as_bytes()[d] as i32
+            s.as_bytes()[d] as i32
         }
     }
 
-    fn insertion<T: AsRef<str> + ?Sized>(a: &mut [&T], lo: usize, hi: usize, d: usize) {
+    fn insertion<T: AsRef<str> + Copy>(a: &mut [T], lo: usize, hi: usize, d: usize) {
         for i in lo..=hi {
             let mut j = i;
             while j > lo && Self::less(a[j], a[j - 1], d) {
@@ -81,7 +82,7 @@ impl MSD {
         }
     }
 
-    fn less<T: AsRef<str> + ?Sized>(v: &T, w: &T, d: usize) -> bool {
+    fn less<T: AsRef<str> + Copy>(v: T, w: T, d: usize) -> bool {
         let v = v.as_ref();
         let w = w.as_ref();
         for i in d..std::cmp::min(v.len(), w.len()) {
