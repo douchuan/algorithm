@@ -37,13 +37,12 @@ impl LSD {
         let R = 256;
         // a[0] just for init helper, no practical significance
         let mut aux = vec![a[0]; n];
-        let mut count = vec![0; R + 1];
 
         for d in (0..w).rev() {
             // sort by key-indexed counting on d-th character
 
             // compute frequency counts
-            count.fill(0);
+            let mut count = vec![0; R + 1];
             for i in 0..n {
                 let c = a[i].as_ref().as_bytes()[d];
                 count[c as usize + 1] += 1;
@@ -66,6 +65,59 @@ impl LSD {
             for i in 0..n {
                 a[i] = aux[i];
             }
+        }
+    }
+
+    pub fn sort_opt<T: AsRef<str> + ?Sized>(a: &mut [&T], w: usize) {
+        // extend ASCII alphabet size
+        let R = 256;
+
+        let n = a.len();
+        let aux_size = std::mem::size_of::<&T>() * n;
+        let aux = unsafe { libc::malloc(aux_size) as *mut &T };
+        let count_size = std::mem::size_of::<isize>() * (R + 1);
+        let count = unsafe { libc::malloc(count_size) as *mut isize };
+
+        for d in (0..w).rev() {
+            // sort by key-indexed counting on d-th character
+
+            // compute frequency counts
+            unsafe {
+                libc::memset(count as *mut libc::c_void, 0, count_size);
+            }
+            for i in 0..n {
+                let c = a[i].as_ref().as_bytes()[d];
+                unsafe {
+                    *count.offset(c as isize + 1) += 1;
+                }
+            }
+
+            // compute cumulates
+            for r in 0..R {
+                unsafe {
+                    *count.offset((r + 1) as isize) += *count.offset(r as isize);
+                }
+            }
+
+            // move data
+            for i in 0..n {
+                let c = a[i].as_ref().as_bytes()[d];
+                unsafe {
+                    let at = count.offset(c as isize);
+                    *aux.offset(*at) = a[i];
+                    *at += 1;
+                }
+            }
+
+            // copy back
+            for i in 0..n {
+                a[i] = unsafe { *aux.offset(i as isize) };
+            }
+        }
+
+        unsafe {
+            libc::free(aux as *mut libc::c_void);
+            libc::free(count as *mut libc::c_void);
         }
     }
 

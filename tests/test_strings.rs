@@ -67,6 +67,35 @@ fn lsd_radix_sort() {
 }
 
 #[test]
+fn lsd_radix_sort_opt() {
+    let i = WORDS3;
+    let mut a = extract_words(i);
+    let w = a[0].len();
+    LSD::sort_opt(&mut a, w);
+    assert_eq!(
+        vec![
+            "all", "bad", "bed", "bug", "dad", "dim", "dug", "egg", "fee", "few", "for", "gig",
+            "hut", "ilk", "jam", "jay", "jot", "joy", "men", "nob", "now", "owl", "rap", "sky",
+            "sob", "tag", "tap", "tar", "tip", "wad", "was", "wee", "yes", "yet", "zoo"
+        ],
+        a
+    );
+
+    // license plate data
+    let mut a = vec![
+        "4PGC938", "2IYE230", "3CIO720", "1ICK750", "1OHV845", "4JZY524", "1ICK750", "3CIO720",
+        "1OHV845", "1OHV845", "2RLA629", "2RLA629", "3ATW723",
+    ];
+    let w = a[0].len();
+    LSD::sort_opt(&mut a, w);
+    let expect = vec![
+        "1ICK750", "1ICK750", "1OHV845", "1OHV845", "1OHV845", "2IYE230", "2RLA629", "2RLA629",
+        "3ATW723", "3CIO720", "3CIO720", "4JZY524", "4PGC938",
+    ];
+    assert_eq!(expect, a);
+}
+
+#[test]
 fn lsd_radix_sort_i32() {
     let mut a: Vec<i32> = (0..10).rev().collect();
     LSD::sort_i32(&mut a);
