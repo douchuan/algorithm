@@ -34,12 +34,12 @@ never worry about system crash.
 
 #### Fundamentals 
 
-  - find the largest M elements (TopM)
-  - priority queue (PQ)
-  - union find (UF)
-  - LinkedList
-  - Queue
-  - Stack
+- find the largest M elements (TopM)
+- priority queue (PQ)
+- union find (UF)
+- LinkedList
+- Queue
+- Stack
 
 #### Graphs
 
@@ -68,24 +68,26 @@ never worry about system crash.
   - Symbol graphs (SymbolGraph)
 
 #### Searching
-  - Binary Search (binary.rs)
-  - Binary Search Tree (bst.rs)
-  - Red black (rb2.rs)
+
+- Binary Search (binary.rs)
+- Binary Search Tree (bst.rs)
+- Red black (rb2.rs)
 
 #### Sorting
-  - Bubble Sort (bubble.rs)
-  - Insertion Sort (insert.rs)
-  - Merge Sort (merge.rs)
-  - Quick Sort (quick.rs)
-  - Robert. W. Floyd Heap sort (floyd.rs)
-  - Selection Sort (selection.rs)
-  - Shell's Sort (shell.rs)
-  - Tournament Tree Sort (tree_selection.rs)
+
+- Bubble Sort (bubble.rs)
+- Insertion Sort (insert.rs)
+- Merge Sort (merge.rs)
+- Quick Sort (quick.rs)
+- Robert. W. Floyd Heap sort (floyd.rs)
+- Selection Sort (selection.rs)
+- Shell's Sort (shell.rs)
+- Tournament Tree Sort (tree_selection.rs)
 
 #### Strings
-  - Character-indexed arrays (alphabet.rs, count.rs)
-  - LSD radix sort (LSD)
-  - MSD radix sort (MSD)
+
+- Character-indexed arrays (Alphabet, count.rs)
+- radix sort (LSD, MSD)
 
 ### Running
 
@@ -96,6 +98,6 @@ make test
 
 ### Roadmap
 
-- Implement algorithms in in the textbook
+- Implement algorithms in the textbook
   [Algorithms, 4th Edition](http://amzn.to/13VNJi7)
 - Algorithms visualization (Easy to study and short learning curve)

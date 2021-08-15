@@ -111,6 +111,10 @@ fn lsd_radix_sort_i32_opt() {
     let mut a: Vec<i32> = (0..10).rev().collect();
     LSD::sort_i32_opt(&mut a);
     assert_eq!((0..10).collect::<Vec<i32>>(), a);
+
+    let mut a = vec![1, 2, 3, -1, -2, -3];
+    LSD::sort_i32_opt(&mut a);
+    assert_eq!(vec![-3, -2, -1, 1, 2, 3], a);
 }
 
 fn extract_words(i: &str) -> Vec<&str> {
