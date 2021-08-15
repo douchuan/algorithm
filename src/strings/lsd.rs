@@ -21,14 +21,28 @@
 //! If the strings are each of length W,
 //! we sort the strings W times with key-indexed counting, using
 //! each of the positions as the key, proceeding from right to left.
+//! It is not easy, at first, to be convinced that the method produces
+//! a sorted array—in fact, it does not work at all unless the key-indexed
+//! count implementation is stable.
+//!
+//! Proposition B. LSD string sort stably sorts fixed-length strings.
+//! Proof: This fact depends crucially on the key-indexed counting
+//! implementation being stable, as indicated in Proposition A.
+//! After sorting keys on their i trailing characters (in a stable manner),
+//! we know that any two keys appear in proper order in the array (
+//! considering just those characters) either because the first of their
+//! i trailing characters is different, in which case the sort on that
+//! character puts them in order, or because the first of their ith
+//! trailing characters is the same, in which case they are in order
+//! because of stability (and by induction, for i-1).
 
-/// The LSD provides static methods for sorting an
-/// array of w-character strings or 32-bit integers
-/// using LSD radix sort.
 const R_ASCII: usize = 256; // extend ASCII alphabet size
 const BITS_PER_BYTE: usize = 8;
 const R_I32: usize = 1 << BITS_PER_BYTE;
 
+/// The LSD provides static methods for sorting an
+/// array of w-character strings or 32-bit integers
+/// using LSD radix sort.
 pub struct LSD;
 
 impl LSD {
@@ -131,14 +145,13 @@ impl LSD {
             }
 
             // for most significant byte, 0x80-0xFF comes before 0x00-0x7F
-            #[cfg(target_endian = "big")]
             if d == w - 1 {
-                let shift1 = count[R] - count[R / 2];
-                let shift2 = count[R / 2];
-                for r in 0..R / 2 {
+                let shift1 = count[R_I32] - count[R_I32 / 2];
+                let shift2 = count[R_I32 / 2];
+                for r in 0..R_I32 / 2 {
                     count[r] += shift1;
                 }
-                for r in R / 2..R {
+                for r in R_I32 / 2..R_I32 {
                     count[r] -= shift2;
                 }
             }
@@ -180,17 +193,14 @@ impl LSD {
             }
 
             // for most significant byte, 0x80-0xFF comes before 0x00-0x7F
-            #[cfg(target_endian = "big")]
-            unsafe {
-                if d == w - 1 {
-                    let shift1 = count[R_I32] - count[R_I32 / 2];
-                    let shift2 = count[R_I32 / 2];
-                    for r in 0..R_I32 / 2 {
-                        count[r] += shift1;
-                    }
-                    for r in R / 2..R_I32 {
-                        count[r] -= shift2;
-                    }
+            if d == w - 1 {
+                let shift1 = count[R_I32] - count[R_I32 / 2];
+                let shift2 = count[R_I32 / 2];
+                for r in 0..R_I32 / 2 {
+                    count[r] += shift1;
+                }
+                for r in R_I32 / 2..R_I32 {
+                    count[r] -= shift2;
                 }
             }
 
