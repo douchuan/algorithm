@@ -60,8 +60,8 @@ impl LSD {
 
             // compute frequency counts
             let mut count = [0; R_ASCII + 1];
-            for i in 0..n {
-                let c = a[i].as_ref().as_bytes()[d];
+            for it in a.iter().take(n) {
+                let c = it.as_ref().as_bytes()[d];
                 count[c as usize + 1] += 1;
             }
 
@@ -71,56 +71,14 @@ impl LSD {
             }
 
             // move data
-            for i in 0..n {
-                let c = a[i].as_ref().as_bytes()[d];
-                aux[count[c as usize]] = a[i];
+            for it in a.iter().take(n) {
+                let c = it.as_ref().as_bytes()[d];
+                aux[count[c as usize]] = *it;
                 count[c as usize] += 1;
             }
 
             // copy back
-            for i in 0..n {
-                a[i] = aux[i];
-            }
-        }
-    }
-
-    pub fn sort_opt<T: AsRef<str> + Copy>(a: &mut [T], w: usize) {
-        let n = a.len();
-        let aux_size = std::mem::size_of::<T>() * n;
-        let aux = unsafe { libc::malloc(aux_size) as *mut T };
-
-        for d in (0..w).rev() {
-            // sort by key-indexed counting on d-th character
-
-            // compute frequency counts
-            let mut count = [0; R_ASCII + 1];
-            for i in 0..n {
-                let c = a[i].as_ref().as_bytes()[d];
-                count[c as usize + 1] += 1;
-            }
-
-            // compute cumulates
-            for r in 0..R_ASCII {
-                count[r + 1] += count[r];
-            }
-
-            // move data
-            for i in 0..n {
-                let c = a[i].as_ref().as_bytes()[d];
-                unsafe {
-                    *aux.offset(count[c as usize] as isize) = a[i];
-                }
-                count[c as usize] += 1;
-            }
-
-            // copy back
-            for i in 0..n {
-                a[i] = unsafe { *aux.offset(i as isize) };
-            }
-        }
-
-        unsafe {
-            libc::free(aux as *mut libc::c_void);
+            a[..n].clone_from_slice(&aux[..n]);
         }
     }
 
@@ -134,8 +92,8 @@ impl LSD {
         for d in 0..w {
             // compute frequency counts
             let mut count = [0; R_I32 + 1];
-            for i in 0..n {
-                let c = (a[i] >> BITS_PER_BYTE * d) & MASK as i32;
+            for it in a.iter().take(n) {
+                let c = *it >> (BITS_PER_BYTE * d) & MASK as i32;
                 count[c as usize + 1] += 1;
             }
 
@@ -148,81 +106,23 @@ impl LSD {
             if d == w - 1 {
                 let shift1 = count[R_I32] - count[R_I32 / 2];
                 let shift2 = count[R_I32 / 2];
-                for r in 0..R_I32 / 2 {
-                    count[r] += shift1;
+                for it in count.iter_mut().take(R_I32 / 2) {
+                    *it += shift1;
                 }
-                for r in R_I32 / 2..R_I32 {
-                    count[r] -= shift2;
-                }
-            }
-
-            // move data
-            for i in 0..n {
-                let c = (a[i] >> BITS_PER_BYTE * d) & MASK as i32;
-                aux[count[c as usize]] = a[i];
-                count[c as usize] += 1;
-            }
-
-            // copy back
-            for i in 0..n {
-                a[i] = aux[i];
-            }
-        }
-    }
-
-    pub fn sort_i32_opt(a: &mut [i32]) {
-        let BITS = 32;
-        let MASK = R_I32 - 1; // assert_eq!(255, MASK);
-        let w = BITS / BITS_PER_BYTE; // assert_eq!(4, w);
-
-        let n = a.len();
-        let aux_size = std::mem::size_of::<i32>() * n;
-        let aux = unsafe { libc::malloc(aux_size) as *mut i32 };
-
-        for d in 0..w {
-            // compute frequency counts
-            let mut count = [0; R_I32 + 1];
-            for i in 0..n {
-                let c = (a[i] >> BITS_PER_BYTE * d) & MASK as i32;
-                count[c as usize + 1] += 1;
-            }
-
-            // compute cumulates
-            for r in 0..R_I32 {
-                count[r + 1] += count[r];
-            }
-
-            // for most significant byte, 0x80-0xFF comes before 0x00-0x7F
-            if d == w - 1 {
-                let shift1 = count[R_I32] - count[R_I32 / 2];
-                let shift2 = count[R_I32 / 2];
-                for r in 0..R_I32 / 2 {
-                    count[r] += shift1;
-                }
-                for r in R_I32 / 2..R_I32 {
-                    count[r] -= shift2;
+                for it in count.iter_mut().take(R_I32).skip(R_I32 / 2) {
+                    *it -= shift2;
                 }
             }
 
             // move data
-            for i in 0..n {
-                let c = (a[i] >> BITS_PER_BYTE * d) & MASK as i32;
-                unsafe {
-                    *aux.offset(count[c as usize]) = a[i];
-                }
+            for it in a.iter().take(n) {
+                let c = *it >> (BITS_PER_BYTE * d) & MASK as i32;
+                aux[count[c as usize]] = *it;
                 count[c as usize] += 1;
             }
 
             // copy back
-            for i in 0..n {
-                unsafe {
-                    a[i] = *aux.offset(i as isize);
-                }
-            }
-        }
-
-        unsafe {
-            libc::free(aux as *mut libc::c_void);
+            a[..n].clone_from_slice(&aux[..n]);
         }
     }
 }

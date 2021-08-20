@@ -11,7 +11,6 @@ use std::cmp::Ordering;
 /// higher priority than a game application.
 
 type Comparator<T> = Box<dyn Fn(&T, &T) -> bool>;
-// type Comparator2<T> = Box<dyn Fn(&Option<T>, &Option<T>) -> bool>;
 
 pub struct PQ<T> {
     pq: Vec<T>, // 为了计算方便, pq的index是从1开始计算的, 0号元素未被使用

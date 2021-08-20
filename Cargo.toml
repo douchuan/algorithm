@@ -4,6 +4,12 @@ version = "0.1.0"
 authors = ["Dou Chuan <1843657913@qq.com>"]
 edition = "2018"
 
+description = "This crate contains source code for the algorithms in the textbook Algorithms, 4th Edition by Robert Sedgewick and Kevin Wayne"
+repository = "https://github.com/douchuan/algorithm"
+readme = "README.md"
+categories = ["algorithms", "data-structures"]
+license = "MIT"
+
 [lib]
 name = "algo"
 path = "src/lib.rs"

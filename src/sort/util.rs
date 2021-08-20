@@ -1,4 +1,5 @@
-use rand::prelude::*;
+use rand;
+use rand::prelude::SliceRandom;
 
 pub static DATA_LEN: usize = 1000;
 
@@ -6,42 +7,32 @@ pub static DATA_LEN: usize = 1000;
 pub fn plan_data() -> Vec<(Vec<i32>, Vec<i32>)> {
     vec![
         //empty
-        (vec![], vec![]),
+        vec![],
         //only 1
-        (vec![1], vec![1]),
+        vec![1],
         //sorted
-        (
-            vec![1, 2, 4, 8, 9, 9, 13, 17, 22],
-            vec![1, 2, 4, 8, 9, 9, 13, 17, 22],
-        ),
-        //unsorted, expect asc
-        (
-            vec![9, 4, 13, 2, 22, 17, 8, 9, 1],
-            vec![1, 2, 4, 8, 9, 9, 13, 17, 22],
-        ),
-        //unsorted, expect asc
-        (
-            vec![0, 1099, 1089, 1079, 1069, 1059, 1049],
-            vec![0, 1049, 1059, 1069, 1079, 1089, 1099],
-        ),
+        vec![1, 2, 4, 8, 9, 9, 13, 17, 22],
+        // unsorted
+        random_data(100),
     ]
+    .iter()
+    .map(|v| {
+        let mut expect_data = v.clone();
+        expect_data.sort();
+        (v.clone(), expect_data)
+    })
+    .collect()
 }
 
 pub fn random_data(len: usize) -> Vec<i32> {
-    let mut datas = Vec::with_capacity(len);
-    for _ in 0..len {
-        let v: i32 = random();
-        datas.push(v);
-    }
-    datas
+    let mut rng = rand::thread_rng();
+    let mut data: Vec<i32> = (0..len as i32).collect();
+    data.shuffle(&mut rng);
+    data
 }
 
 pub fn sorted_data_asc(len: usize) -> Vec<i32> {
-    let mut data = Vec::with_capacity(len);
-    for i in 0..len {
-        data.push(i as i32);
-    }
-    data
+    (0..len as i32).collect()
 }
 
 pub fn sorted_data_desc(len: usize) -> Vec<i32> {

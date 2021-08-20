@@ -38,30 +38,10 @@ fn sort_str_LSD_radix(b: &mut Bencher) {
 
 #[allow(non_snake_case)]
 #[bench]
-fn sort_str_LSD_radix_opt(b: &mut Bencher) {
-    let i = WORDS3;
-    let mut words = extract_words(i);
-    let w = words[0].len();
-    b.iter(|| {
-        LSD::sort_opt(&mut words, w);
-    });
-}
-
-#[allow(non_snake_case)]
-#[bench]
 fn sort_i32_LSD_radix(b: &mut Bencher) {
     let mut nums: Vec<i32> = (0..1000).rev().collect();
     b.iter(|| {
         LSD::sort_i32(&mut nums);
-    });
-}
-
-#[allow(non_snake_case)]
-#[bench]
-fn sort_i32_LSD_radix_opt(b: &mut Bencher) {
-    let mut nums: Vec<i32> = (0..1000).rev().collect();
-    b.iter(|| {
-        LSD::sort_i32_opt(&mut nums);
     });
 }
 
