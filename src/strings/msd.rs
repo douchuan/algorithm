@@ -77,9 +77,7 @@ impl MSD {
     fn less<T: AsRef<str> + Copy>(v: T, w: T, d: usize) -> bool {
         let v = v.as_ref();
         let w = w.as_ref();
-        for i in d..std::cmp::min(v.len(), w.len()) {
-            let a = v.as_bytes()[i];
-            let b = w.as_bytes()[i];
+        for (a, b) in v.bytes().zip(w.bytes()).skip(d) {
             match a.cmp(&b) {
                 Ordering::Less => return true,
                 Ordering::Equal => (),
@@ -88,4 +86,11 @@ impl MSD {
         }
         v.len() < w.len()
     }
+}
+
+#[test]
+fn less() {
+    assert!(MSD::less("aaa", "aaaa", 0)); // len less
+    assert!(MSD::less("aaa", "aaaa", 1)); // len less
+    assert!(MSD::less("aaa", "abaa", 1)); // 'a' < 'b'
 }
