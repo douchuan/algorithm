@@ -9,8 +9,10 @@ pub struct MSD;
 impl MSD {
     pub fn sort<T: AsRef<str> + Copy>(a: &mut [T]) {
         let n = a.len();
-        let mut aux = vec![a[0]; n];
-        Self::do_sort(a, 0, n - 1, 0, &mut aux);
+        if n > 0 {
+            let mut aux = vec![a[0]; n];
+            Self::do_sort(a, 0, n - 1, 0, &mut aux);
+        }
     }
 
     fn do_sort<T: AsRef<str> + Copy>(a: &mut [T], lo: usize, hi: usize, d: usize, aux: &mut [T]) {
@@ -56,7 +58,7 @@ impl MSD {
 
     fn char_at<T: AsRef<str> + Copy>(s: T, d: usize) -> i32 {
         let s = s.as_ref();
-        let len = s.len();
+        let len = s.as_bytes().len();
         if d >= len {
             -1
         } else {
@@ -84,7 +86,7 @@ impl MSD {
                 Ordering::Greater => return false,
             }
         }
-        v.len() < w.len()
+        v.as_bytes().len() < w.as_bytes().len()
     }
 }
 

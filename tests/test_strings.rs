@@ -81,28 +81,19 @@ fn LSD_radix_sort_i32() {
 
 #[test]
 fn MSD_radix_sort() {
+    // empty
+    let mut data: Vec<&str> = vec![];
+    let expect: Vec<&str> = vec![];
+    MSD::sort(&mut data);
+    assert_eq!(expect, data);
+
+    // normal
     let i = SHELLS;
-    let mut a = extract_words(i);
-    MSD::sort(&mut a);
-    assert_eq!(
-        vec![
-            "are",
-            "by",
-            "sea",
-            "seashells",
-            "seashells",
-            "sells",
-            "sells",
-            "she",
-            "she",
-            "shells",
-            "shore",
-            "surely",
-            "the",
-            "the"
-        ],
-        a
-    );
+    let mut data = extract_words(i);
+    let mut expect = data.clone();
+    expect.sort();
+    MSD::sort(&mut data);
+    assert_eq!(expect, data);
 }
 
 fn extract_words(i: &str) -> Vec<&str> {
