@@ -46,13 +46,11 @@ impl MSD {
 
         // recursively sort for each character (excludes sentinel -1)
         for r in 0..R {
-            Self::do_sort(
-                a,
-                lo + count[r],
-                (lo + count[r + 1]).saturating_sub(1),
-                d + 1,
-                aux,
-            );
+            let l = lo + count[r];
+            let h = (lo + count[r + 1]).saturating_sub(1);
+            if h > l {
+                Self::do_sort(a, l, h, d + 1, aux);
+            }
         }
     }
 
