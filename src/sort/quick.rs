@@ -14,12 +14,10 @@ pub fn sort<T>(a: &mut [T])
 where
     T: Ord,
 {
-    if let Some((pivot, elements)) = a.split_last_mut() {
-        let mid = elements.iter_mut().partition_in_place(|it| it < pivot);
-        //"pivot"就位
-        a.swap(mid, a.len() - 1);
-
-        sort(&mut a[0..mid]);
-        sort(&mut a[mid + 1..]);
+    let len = a.len();
+    if len > 0 {
+        let (l, _, r) = a.select_nth_unstable(len / 2);
+        sort(l);
+        sort(r)
     }
 }

@@ -3,8 +3,7 @@ use rand::prelude::SliceRandom;
 
 pub static DATA_LEN: usize = 1000;
 
-// vec![(test_data, expect), ..]
-pub fn plan_data() -> Vec<(Vec<i32>, Vec<i32>)> {
+pub fn vec_data() -> Vec<Vec<i32>> {
     vec![
         //empty
         vec![],
@@ -15,13 +14,6 @@ pub fn plan_data() -> Vec<(Vec<i32>, Vec<i32>)> {
         // unsorted
         random_data(100),
     ]
-    .iter()
-    .map(|v| {
-        let mut expect_data = v.clone();
-        expect_data.sort();
-        (v.clone(), expect_data)
-    })
-    .collect()
 }
 
 pub fn random_data(len: usize) -> Vec<i32> {

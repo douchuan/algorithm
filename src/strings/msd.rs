@@ -44,6 +44,7 @@ impl MSD {
         // copy back
         a[lo..(hi + 1)].clone_from_slice(&aux[..((hi - lo) + 1)]);
 
+        // sort substring
         // recursively sort for each character (excludes sentinel -1)
         for r in 0..R {
             let l = lo + count[r];
