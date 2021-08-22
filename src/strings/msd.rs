@@ -95,3 +95,11 @@ fn less() {
     assert!(MSD::less("aaa", "aaaa", 1)); // len less
     assert!(MSD::less("aaa", "abaa", 1)); // 'a' < 'b'
 }
+
+#[test]
+fn char_at() {
+    assert_eq!(b'a' as i32, MSD::char_at("abc", 0));
+    assert_eq!(b'b' as i32, MSD::char_at("abc", 1));
+    assert_eq!(b'c' as i32, MSD::char_at("abc", 2));
+    assert_eq!(-1, MSD::char_at("abc", 3));
+}
