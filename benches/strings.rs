@@ -1,7 +1,7 @@
 #![feature(test)]
 extern crate test;
 
-use algo::strings::{LSD, MSD};
+use algo::strings::{util, LSD, MSD};
 use test::Bencher;
 
 const WORDS3: &'static str = include_str!("../res/strings/words3.txt");
@@ -52,6 +52,27 @@ fn sort_i32_LSD_radix(b: &mut Bencher) {
     let mut nums: Vec<i32> = (0..1000).rev().collect();
     b.iter(|| {
         LSD::sort_i32(&mut nums);
+    });
+}
+
+#[allow(non_snake_case)]
+#[bench]
+fn MSD_worst_case(b: &mut Bencher) {
+    // examines just 1 char to distinguish among the keys
+    let mut words = vec!["1DNB377"; 26];
+    b.iter(|| {
+        MSD::sort(&mut words);
+    });
+}
+
+#[allow(non_snake_case)]
+#[bench]
+fn MSD_best_case(b: &mut Bencher) {
+    // all strings equal, need check all chars
+    let words = util::vec_alphabet("1DNB377".len());
+    let mut words: Vec<&str> = words.iter().map(|it| it.as_str()).collect();
+    b.iter(|| {
+        MSD::sort(&mut words);
     });
 }
 
