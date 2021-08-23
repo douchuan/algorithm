@@ -69,7 +69,7 @@ where
     pub fn sort(a: &mut [T]) {
         let n = a.len();
         if n > 0 {
-            let mut aux = vec![a[0].clone(); n];
+            let mut aux = vec![a[0]; n];
             Self::do_sort(a, 0, n - 1, 0, &mut aux);
         }
     }

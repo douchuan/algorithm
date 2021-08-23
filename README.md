@@ -34,36 +34,36 @@ never worry about system crash.
 
 #### Fundamentals 
 
-- find the largest M elements (TopM)
-- priority queue (PQ)
-- union find (UF)
+- Find the largest M elements (TopM)
+- Priority queue (PQ)
+- Union find (UF)
 - LinkedList
 - Queue
 - Stack
 
 #### Graphs
 
-- directed graph
-  - cycle detection (DirectedCycle, EdgeWeightedDigraphCycle)
-  - strong connectivity in digraphs (KosarajuSCC)
-  - topological sort (Topological)
-  - transitive closure (TransitiveClosure)
+- Directed graph
+  - Cycle detection (DirectedCycle, EdgeWeightedDigraphCycle)
+  - Strong connectivity in digraphs (KosarajuSCC)
+  - Topological sort (Topological)
+  - Transitive closure (TransitiveClosure)
   - Finding paths (DepthFirstPaths, BreadthFirstPaths)
-- minimum spanning trees 
+- Minimum spanning trees 
   - Lazy version of Prim’s MST algorithm (LazyPrimMST)
   - Prim’s algorithm (PrimMST)
   - Kruskal’s algorithm (KruskalMST)
-- shortest paths
-  - arbitrage problem (Arbitrage)
+- Shortest paths
+  - Arbitrage problem (Arbitrage)
   - Acyclic edge-weighted digraphs (AcyclicSP, AcyclicLP)
   - Critical path method for parallel precedence-constrained job scheduling (CPM)
   - Dijkstra’s algorithm (DijkstraSP, DijkstraAllPairsSP)
   - Bellman-Ford algorithm (BellmanFordSP) 
-- undirected graph
-  - bipartite (Bipartite)
-  - connected components (CC)
-  - cycle detection (Cycle)
-  - depth first search (DepthFirstSearch, NonRecursiveDFS)
+- Undirected graph
+  - Bipartite (Bipartite)
+  - Connected components (CC)
+  - Cycle detection (Cycle)
+  - Depth first search (DepthFirstSearch, NonRecursiveDFS)
   - Finding paths (DepthFirstPaths, BreadthFirstPaths)
   - Symbol graphs (SymbolGraph)
 
@@ -86,8 +86,8 @@ never worry about system crash.
 
 #### Strings
 
-- Character-indexed arrays (Alphabet, count.rs)
-- radix sort (LSD, MSD)
+- Character indexed arrays (Alphabet, count.rs)
+- Radix sort (LSD, MSD)
 
 ### Running
 
