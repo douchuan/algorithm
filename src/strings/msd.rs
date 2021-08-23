@@ -84,7 +84,7 @@ where
         // compute frequency counts
         let mut count = [0; R + 2];
         for it in a.iter().take(hi + 1).skip(lo) {
-            let c = Self::char_at(*it, d);
+            let c = char_at(it.as_ref(), d);
             count[(c + 2) as usize] += 1;
         }
 
@@ -95,7 +95,7 @@ where
 
         // distribute
         for it in a.iter().take(hi + 1).skip(lo) {
-            let c = Self::char_at(*it, d);
+            let c = char_at(it.as_ref(), d);
             aux[count[(c + 1) as usize]] = *it;
             count[(c + 1) as usize] += 1;
         }
@@ -115,51 +115,48 @@ where
         }
     }
 
-    fn char_at(s: T, d: usize) -> i32 {
-        let s = s.as_ref();
-        let len = s.as_bytes().len();
-        if d >= len {
-            -1
-        } else {
-            s.as_bytes()[d] as i32
-        }
-    }
-
     fn insertion(a: &mut [T], lo: usize, hi: usize, d: usize) {
         for i in lo..=hi {
             let mut j = i;
-            while j > lo && Self::less(a[j], a[j - 1], d) {
+            while j > lo && less(a[j].as_ref(), a[j - 1].as_ref(), d) {
                 a.swap(j, j - 1);
                 j -= 1;
             }
         }
     }
+}
 
-    fn less(v: T, w: T, d: usize) -> bool {
-        let v = v.as_ref();
-        let w = w.as_ref();
-        for (a, b) in v.bytes().zip(w.bytes()).skip(d) {
-            match a.cmp(&b) {
-                Ordering::Less => return true,
-                Ordering::Equal => (),
-                Ordering::Greater => return false,
-            }
+fn less(v: &str, w: &str, d: usize) -> bool {
+    for (a, b) in v.bytes().zip(w.bytes()).skip(d) {
+        match a.cmp(&b) {
+            Ordering::Less => return true,
+            Ordering::Equal => (),
+            Ordering::Greater => return false,
         }
-        v.as_bytes().len() < w.as_bytes().len()
+    }
+    v.as_bytes().len() < w.as_bytes().len()
+}
+
+fn char_at(s: &str, d: usize) -> i32 {
+    let len = s.as_bytes().len();
+    if d >= len {
+        -1
+    } else {
+        s.as_bytes()[d] as i32
     }
 }
 
 #[test]
-fn less() {
-    assert!(MSD::less("aaa", "aaaa", 0)); // len less
-    assert!(MSD::less("aaa", "aaaa", 1)); // len less
-    assert!(MSD::less("aaa", "abaa", 1)); // 'a' < 'b'
+fn t_less() {
+    assert!(less("aaa", "aaaa", 0)); // len less
+    assert!(less("aaa", "aaaa", 1)); // len less
+    assert!(less("aaa", "abaa", 1)); // 'a' < 'b'
 }
 
 #[test]
-fn char_at() {
-    assert_eq!(b'a' as i32, MSD::char_at("abc", 0));
-    assert_eq!(b'b' as i32, MSD::char_at("abc", 1));
-    assert_eq!(b'c' as i32, MSD::char_at("abc", 2));
-    assert_eq!(-1, MSD::char_at("abc", 3));
+fn t_char_at() {
+    assert_eq!(b'a' as i32, char_at("abc", 0));
+    assert_eq!(b'b' as i32, char_at("abc", 1));
+    assert_eq!(b'c' as i32, char_at("abc", 2));
+    assert_eq!(-1, char_at("abc", 3));
 }
