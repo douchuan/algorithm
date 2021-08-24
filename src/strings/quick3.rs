@@ -34,10 +34,8 @@ where
             return;
         }
 
-        let mut lt = lo;
-        let mut gt = hi;
+        let (mut lt, mut gt, mut i) = (lo, hi, lo + 1);
         let v = util::char_at(a[lo].as_ref(), d);
-        let mut i = lo + 1;
         while i <= gt {
             let t = util::char_at(a[i].as_ref(), d);
             match t.cmp(&v) {
@@ -46,11 +44,11 @@ where
                     lt += 1;
                     i += 1;
                 }
-                Ordering::Equal => i += 1,
                 Ordering::Greater => {
                     a.swap(i, gt);
                     gt -= 1;
                 }
+                Ordering::Equal => i += 1,
             }
         }
 
@@ -77,10 +75,8 @@ where
             return;
         }
 
-        let mut lt = lo;
-        let mut gt = hi;
+        let (mut lt, mut gt, mut i) = (lo, hi, lo + 1);
         let v = a[lo].clone();
-        let mut i = lo + 1;
         while i <= gt {
             match a[i].cmp(&v) {
                 Ordering::Less => {
@@ -88,11 +84,11 @@ where
                     lt += 1;
                     i += 1;
                 }
-                Ordering::Equal => i += 1,
                 Ordering::Greater => {
                     a.swap(i, gt);
                     gt -= 1;
                 }
+                Ordering::Equal => i += 1,
             }
         }
 
