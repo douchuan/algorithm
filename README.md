@@ -88,6 +88,7 @@ never worry about system crash.
 
 - Character indexed arrays (Alphabet, count.rs)
 - Radix sort (LSD, MSD)
+- Three-way quicksort (Quick3String, Quick3Way)
 
 ### Running
 

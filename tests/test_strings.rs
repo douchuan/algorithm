@@ -1,43 +1,9 @@
+#![feature(is_sorted)]
 #![allow(non_snake_case)]
-use algo::strings::{alphabet, Alphabet, Count, LSD, MSD};
+use algo::strings::{Quick3String, Quick3Way, LSD, MSD};
 
-const ABRA: &'static str = include_str!("../res/strings/abra.txt");
-const PI: &'static str = include_str!("../res/strings/pi.txt");
 const WORDS3: &'static str = include_str!("../res/strings/words3.txt");
 const SHELLS: &'static str = include_str!("../res/strings/shells.txt");
-
-#[test]
-fn alphabet() {
-    let s = "NowIsTheTimeForAllGoodMen";
-    let encoded = alphabet::BASE64.to_indices(s);
-    let decoded = alphabet::BASE64.to_chars(&encoded);
-    assert_eq!(s, decoded);
-
-    let s = "AACGAACGGTTTACCCCG";
-    let encoded = alphabet::DNA.to_indices(s);
-    let decoded = alphabet::DNA.to_chars(&encoded);
-    assert_eq!(s, decoded);
-
-    let s = "01234567890123456789";
-    let encoded = alphabet::DECIMAL.to_indices(s);
-    let decoded = alphabet::DECIMAL.to_chars(&encoded);
-    assert_eq!(s, decoded);
-}
-
-#[test]
-fn count() {
-    use std::convert::TryFrom;
-
-    let alphabet = Alphabet::try_from("ABCDR").unwrap();
-    let r = Count::compute(&alphabet, ABRA);
-    assert_eq!(vec![5, 2, 1, 1, 2], r);
-
-    let r = Count::compute(&alphabet::DECIMAL, PI);
-    assert_eq!(
-        vec![9999, 10137, 9908, 10026, 9971, 10026, 10028, 10025, 9978, 9902],
-        r
-    );
-}
 
 #[test]
 fn LSD_radix_sort() {
@@ -45,14 +11,7 @@ fn LSD_radix_sort() {
     let mut a = extract_words(i);
     let w = a[0].len();
     LSD::sort(&mut a, w);
-    assert_eq!(
-        vec![
-            "all", "bad", "bed", "bug", "dad", "dim", "dug", "egg", "fee", "few", "for", "gig",
-            "hut", "ilk", "jam", "jay", "jot", "joy", "men", "nob", "now", "owl", "rap", "sky",
-            "sob", "tag", "tap", "tar", "tip", "wad", "was", "wee", "yes", "yet", "zoo"
-        ],
-        a
-    );
+    assert!(a.is_sorted());
 
     // license plate data
     let mut a = vec![
@@ -61,39 +20,88 @@ fn LSD_radix_sort() {
     ];
     let w = a[0].len();
     LSD::sort(&mut a, w);
-    let expect = vec![
-        "1ICK750", "1ICK750", "1OHV845", "1OHV845", "1OHV845", "2IYE230", "2RLA629", "2RLA629",
-        "3ATW723", "3CIO720", "3CIO720", "4JZY524", "4PGC938",
-    ];
-    assert_eq!(expect, a);
+    assert!(a.is_sorted());
 }
 
 #[test]
 fn LSD_radix_sort_i32() {
     let mut a: Vec<i32> = (0..10).rev().collect();
     LSD::sort_i32(&mut a);
-    assert_eq!((0..10).collect::<Vec<i32>>(), a);
+    assert!(a.is_sorted());
 
     let mut a = vec![1, 2, 3, -1, -2, -3];
     LSD::sort_i32(&mut a);
-    assert_eq!(vec![-3, -2, -1, 1, 2, 3], a);
+    assert!(a.is_sorted());
 }
 
 #[test]
 fn MSD_radix_sort() {
     // empty
     let mut data: Vec<&str> = vec![];
-    let expect: Vec<&str> = vec![];
     MSD::sort(&mut data);
-    assert_eq!(expect, data);
+    assert!(data.is_sorted());
 
     // normal
     let i = SHELLS;
     let mut data = extract_words(i);
-    let mut expect = data.clone();
-    expect.sort();
     MSD::sort(&mut data);
-    assert_eq!(expect, data);
+    assert!(data.is_sorted());
+}
+
+#[test]
+fn quick3str() {
+    // empty
+    let mut data: Vec<&str> = vec![];
+    Quick3String::sort(&mut data);
+    assert!(data.is_sorted());
+
+    // normal
+    let i = SHELLS;
+    let mut data = extract_words(i);
+    Quick3String::sort(&mut data);
+    assert!(data.is_sorted());
+}
+
+#[test]
+fn quick3way() {
+    // empty
+    let mut data: Vec<&str> = vec![];
+    Quick3Way::sort(&mut data);
+    assert!(data.is_sorted());
+
+    // normal
+    let i = SHELLS;
+    let mut data = extract_words(i);
+    Quick3Way::sort(&mut data);
+    assert!(data.is_sorted());
+}
+
+// also fine for sorted data
+#[test]
+fn sorted_data() {
+    let mut a = vec![
+        "4PGC938", "2IYE230", "3CIO720", "1ICK750", "1OHV845", "4JZY524", "1ICK750", "3CIO720",
+        "1OHV845", "1OHV845", "2RLA629", "2RLA629", "3ATW723",
+    ];
+    a.sort();
+
+    // lsd
+    let w = a[0].len();
+    LSD::sort(&mut a, w);
+    assert!(a.is_sorted());
+
+    // msd
+    MSD::sort(&mut a);
+    assert!(a.is_sorted());
+
+    // three-way quick
+    Quick3String::sort(&mut a);
+    assert!(a.is_sorted());
+
+    // lsd32
+    let mut a: Vec<i32> = (0..10).collect();
+    LSD::sort_i32(&mut a);
+    assert!(a.is_sorted());
 }
 
 fn extract_words(i: &str) -> Vec<&str> {

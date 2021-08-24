@@ -16,6 +16,8 @@ todo
 
 4. 画图展示Dijkstra’s algorithm的动态构建过程 (p657)
 
+5. fix mod/struct/fn doc error to make doc work well, add more docs
+
 ### 后记
 
 项目缘起

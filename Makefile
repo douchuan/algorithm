@@ -19,6 +19,9 @@ bench:
 eg_quadratic:
 	@$(CARGO) run --example quadratic
 
+doc:
+	@$(CARGO) doc --open
+
 stats:
 	@echo "codes: "
 	@cloc . --exclude-dir=target

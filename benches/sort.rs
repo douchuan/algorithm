@@ -3,6 +3,7 @@ extern crate test;
 
 use algo::sort;
 use algo::sort::util;
+use algo::strings::Quick3Way;
 use test::Bencher;
 
 #[bench]
@@ -151,6 +152,15 @@ fn large_quick(b: &mut Bencher) {
     b.iter(|| {
         let mut numbs = data.clone();
         sort::quick::sort(&mut numbs);
+    });
+}
+
+#[bench]
+fn large_quick_3way(b: &mut Bencher) {
+    let data = util::random_data(util::DATA_LEN);
+    b.iter(|| {
+        let mut numbs = data.clone();
+        Quick3Way::sort(&mut numbs);
     });
 }
 

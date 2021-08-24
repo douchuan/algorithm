@@ -1,8 +1,11 @@
-//! Performance
+//! Sort an array of strings using MSD radix sort.
 //!
-//! The running time of MSD string sort depends on the data.
+//! # Performance
 //!
-//! For random inputs, MSD string sort examines just enough
+//! - The running time of MSD string sort depends on the data,
+//! key length does not play a role. Indeed, the random string
+//! model allows key length to approach infinity.
+//! - For random inputs, MSD string sort examines just enough
 //! characters to distinguish among the keys, and the running
 //! time is sublinear in the number of characters in the data
 //! (it examines a small fraction of the input characters).
@@ -50,14 +53,31 @@
 //! will not be many duplicates and the random model will apply;
 //! for a week’s worth of data on a local road, there will be numerous
 //! duplicates and performance will be closer to the worst case.
+//!
+//! The main challenge in getting maximum efficiency from MSD string
+//! sort on keys that are long strings is to deal with lack of randomness
+//! in the data. Typically, keys may have long stretches of equal data,
+//! or parts of them might fall in only a narrow range. For example,
+//! an information-processing application for student data might have
+//! keys that include graduation year (4 bytes, but one of four different
+//! values), state names (perhaps 10 bytes, but one of 50 different values),
+//! and gender (1 byte with one of two given values), as well as a person’s
+//! name (more similar to random strings, but probably not short, with
+//! nonuniform letter distributions, and with trailing blanks in a fixed-length
+//! field). Restrictions like these lead to large numbers of empty subarrays
+//! during the MSD string sort.
 
 #![allow(clippy::many_single_char_names)]
-use std::cmp::Ordering;
+use crate::sort;
+use crate::strings::util;
 use std::marker::PhantomData;
 
 const R: usize = 256; // extended ASCII alphabet size
 const CUTOFF: usize = 15; // cutoff to insertion sort
 
+/// The MSD provides static methods for sorting an
+/// array of extended ASCII strings using MSD radix
+/// sort.
 pub struct MSD<T> {
     _marker: PhantomData<T>,
 }
@@ -66,6 +86,7 @@ impl<T> MSD<T>
 where
     T: AsRef<str> + Copy,
 {
+    /// Rearranges the array of extended ASCII strings in ascending order.
     pub fn sort(a: &mut [T]) {
         let n = a.len();
         if n > 0 {
@@ -74,17 +95,18 @@ where
         }
     }
 
+    /// sort from a[lo] to a[hi], starting at the d-th character
     fn do_sort(a: &mut [T], lo: usize, hi: usize, d: usize, aux: &mut [T]) {
         // cutoff to insertion sort for small subarrays
         if hi <= lo + CUTOFF {
-            Self::insertion(a, lo, hi, d);
+            sort::insert::sort_dth(a, lo, hi, d);
             return;
         }
 
         // compute frequency counts
         let mut count = [0; R + 2];
         for it in a.iter().take(hi + 1).skip(lo) {
-            let c = char_at(it.as_ref(), d);
+            let c = util::char_at(it.as_ref(), d);
             count[(c + 2) as usize] += 1;
         }
 
@@ -95,7 +117,7 @@ where
 
         // distribute
         for it in a.iter().take(hi + 1).skip(lo) {
-            let c = char_at(it.as_ref(), d);
+            let c = util::char_at(it.as_ref(), d);
             aux[count[(c + 1) as usize]] = *it;
             count[(c + 1) as usize] += 1;
         }
@@ -114,49 +136,4 @@ where
             }
         }
     }
-
-    fn insertion(a: &mut [T], lo: usize, hi: usize, d: usize) {
-        for i in lo..=hi {
-            let mut j = i;
-            while j > lo && less(a[j].as_ref(), a[j - 1].as_ref(), d) {
-                a.swap(j, j - 1);
-                j -= 1;
-            }
-        }
-    }
-}
-
-fn less(v: &str, w: &str, d: usize) -> bool {
-    for (a, b) in v.bytes().zip(w.bytes()).skip(d) {
-        match a.cmp(&b) {
-            Ordering::Less => return true,
-            Ordering::Equal => (),
-            Ordering::Greater => return false,
-        }
-    }
-    v.as_bytes().len() < w.as_bytes().len()
-}
-
-fn char_at(s: &str, d: usize) -> i32 {
-    let len = s.as_bytes().len();
-    if d >= len {
-        -1
-    } else {
-        s.as_bytes()[d] as i32
-    }
-}
-
-#[test]
-fn t_less() {
-    assert!(less("aaa", "aaaa", 0)); // len less
-    assert!(less("aaa", "aaaa", 1)); // len less
-    assert!(less("aaa", "abaa", 1)); // 'a' < 'b'
-}
-
-#[test]
-fn t_char_at() {
-    assert_eq!(b'a' as i32, char_at("abc", 0));
-    assert_eq!(b'b' as i32, char_at("abc", 1));
-    assert_eq!(b'c' as i32, char_at("abc", 2));
-    assert_eq!(-1, char_at("abc", 3));
 }
