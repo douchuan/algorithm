@@ -28,6 +28,7 @@ where
         Self::do_sort(a, 0, n.saturating_sub(1), 0);
     }
 
+    /// 3-way string quicksort a[lo..hi] starting at d-th character
     fn do_sort(a: &mut [T], lo: usize, hi: usize, d: usize) {
         if hi <= lo + CUTOFF {
             sort::insert::sort_dth(a, lo, hi, d);
@@ -65,11 +66,13 @@ impl<T> Quick3Way<T>
 where
     T: Ord + Clone,
 {
+    /// Rearranges the array in ascending order, using the natural order.
     pub fn sort(a: &mut [T]) {
         let n = a.len();
         Self::do_sort(a, 0, n.saturating_sub(1));
     }
 
+    /// quicksort the subarray a[lo .. hi] using 3-way partitioning
     fn do_sort(a: &mut [T], lo: usize, hi: usize) {
         if hi <= lo {
             return;
