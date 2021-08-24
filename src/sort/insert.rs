@@ -23,7 +23,7 @@ where
 /// insertion sort a[lo..=hi], starting at d-th character
 pub fn sort_dth<T>(a: &mut [T], lo: usize, hi: usize, d: usize)
 where
-    T: AsRef<str> + Copy,
+    T: AsRef<str>,
 {
     for i in lo..=hi {
         let mut j = i;

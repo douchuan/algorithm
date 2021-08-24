@@ -20,7 +20,7 @@ pub struct Quick3Way<T> {
 
 impl<T> Quick3String<T>
 where
-    T: AsRef<str> + Copy,
+    T: AsRef<str>,
 {
     /// Rearranges the array of strings in ascending order.
     pub fn sort(a: &mut [T]) {
