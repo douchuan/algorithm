@@ -4,6 +4,7 @@ mod queue;
 mod stack;
 mod top_m;
 mod uf;
+pub mod util;
 
 pub use priority_queue::{IndexPQ, PQ};
 pub use queue::Queue;

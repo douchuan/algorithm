@@ -66,10 +66,10 @@
 //! nonuniform letter distributions, and with trailing blanks in a fixed-length
 //! field). Restrictions like these lead to large numbers of empty subarrays
 //! during the MSD string sort.
+//! 3-way quick sort provides a graceful way to adapt to such situations.
 
 #![allow(clippy::many_single_char_names)]
-use crate::sort;
-use crate::strings::util;
+use crate::{common, sort};
 use std::marker::PhantomData;
 
 const R: usize = 256; // extended ASCII alphabet size
@@ -106,7 +106,7 @@ where
         // compute frequency counts
         let mut count = [0; R + 2];
         for it in a.iter().take(hi + 1).skip(lo) {
-            let c = util::char_at(it.as_ref(), d);
+            let c = common::util::char_at(it.as_ref(), d);
             count[(c + 2) as usize] += 1;
         }
 
@@ -117,7 +117,7 @@ where
 
         // distribute
         for it in a.iter().take(hi + 1).skip(lo) {
-            let c = util::char_at(it.as_ref(), d);
+            let c = common::util::char_at(it.as_ref(), d);
             aux[count[(c + 1) as usize]] = *it;
             count[(c + 1) as usize] += 1;
         }

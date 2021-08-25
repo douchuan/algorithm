@@ -11,16 +11,6 @@
 //! vertices in the connected component: two vertices have the same component
 //! identifier if and only if they are in the same connected component.
 //!
-//! This implementation uses depth-first search.
-//! The constructor takes O(V + E) time,
-//! where *V* is the number of vertices and *E* is the
-//! number of edges.
-//! Each instance method takes O(1) time.
-//! It uses O(V) extra space (not including the graph).
-//!
-//! Compute connected components using depth first search.
-//! Runs in O(E + V) time.
-//!
 //! This implementation uses a recursive DFS. To avoid needing
 //! a potentially very large stack size, replace with a non recursive
 //! DFS ala NonRecursiveDFS

@@ -7,10 +7,6 @@
 //!
 //! Compute transitive closure of a digraph and support
 //! reachability queries.
-//!
-//! Preprocessing time: O(V(E + V)) time.
-//! Query time: O(1).
-//! Space: O(V^2).
 
 use crate::graph::directed::DirectedDFS;
 use crate::graph::IGraph;

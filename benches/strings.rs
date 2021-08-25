@@ -1,7 +1,8 @@
 #![feature(test)]
 extern crate test;
 
-use algo::strings::{util, Quick3String, LSD, MSD};
+use algo::common;
+use algo::strings::{Quick3String, LSD, MSD};
 use test::Bencher;
 
 const WORDS3: &'static str = include_str!("../res/strings/words3.txt");
@@ -80,7 +81,7 @@ fn MSD_worst_case(b: &mut Bencher) {
 #[bench]
 fn MSD_best_case(b: &mut Bencher) {
     // all strings equal, need check all chars
-    let words = util::vec_alphabet("1DNB377".len());
+    let words = common::util::vec_alphabet("1DNB377".len());
     let mut words: Vec<&str> = words.iter().map(|it| it.as_str()).collect();
     b.iter(|| {
         MSD::sort(&mut words);

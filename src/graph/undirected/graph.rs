@@ -9,8 +9,8 @@
 //!   - We must have the space to accommodate the types of graphs
 //!     that we are likely to encounter in applications.
 //!   - We want to develop time-efficient implementations of Graph
-//!     instance meth- ods—the basic methods that we need to develop
-//!     graph-processing clients.
+//!     instance methods the basic methods that we need to develop
+//!     graph processing clients.
 //!
 //! These requirements are a bit vague, but they are still helpful
 //! in choosing among the three data structures that immediately

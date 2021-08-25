@@ -1,3 +1,11 @@
+use rand;
+use rand::prelude::SliceRandom;
+
+pub fn shuffle<T>(data: &mut [T]) {
+    let mut rng = rand::thread_rng();
+    data.shuffle(&mut rng);
+}
+
 // n, item length
 // n = 1, vec!["a", "b", ... "z"]
 // n = 2, vec!["aa", "bb", ... "zz"]

@@ -93,7 +93,6 @@
 //          left       right       color
 //         rotate  => rotate  =>   flip    =>
 //
-/// ref: https://github.com/kevin-wayne/algs4.git
 use crate::tree::binary::node::Color;
 use crate::tree::binary::{bst, Node, NodeQuery, Tree};
 use std::cmp::Ordering;

@@ -9,9 +9,9 @@ where
     T: Ord,
 {
     let len = a.len();
-    // 注意起始索引
+    // i begins with `1`
     for i in 1..len {
-        // 将a[i]插入到a[i-1]，a[i-2]，a[i-3]……之中
+        // insert a[i] into a[0..i-1]
         let mut j = i;
         while j > 0 && a[j] < a[j - 1] {
             a.swap(j, j - 1);
@@ -21,11 +21,13 @@ where
 }
 
 /// insertion sort a[lo..=hi], starting at d-th character
+/// lo & hi, is inclusive
 pub fn sort_dth<T>(a: &mut [T], lo: usize, hi: usize, d: usize)
 where
     T: AsRef<str>,
 {
-    for i in lo..=hi {
+    // i begin with `lo + 1`
+    for i in lo + 1..=hi {
         let mut j = i;
         while j > lo && is_less(a[j].as_ref(), a[j - 1].as_ref(), d) {
             a.swap(j, j - 1);

@@ -3,7 +3,6 @@ mod count;
 pub mod lsd;
 pub mod msd;
 pub mod quick3;
-pub mod util;
 
 pub use alphabet::Alphabet;
 pub use count::Count;

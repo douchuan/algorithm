@@ -28,11 +28,6 @@
 //! color its minimum-weight edge black, and continue until V - 1 edges
 //! have been colored black.
 //!
-//! | algorithm    |  space |  time     |
-//! |------------------------------------
-//! | lazy Prim    |  E     |  E log E  |
-//! | eager Prim   |  V     |  E log V  |
-//! | Kruskal      |  E     |  E log E  |
 
 mod edge;
 mod ew_graph;

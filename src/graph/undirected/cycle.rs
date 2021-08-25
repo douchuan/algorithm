@@ -2,16 +2,6 @@
 //! determining whether an undirected graph has a simple cycle.
 //! The *has_cycle* operation determines whether the graph has
 //! a cycle and, if so, the *cycle* operation returns one.
-//!
-//! This implementation uses depth-first search.
-//! The constructor takes O(V + E) time in the
-//! worst case, where *V* is the number of vertices and
-//! *E* is the number of edges.
-//! (The depth-first search part takes only *O(V)* time;
-//! however, checking for self-loops and parallel edges takes
-//! O(V + E) time in the worst case.)
-//! Each instance method takes O(1) time.
-//! It uses O(V) extra space (not including the graph).
 
 use crate::common::Stack;
 use crate::graph::IGraph;

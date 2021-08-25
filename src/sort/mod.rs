@@ -6,4 +6,3 @@ pub mod quick;
 pub mod selection;
 pub mod shell;
 pub mod tree_selection;
-pub mod util;

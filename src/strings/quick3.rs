@@ -1,6 +1,34 @@
+//! Three-way string quicksort
+//!
+//! Adapt quicksort to MSD string sorting by using 3-way
+//! partitioning on the leading character of the keys,
+//! moving to the next character on only the middle
+//! subarray (keys with leading character equal to the
+//! partitioning character).
+//!
+//! ### Compare to MSD
+//!
+//! Three-way string quicksort divides the array into
+//! only three parts, so it involves more data movement
+//! than MSD string sort when the number of nonempty
+//! partitions is large because it has to
+//! do a series of 3-way partitions to get the effect of
+//! the multiway partition. On the other hand, MSD string
+//! sort can create large numbers of (empty) subarrays,
+//! whereas 3-way string quicksort always has just three.
+//! Thus, 3-way string quicksort adapts well to handling
+//! equal keys, keys with long common prefixes, keys that
+//! fall into a small range, and small arrays— all situations
+//! where MSD string sort runs slowly. Of particular importance
+//! is that the partitioning adapts to different kinds of structure
+//! in different parts of the key. Also, like quicksort, 3-way string
+//! quicksort does not use extra space (other than the implicit stack
+//! to support recursion), which is an important advantage over MSD
+//! string sort, which requires space for both frequency counts and
+//! an auxiliary array.
+
 #![allow(clippy::many_single_char_names)]
-use crate::sort;
-use crate::strings::util;
+use crate::{common, sort};
 use std::cmp::Ordering;
 use std::marker::PhantomData;
 
@@ -36,9 +64,9 @@ where
         }
 
         let (mut lt, mut gt, mut i) = (lo, hi, lo + 1);
-        let v = util::char_at(a[lo].as_ref(), d);
+        let v = common::util::char_at(a[lo].as_ref(), d);
         while i <= gt {
-            let t = util::char_at(a[i].as_ref(), d);
+            let t = common::util::char_at(a[i].as_ref(), d);
             match t.cmp(&v) {
                 Ordering::Less => {
                     a.swap(lt, i);
@@ -56,6 +84,8 @@ where
         // a[lo..lt-1] < v = a[lt..gt] < a[gt+1..hi]
         Self::do_sort(a, lo, lt.saturating_sub(1), d);
         if v >= 0 {
+            // moving to the next character on only the middle 1ubarray
+            // (keys with leading character equal to the partitioning character)
             Self::do_sort(a, lt, gt, d + 1);
         }
         Self::do_sort(a, gt + 1, hi, d);
