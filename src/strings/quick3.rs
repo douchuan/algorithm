@@ -52,6 +52,13 @@ where
 {
     /// Rearranges the array of strings in ascending order.
     pub fn sort(a: &mut [T]) {
+        // Randomization.
+        // As with any quicksort, it is generally worthwhile to
+        // shuffle the array beforehand or to use a random paritioning
+        // item by swapping the first item with a random one. The primary
+        // reason to do so is to protect against worst-case performance
+        // in the case that the array is already sorted or nearly sorted.
+        common::util::shuffle(a);
         let n = a.len();
         Self::do_sort(a, 0, n.saturating_sub(1), 0);
     }
@@ -98,6 +105,7 @@ where
 {
     /// Rearranges the array in ascending order, using the natural order.
     pub fn sort(a: &mut [T]) {
+        common::util::shuffle(a);
         let n = a.len();
         Self::do_sort(a, 0, n.saturating_sub(1));
     }
