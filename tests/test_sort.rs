@@ -45,6 +45,18 @@ fn insert_sort_dth() {
     let len = data.len();
     sort::insert::sort_dth(&mut data, 0, len - 1, 0);
     assert!(data.is_sorted());
+
+    // 0-th char equal
+    let mut data = vec!["af", "ae", "ad", "ac", "ab", "aa"];
+    let len = data.len();
+    sort::insert::sort_dth(&mut data, 0, len - 1, 0);
+    assert!(data.is_sorted());
+
+    // length
+    let mut data = vec!["aaaaaa", "aaaaa", "aaaa", "aaa", "aa", "a"];
+    let len = data.len();
+    sort::insert::sort_dth(&mut data, 0, len - 1, 0);
+    assert!(data.is_sorted());
 }
 
 #[test]

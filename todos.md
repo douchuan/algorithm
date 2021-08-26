@@ -1,20 +1,21 @@
-todo
+### Todo list
 
-1. algs4 exercises
+- algs4 exercises
 
-2. algs4, 1.5.16 plots
-  2.1 rust plots crate: https://github.com/38/plotters.git
-  2.2 借助rust feature条件编译，实现记录统计数据的代码，不影响正常情况的性能
-
-3. benchmark可视化。找一种通用性能剖析方法，比如UF，在union函数中监视parent 和 rank被读了
+- algs4, 1.5.16 plots
+  - rust plots crate: https://github.com/38/plotters.git
+  - 借助rust feature条件编译，实现记录统计数据的代码，不影响正常情况的性能
+  
+- benchmark可视化。找一种通用性能剖析方法，比如UF，在union函数中监视parent 和 rank被读了
   多少次，被写了多少次，方便plot。rust如果不具备这个功能，考虑其他语言python,
   js, kotlin... (python也许是个好选择，并且有完善的plot库)
   这个语言需要具备的必要条件：
-    3.1 监听变量（读 / 写）
-    3.2 plot
-    3.3 读写本地文件
+    - 监听变量（读 / 写）
+    - plot
+    - 读写本地文件
 
-4. algorithms visualization
+- algorithms visualization
+
   algorithms / runtime data / anim render engine...,
   independent of each other, connected by gRPC
 
@@ -26,14 +27,15 @@ todo
   a kind of algorithm, impl as a plugin, follow spec，amin engine
   can render it.
 
-5. fix mod/struct/fn doc error to make doc work well, add more docs
+- fix mod/struct/fn doc error to make doc work well, add more docs
 
-6. The [Cheat Sheet](https://algs4.cs.princeton.edu/cheatsheet/) is comprehensive,
+- The [Cheat Sheet](https://algs4.cs.princeton.edu/cheatsheet/) is comprehensive,
   rewrite to markdown.
 
-  resort Index section in README.md follow order showed in textbook
+- resort Index section in README.md follow order showed in textbook
 
-7. strings algorithms lsd/msd/quick3 based bytes
+- strings algorithms lsd/msd/quick3 based bytes
+
   refact to support chars, std str.chars() poor performance
 
 ### 后记

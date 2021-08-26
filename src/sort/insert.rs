@@ -36,7 +36,7 @@ where
     }
 }
 
-/// is v less than w, starting at character d
+/// is v less than w, starting at d-th character
 fn is_less(v: &str, w: &str, d: usize) -> bool {
     for (a, b) in v.bytes().zip(w.bytes()).skip(d) {
         match a.cmp(&b) {
