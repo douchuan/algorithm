@@ -22,12 +22,19 @@ impl<'a, 'b, T> TrieST<T> {
         get_dth(self.root, key, 0)
     }
 
-    pub fn put(&self, key: &str, val: T) {
-        unimplemented!()
+    pub fn put(&mut self, key: &str, val: Option<T>) {
+        if val.is_none() {
+            self.delete(key);
+        } else {
+            let mut root = self.root;
+            root = unsafe { self.put_dth(root, key, val, 0) };
+            self.root = root;
+        }
     }
 
     pub fn delete(&mut self, key: &str) {
-        let root = self.delete_dth(self.root, key, 0);
+        let mut root = self.root;
+        root = unsafe { self.delete_dth(root, key, 0) };
         self.root = root;
     }
 
@@ -39,7 +46,31 @@ impl<'a, 'b, T> TrieST<T> {
         self.n == 0
     }
 
-    fn delete_dth(
+    unsafe fn put_dth(
+        &mut self,
+        x: Option<NonNull<Node<T>>>,
+        key: &str,
+        val: Option<T>,
+        d: usize,
+    ) -> Option<NonNull<Node<T>>> {
+        let mut x = x.unwrap_or_else(|| Node::new(None));
+
+        if d == key.len() {
+            if x.as_ref().val.is_none() {
+                self.n += 1;
+            }
+            x.as_mut().val = val;
+            return Some(x);
+        }
+
+        let i = common::util::byte_at(key, d) as usize;
+        let next = x.as_ref().next[i];
+        x.as_mut().next[i] = self.put_dth(next, key, val, d + 1);
+
+        Some(x)
+    }
+
+    unsafe fn delete_dth(
         &mut self,
         x: Option<NonNull<Node<T>>>,
         key: &str,
@@ -47,30 +78,26 @@ impl<'a, 'b, T> TrieST<T> {
     ) -> Option<NonNull<Node<T>>> {
         x.and_then(|mut x| {
             if d == key.len() {
-                let val = unsafe { x.as_mut().val.take() };
+                let val = x.as_mut().val.take();
                 if val.is_some() {
                     self.n -= 1;
                 }
             } else {
                 let i = common::util::byte_at(key, d) as usize;
-                unsafe {
-                    let next = x.as_ref().next[i];
-                    x.as_mut().next[i] = self.delete_dth(next, key, d + 1);
-                }
+                let next = x.as_ref().next[i];
+                x.as_mut().next[i] = self.delete_dth(next, key, d + 1);
             }
 
             // remove subtrie rooted at x if it is completely empty
-            unsafe {
-                if x.as_ref().val.is_some() {
-                    return Some(x);
-                }
-                if x.as_ref().next.iter().any(|it| it.is_some()) {
-                    return Some(x);
-                }
-
-                // x.val is None and next all None, just release x itself
-                let _ = Box::from_raw(x.as_ptr());
+            if x.as_ref().val.is_some() {
+                return Some(x);
             }
+            if x.as_ref().next.iter().any(|it| it.is_some()) {
+                return Some(x);
+            }
+
+            // x.val is None and next all None, just release x itself
+            let _ = Box::from_raw(x.as_ptr());
 
             None
         })
@@ -96,21 +123,12 @@ impl<T> Default for TrieST<T> {
 }
 
 impl<T> Node<T> {
-    fn new(val: T) -> NonNull<Self> {
+    fn new(val: Option<T>) -> NonNull<Self> {
         let v = Box::new(Self {
-            val: Some(val),
+            val,
             next: vec![None; R],
         });
         Box::leak(v).into()
-    }
-}
-
-impl<T> Default for Node<T> {
-    fn default() -> Self {
-        Self {
-            val: None,
-            next: vec![None; R],
-        }
     }
 }
 
