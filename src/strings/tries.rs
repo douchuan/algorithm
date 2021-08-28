@@ -77,11 +77,26 @@ impl<T> TrieST<T> {
         self.root = root;
     }
 
+    /// Returns all keys in the symbol table
+    pub fn keys(&self) -> Queue<String> {
+        self.keys_with_prefix("")
+    }
+
+    /// Returns all of the keys in the set that start with *prefix*
     pub fn keys_with_prefix(&self, prefix: &str) -> Queue<String> {
         let mut results = Queue::default();
         let x = get_dth(self.root, prefix, 0);
         let mut prefix = prefix.to_string();
         unsafe { collect_prefix(x, &mut prefix, &mut results) };
+        results
+    }
+
+    /// Returns all of the keys in the symbol table that match *pattern*,
+    /// where the character '.' is interpreted as a wildcard character.
+    pub fn keys_that_match(&self, pattern: &str) -> Queue<String> {
+        let mut results = Queue::default();
+        let mut prefix = String::new();
+        unsafe { collect_match(self.root, &mut prefix, pattern, &mut results) };
         results
     }
 
@@ -168,6 +183,35 @@ unsafe fn collect_prefix<T>(
             prefix.push(c as u8 as char);
             collect_prefix(x.as_ref().next[c], prefix, results);
             let _ = prefix.pop();
+        }
+    }
+}
+
+unsafe fn collect_match<T>(
+    x: Option<NonNull<Node<T>>>,
+    prefix: &mut String,
+    pattern: &str,
+    results: &mut Queue<String>,
+) {
+    if let Some(x) = x {
+        let d = prefix.len();
+        if d == pattern.len() && x.as_ref().val.is_some() {
+            results.enqueue(prefix.clone());
+        }
+        if d == pattern.len() {
+            return;
+        }
+        let i = common::util::byte_at(pattern, d) as usize;
+        if i == b'.' as usize {
+            for ch in 0..R {
+                prefix.push(ch as u8 as char);
+                collect_match(x.as_ref().next[ch], prefix, pattern, results);
+                prefix.pop();
+            }
+        } else {
+            prefix.push(i as u8 as char);
+            collect_match(x.as_ref().next[i], prefix, pattern, results);
+            prefix.pop();
         }
     }
 }
