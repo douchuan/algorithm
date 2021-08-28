@@ -3,6 +3,27 @@ use std::ptr::NonNull;
 
 const R: usize = 256;
 
+/// The TrieST represents an symbol table of key-value
+/// pairs, with string keys and generic values.
+/// It supports the usual put, get, contains,
+/// delete, len, and is-empty, methods.
+/// It also provides character-based methods for finding the string
+///  in the symbol table that is the *longest prefix* of a given prefix,
+///  finding all strings in the symbol table that s*tart with* a given prefix,
+/// and finding all strings in the symbol table that *match* a given pattern.
+/// A symbol table implements the *associative array* abstraction:
+/// when associating a value with a key that is already in the symbol table,
+/// the convention is to replace the old value with the new value.
+/// This struct uses the convention that
+/// values cannot be None—setting the
+/// value associated with a key to None is equivalent to deleting the key
+/// from the symbol table.
+/// This implementation uses a 256-way trie.
+/// The put, contains, delete, and
+/// longest prefix operations take time proportional to the length
+/// of the key (in the worst case). Construction takes constant time.
+/// The len, and is-empty operations take constant time.
+/// Construction takes constant time.
 pub struct TrieST<T> {
     root: Option<NonNull<Node<T>>>,
     n: usize,
@@ -14,14 +35,30 @@ struct Node<T> {
 }
 
 impl<'a, 'b, T> TrieST<T> {
+    /// Returns the number of key-value pairs in this symbol table.
+    pub fn len(&self) -> usize {
+        self.n
+    }
+
+    /// Is this symbol table empty
+    pub fn is_empty(&self) -> bool {
+        self.n == 0
+    }
+
+    /// Does this symbol table contain the given key?
     pub fn contains(&self, key: &str) -> bool {
         self.get(key).is_some()
     }
 
+    /// Returns the value associated with the given key.
     pub fn get(&self, key: &'a str) -> Option<&'b T> {
         get_dth(self.root, key, 0)
     }
 
+    /// Inserts the key-value pair into the symbol table, overwriting
+    /// the old value with the new value if the key is already in the
+    /// symbol table. If the value is None, this effectively
+    /// deletes the key from the symbol table.
     pub fn put(&mut self, key: &str, val: Option<T>) {
         if val.is_none() {
             self.delete(key);
@@ -36,14 +73,6 @@ impl<'a, 'b, T> TrieST<T> {
         let mut root = self.root;
         root = unsafe { self.delete_dth(root, key, 0) };
         self.root = root;
-    }
-
-    pub fn len(&self) -> usize {
-        self.n
-    }
-
-    pub fn is_empty(&self) -> bool {
-        self.n == 0
     }
 
     unsafe fn put_dth(
