@@ -1,4 +1,5 @@
 use crate::common;
+use crate::common::Queue;
 use std::ptr::NonNull;
 
 const R: usize = 256;
@@ -34,7 +35,7 @@ struct Node<T> {
     next: Vec<Option<NonNull<Node<T>>>>,
 }
 
-impl<'a, 'b, T> TrieST<T> {
+impl<T> TrieST<T> {
     /// Returns the number of key-value pairs in this symbol table.
     pub fn len(&self) -> usize {
         self.n
@@ -51,8 +52,8 @@ impl<'a, 'b, T> TrieST<T> {
     }
 
     /// Returns the value associated with the given key.
-    pub fn get(&self, key: &'a str) -> Option<&'b T> {
-        get_dth(self.root, key, 0)
+    pub fn get(&self, key: &str) -> Option<&T> {
+        get_dth(self.root, key, 0).and_then(|p| unsafe { p.as_ref().val.as_ref() })
     }
 
     /// Inserts the key-value pair into the symbol table, overwriting
@@ -69,10 +70,19 @@ impl<'a, 'b, T> TrieST<T> {
         }
     }
 
+    /// Removes the key from the set if the key is present
     pub fn delete(&mut self, key: &str) {
         let mut root = self.root;
         root = unsafe { self.delete_dth(root, key, 0) };
         self.root = root;
+    }
+
+    pub fn keys_with_prefix(&self, prefix: &str) -> Queue<String> {
+        let mut results = Queue::default();
+        let x = get_dth(self.root, prefix, 0);
+        let mut prefix = prefix.to_string();
+        unsafe { collect_prefix(x, &mut prefix, &mut results) };
+        results
     }
 
     unsafe fn put_dth(
@@ -133,16 +143,33 @@ impl<'a, 'b, T> TrieST<T> {
     }
 }
 
-fn get_dth<'a, 'b, T>(p: Option<NonNull<Node<T>>>, key: &'a str, d: usize) -> Option<&'b T> {
+fn get_dth<T>(p: Option<NonNull<Node<T>>>, key: &str, d: usize) -> Option<NonNull<Node<T>>> {
     p.and_then(|p| {
         if d == key.len() {
-            unsafe { p.as_ref().val.as_ref() }
+            Some(p)
         } else {
             let i = common::util::byte_at(key, d) as usize;
             let next = unsafe { p.as_ref().next[i] };
             get_dth(next, key, d + 1)
         }
     })
+}
+
+unsafe fn collect_prefix<T>(
+    x: Option<NonNull<Node<T>>>,
+    prefix: &mut String,
+    results: &mut Queue<String>,
+) {
+    if let Some(x) = x {
+        if x.as_ref().val.is_some() {
+            results.enqueue(prefix.to_string());
+        }
+        for c in 0..R {
+            prefix.push(c as u8 as char);
+            collect_prefix(x.as_ref().next[c], prefix, results);
+            let _ = prefix.pop();
+        }
+    }
 }
 
 impl<T> Default for TrieST<T> {
