@@ -36,7 +36,8 @@
 
 - strings algorithms lsd/msd/quick3 based bytes
 
-  refact to support chars, std str.chars() poor performance
+  refact to support chars, std str.chars() poor performance.
+  build one struct, traverse char by index  
 
 ### 后记
 
