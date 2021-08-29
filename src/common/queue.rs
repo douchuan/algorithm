@@ -15,13 +15,6 @@ pub struct Queue<T> {
     ll: LinkedList<T>,
 }
 
-impl<T> Default for Queue<T> {
-    fn default() -> Self {
-        let ll = LinkedList::default();
-        Self { ll }
-    }
-}
-
 impl<T> Queue<T> {
     /// Adds the item to this queue
     pub fn enqueue(&mut self, v: T) {
@@ -51,5 +44,12 @@ impl<T> Queue<T> {
     /// Returns true if this queue is empty
     pub fn is_empty(&self) -> bool {
         self.ll.is_empty()
+    }
+}
+
+impl<T> Default for Queue<T> {
+    fn default() -> Self {
+        let ll = LinkedList::default();
+        Self { ll }
     }
 }

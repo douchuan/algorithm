@@ -1,6 +1,7 @@
 use std::cmp::Ordering;
 
-#[derive(Copy, Clone)]
+// Default, 用于MinPQ中的0号元素
+#[derive(Default, Copy, Clone)]
 pub struct Edge {
     v: usize,
     w: usize,
@@ -58,16 +59,5 @@ impl Eq for Edge {}
 impl ToString for Edge {
     fn to_string(&self) -> String {
         format!("{}-{} {:.5}", self.v, self.w, self.weight)
-    }
-}
-
-// 用于MinPQ中的0号元素
-impl Default for Edge {
-    fn default() -> Self {
-        Self {
-            v: 0,
-            w: 0,
-            weight: 0.0,
-        }
     }
 }

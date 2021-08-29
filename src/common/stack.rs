@@ -7,13 +7,6 @@ pub struct Stack<T> {
     ll: LinkedList<T>,
 }
 
-impl<T> Default for Stack<T> {
-    fn default() -> Self {
-        let ll = LinkedList::default();
-        Self { ll }
-    }
-}
-
 impl<T> Stack<T> {
     /// Adds the item to this stack.
     pub fn push(&mut self, v: T) {
@@ -41,5 +34,12 @@ impl<T> Stack<T> {
 
     pub fn is_empty(&self) -> bool {
         self.ll.is_empty()
+    }
+}
+
+impl<T> Default for Stack<T> {
+    fn default() -> Self {
+        let ll = LinkedList::default();
+        Self { ll }
     }
 }

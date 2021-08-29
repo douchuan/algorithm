@@ -125,24 +125,6 @@ impl<T> IntoIterator for LinkedList<T> {
     }
 }
 
-impl<T> Default for LinkedList<T> {
-    fn default() -> Self {
-        Self {
-            head: None,
-            tail: None,
-            len: 0,
-        }
-    }
-}
-
-impl<T> Drop for LinkedList<T> {
-    fn drop(&mut self) {
-        unsafe { do_drop(self.head) }
-        self.head = None;
-        self.len = 0;
-    }
-}
-
 impl<'a, T> Iterator for Iter<'a, T> {
     type Item = &'a T;
 
@@ -178,6 +160,24 @@ impl<T> Iterator for IntoIter<T> {
     #[inline]
     fn size_hint(&self) -> (usize, Option<usize>) {
         (self.list.len, Some(self.list.len))
+    }
+}
+
+impl<T> Default for LinkedList<T> {
+    fn default() -> Self {
+        Self {
+            head: None,
+            tail: None,
+            len: 0,
+        }
+    }
+}
+
+impl<T> Drop for LinkedList<T> {
+    fn drop(&mut self) {
+        unsafe { do_drop(self.head) }
+        self.head = None;
+        self.len = 0;
     }
 }
 

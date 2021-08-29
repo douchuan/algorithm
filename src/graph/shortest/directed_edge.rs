@@ -1,6 +1,6 @@
 use std::cmp::Ordering;
 
-#[derive(Copy, Clone)]
+#[derive(Default, Copy, Clone)]
 pub struct DirectedEdge {
     v: usize,
     w: usize,
@@ -53,15 +53,3 @@ impl ToString for DirectedEdge {
         format!("{}->{} {:5.2}", self.v, self.w, self.weight)
     }
 }
-
-/*
-impl Default for Edge {
-    fn default() -> Self {
-        Self {
-            v: 0,
-            w: 0,
-            weight: 0.0,
-        }
-    }
-}
-*/
