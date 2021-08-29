@@ -139,7 +139,19 @@ fn trie_st() {
 
     // test keys_that_match
     let mut matches = trie_st.keys_that_match(".he.l.");
-    assert_eq!(Some("shells"), matches.dequeue().as_deref())
+    assert_eq!(Some("shells"), matches.dequeue().as_deref());
+
+    // test delete
+    assert!(trie_st.contains("shells"));
+    trie_st.delete("shells");
+    assert_eq!(6, trie_st.len());
+    assert!(!trie_st.contains("shells"));
+
+    // test put(xx, None) can delete too
+    assert!(trie_st.contains("shore"));
+    trie_st.put("shore", None);
+    assert_eq!(5, trie_st.len());
+    assert!(!trie_st.contains("shore"));
 }
 
 fn extract_words(i: &str) -> Vec<&str> {
