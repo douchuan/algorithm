@@ -114,12 +114,11 @@ impl<T> TrieST<T> {
                 self.n += 1;
             }
             x.as_mut().val = val;
-            return Some(x);
+        } else {
+            let i = common::util::byte_at(key, d) as usize;
+            let next = x.as_ref().next[i];
+            x.as_mut().next[i] = self.put_dth(next, key, val, d + 1);
         }
-
-        let i = common::util::byte_at(key, d) as usize;
-        let next = x.as_ref().next[i];
-        x.as_mut().next[i] = self.put_dth(next, key, val, d + 1);
 
         Some(x)
     }

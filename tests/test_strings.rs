@@ -1,9 +1,11 @@
 #![feature(is_sorted)]
 #![allow(non_snake_case)]
-use algo::strings::{Quick3String, Quick3Way, LSD, MSD};
+use algo::strings::{Quick3String, Quick3Way, TrieST, LSD, MSD};
+use std::collections::HashMap;
 
 const WORDS3: &'static str = include_str!("../res/strings/words3.txt");
 const SHELLS: &'static str = include_str!("../res/strings/shells.txt");
+const SHELLS_ST: &'static str = include_str!("../res/strings/shellsST.txt");
 
 #[test]
 fn LSD_radix_sort() {
@@ -102,6 +104,42 @@ fn sorted_data() {
     let mut a: Vec<i32> = (0..10).collect();
     LSD::sort_i32(&mut a);
     assert!(a.is_sorted());
+}
+
+#[test]
+fn trie_st() {
+    let mut trie_st = TrieST::default();
+    let i = SHELLS_ST;
+    let mut hm = HashMap::new();
+    let a = extract_words(i);
+
+    // test len & empty
+    assert!(trie_st.is_empty());
+    assert_eq!(0, trie_st.len());
+
+    for (i, &s) in a.iter().enumerate() {
+        hm.insert(s, i);
+        // test put
+        trie_st.put(s, Some(i));
+    }
+
+    // test len & empty
+    assert!(!trie_st.is_empty());
+    assert_eq!(7, trie_st.len());
+
+    for (&k, v) in hm.iter() {
+        // test get & contains
+        assert_eq!(trie_st.get(k), Some(v));
+        assert!(trie_st.contains(k));
+    }
+
+    // test keys_with_prefix
+    let mut matches = trie_st.keys_with_prefix("shor");
+    assert_eq!(Some("shore"), matches.dequeue().as_deref());
+
+    // test keys_that_match
+    let mut matches = trie_st.keys_that_match(".he.l.");
+    assert_eq!(Some("shells"), matches.dequeue().as_deref())
 }
 
 fn extract_words(i: &str) -> Vec<&str> {
