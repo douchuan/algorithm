@@ -100,6 +100,16 @@ impl<T> TrieST<T> {
         results
     }
 
+    pub fn longest_prefix_of<'a>(&self, query: &'a str) -> Option<&'a str> {
+        let root = self.root;
+        let length = unsafe { longest_prefix_of_dth(root, query, 0, -1) };
+        if length == -1 {
+            None
+        } else {
+            Some(&query[0..length as usize])
+        }
+    }
+
     unsafe fn put_dth(
         &mut self,
         x: Option<NonNull<Node<T>>>,
@@ -212,6 +222,27 @@ unsafe fn collect_match<T>(
             collect_match(x.as_ref().next[i], prefix, pattern, results);
             prefix.pop();
         }
+    }
+}
+
+unsafe fn longest_prefix_of_dth<T>(
+    x: Option<NonNull<Node<T>>>,
+    query: &str,
+    d: usize,
+    mut length: i32,
+) -> i32 {
+    if let Some(x) = x {
+        if x.as_ref().val.is_some() {
+            length = d as i32;
+        }
+        if d == query.len() {
+            return length;
+        }
+        let i = common::util::byte_at(query, d) as usize;
+        let next = x.as_ref().next[i];
+        longest_prefix_of_dth(next, query, d + 1, length)
+    } else {
+        length
     }
 }
 

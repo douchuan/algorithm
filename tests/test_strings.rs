@@ -141,6 +141,10 @@ fn trie_st() {
     let mut matches = trie_st.keys_that_match(".he.l.");
     assert_eq!(Some("shells"), matches.dequeue().as_deref());
 
+    // test longest_prefix_of
+    assert_eq!(Some("shells"), trie_st.longest_prefix_of("shellsort"));
+    assert_eq!(None, trie_st.longest_prefix_of("quicksort"));
+
     // test delete
     assert!(trie_st.contains("shells"));
     trie_st.delete("shells");
