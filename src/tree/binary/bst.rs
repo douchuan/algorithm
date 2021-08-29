@@ -89,18 +89,14 @@ where
     }
 
     //插入x
-    let mut x;
+    let mut x = Node::new_entry(key, val);
     if let Some(mut node) = parent {
-        if key < node.as_ref().key {
-            x = Node::new_entry(key, val);
+        if x.as_ref().key < node.as_ref().key {
             node.as_mut().left = Some(x);
         } else {
-            x = Node::new_entry(key, val);
             node.as_mut().right = Some(x);
         }
         x.as_mut().parent = parent;
-    } else {
-        x = Node::new_entry(key, val);
     }
 
     Ok(x)
@@ -208,8 +204,6 @@ where
 /// 从二叉搜索树中删除节点 x 的方法如下:
 ///   如果 x 没有子节点，或者只有一个孩子，直接将 x“切下”;
 ///   否则，x 有两个孩子，我们用其右子树中的最小值替换掉 x，然后将右子树中的这一最小值“切掉”。
-///
-/// idx, 起始node
 unsafe fn delete<K, V>(
     mut root: Option<NonNull<Node<K, V>>>,
     mut x: Option<NonNull<Node<K, V>>>,
@@ -258,11 +252,9 @@ where
         }
 
         Node::release(old_x.unwrap());
-
-        root
-    } else {
-        root
     }
+
+    root
 }
 
 /// is the tree rooted at x a BST with all keys strictly between min and max
