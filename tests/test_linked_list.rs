@@ -59,6 +59,78 @@ fn find_kth2tail() {
     assert_eq!(p, None);
 }
 
+#[test]
+fn drop_clear() {
+    static mut DROPS: i32 = 0;
+    struct Elem;
+    impl Drop for Elem {
+        fn drop(&mut self) {
+            unsafe {
+                DROPS += 1;
+            }
+        }
+    }
+
+    let mut ll = LinkedList::default();
+    ll.push_back(Elem);
+    ll.push_front(Elem);
+    ll.push_back(Elem);
+    ll.push_front(Elem);
+    drop(ll);
+
+    assert_eq!(unsafe { DROPS }, 4);
+}
+
+#[test]
+fn drop_clear_with_reverse() {
+    static mut DROPS: i32 = 0;
+    struct Elem;
+    impl Drop for Elem {
+        fn drop(&mut self) {
+            unsafe {
+                DROPS += 1;
+            }
+        }
+    }
+
+    let mut ll = LinkedList::default();
+    ll.push_back(Elem);
+    ll.push_front(Elem);
+    ll.push_back(Elem);
+    ll.push_front(Elem);
+    ll.reverse(); // do reverse
+    drop(ll);
+
+    assert_eq!(unsafe { DROPS }, 4);
+}
+
+#[test]
+fn drop_with_pop() {
+    static mut DROPS: i32 = 0;
+    struct Elem;
+    impl Drop for Elem {
+        fn drop(&mut self) {
+            unsafe {
+                DROPS += 1;
+            }
+        }
+    }
+
+    let mut ll = LinkedList::default();
+    ll.push_back(Elem);
+    ll.push_front(Elem);
+    ll.push_back(Elem);
+    ll.push_front(Elem);
+
+    // do pop, and drop Elem
+    drop(ll.pop_front());
+    drop(ll.pop_front());
+    assert_eq!(unsafe { DROPS }, 2);
+
+    drop(ll);
+    assert_eq!(unsafe { DROPS }, 4);
+}
+
 fn create_ll<T>(data: &[T]) -> LinkedList<T>
 where
     T: Copy,

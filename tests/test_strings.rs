@@ -178,6 +178,21 @@ fn trie_st_drop() {
     drop(trie_st);
 
     assert_eq!(unsafe { DROPS }, 4);
+
+    // test overwrite "aaa"
+    // reset DROPS
+    unsafe {
+        DROPS = 0;
+    }
+    let mut trie_st = TrieST::default();
+    trie_st.put("aaa", Some(Elem));
+    trie_st.put("bbb", Some(Elem));
+    trie_st.put("ccc", Some(Elem));
+    trie_st.put("ddd", Some(Elem));
+    trie_st.put("aaa", Some(Elem)); // do overwrite
+    drop(trie_st);
+
+    assert_eq!(unsafe { DROPS }, 5);
 }
 
 #[test]
