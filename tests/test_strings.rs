@@ -158,6 +158,82 @@ fn trie_st() {
     assert!(!trie_st.contains("shore"));
 }
 
+#[test]
+fn trie_st_drop() {
+    static mut DROPS: i32 = 0;
+    struct Elem;
+    impl Drop for Elem {
+        fn drop(&mut self) {
+            unsafe {
+                DROPS += 1;
+            }
+        }
+    }
+
+    let mut trie_st = TrieST::default();
+    trie_st.put("aaa", Some(Elem));
+    trie_st.put("bbb", Some(Elem));
+    trie_st.put("ccc", Some(Elem));
+    trie_st.put("ddd", Some(Elem));
+    drop(trie_st);
+
+    assert_eq!(unsafe { DROPS }, 4);
+}
+
+#[test]
+fn trie_st_drop_with_delete() {
+    static mut DROPS: i32 = 0;
+    struct Elem;
+    impl Drop for Elem {
+        fn drop(&mut self) {
+            unsafe {
+                DROPS += 1;
+            }
+        }
+    }
+
+    let mut trie_st = TrieST::default();
+    trie_st.put("aaa", Some(Elem));
+    trie_st.put("bbb", Some(Elem));
+    trie_st.put("ccc", Some(Elem));
+    trie_st.put("ddd", Some(Elem));
+
+    trie_st.delete("aaa");
+    trie_st.delete("bbb");
+    assert_eq!(unsafe { DROPS }, 2);
+
+    drop(trie_st);
+
+    assert_eq!(unsafe { DROPS }, 4);
+}
+
+#[test]
+fn trie_st_drop_with_put() {
+    static mut DROPS: i32 = 0;
+    struct Elem;
+    impl Drop for Elem {
+        fn drop(&mut self) {
+            unsafe {
+                DROPS += 1;
+            }
+        }
+    }
+
+    let mut trie_st = TrieST::default();
+    trie_st.put("aaa", Some(Elem));
+    trie_st.put("bbb", Some(Elem));
+    trie_st.put("ccc", Some(Elem));
+    trie_st.put("ddd", Some(Elem));
+
+    trie_st.put("aaa", None);
+    trie_st.put("bbb", None);
+    assert_eq!(unsafe { DROPS }, 2);
+
+    drop(trie_st);
+
+    assert_eq!(unsafe { DROPS }, 4);
+}
+
 fn extract_words(i: &str) -> Vec<&str> {
     i.split_whitespace().collect()
 }

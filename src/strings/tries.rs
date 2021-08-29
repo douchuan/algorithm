@@ -25,7 +25,6 @@ const R: usize = 256;
 /// of the key (in the worst case). Construction takes constant time.
 /// The len, and is-empty operations take constant time.
 /// Construction takes constant time.
-#[derive(Default)]
 pub struct TrieST<T> {
     root: Option<NonNull<Node<T>>>,
     n: usize,
@@ -250,6 +249,12 @@ unsafe fn longest_prefix_of_dth<T>(
         longest_prefix_of_dth(next, query, d + 1, length)
     } else {
         length
+    }
+}
+
+impl<T> Default for TrieST<T> {
+    fn default() -> Self {
+        Self { root: None, n: 0 }
     }
 }
 
