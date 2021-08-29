@@ -100,6 +100,8 @@ impl<T> TrieST<T> {
         results
     }
 
+    /// Returns the string in the symbol table that is the longest prefix of *query*,
+    /// or None, if no such string.
     pub fn longest_prefix_of<'a>(&self, query: &'a str) -> Option<&'a str> {
         let root = self.root;
         let length = unsafe { longest_prefix_of_dth(root, query, 0, -1) };
@@ -225,6 +227,10 @@ unsafe fn collect_match<T>(
     }
 }
 
+// returns the length of the longest string key in the subtrie
+// rooted at x that is a prefix of the query string,
+// assuming the first d character match and we have already
+// found a prefix match of given length (-1 if no such match)
 unsafe fn longest_prefix_of_dth<T>(
     x: Option<NonNull<Node<T>>>,
     query: &str,
