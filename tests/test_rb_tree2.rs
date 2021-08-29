@@ -43,8 +43,6 @@ fn insert2() {
 
 #[test]
 fn repeat_insert() {
-    use algo::tree::binary::rb2::RedBlackTreeV2;
-
     let mut tree = Tree::default();
     for v in "ACEHLMPRSX".chars() {
         tree.insert(v, v);
@@ -120,4 +118,52 @@ fn keys() {
         tree.insert(v, v);
     }
     assert_eq!(tree.keys(), vec![&0, &1, &2, &3, &4, &5, &6, &7, &8, &9]);
+}
+
+#[test]
+fn drop_clear() {
+    static mut DROPS: i32 = 0;
+    struct Elem;
+    impl Drop for Elem {
+        fn drop(&mut self) {
+            unsafe {
+                DROPS += 1;
+            }
+        }
+    }
+
+    let mut tree = Tree::default();
+    for v in 0..100 {
+        tree.insert(v, Elem);
+    }
+
+    drop(tree);
+
+    assert_eq!(unsafe { DROPS }, 100);
+}
+
+#[test]
+fn drop_with_delete() {
+    static mut DROPS: i32 = 0;
+    struct Elem;
+    impl Drop for Elem {
+        fn drop(&mut self) {
+            unsafe {
+                DROPS += 1;
+            }
+        }
+    }
+
+    let mut tree = Tree::default();
+    for v in 0..100 {
+        tree.insert(v, Elem);
+    }
+
+    for v in 0..10 {
+        tree.delete(&v);
+    }
+    assert_eq!(10, unsafe { DROPS });
+
+    drop(tree);
+    assert_eq!(100, unsafe { DROPS });
 }

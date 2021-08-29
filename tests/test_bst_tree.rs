@@ -93,3 +93,78 @@ fn is_bst() {
     }
     assert!(bst::is_bst(tree.root, None, None));
 }
+
+#[test]
+fn delete_right_left_deviation() {
+    // right-hand deviation
+    let mut tree = Tree::default();
+    for v in 0..100 {
+        tree.insert(v, v);
+    }
+    let mut height = 100;
+    for v in 0..100 {
+        tree.delete(&v);
+        height -= 1;
+        assert_eq!(height, tree.height());
+    }
+
+    // left-hand deviation
+    let mut tree = Tree::default();
+    for v in (0..100).rev() {
+        tree.insert(v, v);
+    }
+    let mut height = 100;
+    for v in (0..100).rev() {
+        tree.delete(&v);
+        height -= 1;
+        assert_eq!(height, tree.height());
+    }
+}
+
+#[test]
+fn drop_clear() {
+    static mut DROPS: i32 = 0;
+    struct Elem;
+    impl Drop for Elem {
+        fn drop(&mut self) {
+            unsafe {
+                DROPS += 1;
+            }
+        }
+    }
+
+    let mut tree = Tree::default();
+    for v in 0..100 {
+        tree.insert(v, Elem);
+    }
+
+    drop(tree);
+
+    assert_eq!(unsafe { DROPS }, 100);
+}
+
+#[test]
+fn drop_with_delete() {
+    static mut DROPS: i32 = 0;
+    struct Elem;
+    impl Drop for Elem {
+        fn drop(&mut self) {
+            unsafe {
+                DROPS += 1;
+            }
+        }
+    }
+
+    let mut tree = Tree::default();
+    for v in 0..100 {
+        tree.insert(v, Elem);
+    }
+
+    for v in 0..10 {
+        tree.delete(&v);
+    }
+    assert_eq!(10, unsafe { DROPS });
+
+    drop(tree);
+    assert_eq!(100, unsafe { DROPS });
+}

@@ -34,7 +34,9 @@ where
     }
 
     fn delete(&mut self, key: &K) {
-        unsafe { delete(key, self.root) }
+        let node = unsafe { find(self.root, key) };
+        let new_root = unsafe { delete(self.root, node) };
+        self.root = new_root;
     }
 
     fn get(&self, key: &K) -> Option<&V> {
@@ -208,52 +210,59 @@ where
 ///   否则，x 有两个孩子，我们用其右子树中的最小值替换掉 x，然后将右子树中的这一最小值“切掉”。
 ///
 /// idx, 起始node
-unsafe fn delete<K, V>(key: &K, node: Option<NonNull<Node<K, V>>>)
+unsafe fn delete<K, V>(
+    mut root: Option<NonNull<Node<K, V>>>,
+    mut x: Option<NonNull<Node<K, V>>>,
+) -> Option<NonNull<Node<K, V>>>
 where
     K: Ord,
 {
-    find(node, key).map_or((), |mut node| {
-        match Node::children_count(node) {
-            0 => {
-                //leaf
-                let mut parent = node.as_ref().parent.unwrap();
-                let _ = if parent.as_ref().left == Some(node) {
-                    parent.as_mut().left.take()
-                } else {
-                    parent.as_mut().right.take()
-                };
+    if let Some(mut px) = x {
+        let old_x = x;
+        let parent = px.as_ref().parent;
 
-                Node::release(node);
+        if px.as_ref().left.is_none() {
+            x = px.as_ref().right;
+        } else if px.as_ref().right.is_none() {
+            x = px.as_ref().left;
+        } else {
+            let min = find_min(px.as_ref().right).unwrap();
+            NodeQuery::new(x).copy_entry(min);
+            let min_parent = min.as_ref().parent;
+            if min_parent != x {
+                let min_right = min.as_ref().right;
+                min_parent.unwrap().as_mut().left = min_right;
+            } else {
+                px.as_mut().right = min.as_ref().right;
             }
-            1 => {
-                // backup node child
-                let child = if node.as_ref().left.is_some() {
-                    node.as_mut().left.take()
-                } else {
-                    node.as_mut().right.take()
-                };
-
-                // setup child node
-                let mut parent = node.as_ref().parent.unwrap();
-                if parent.as_ref().left == Some(node) {
-                    parent.as_mut().left = child;
-                } else if parent.as_ref().right == Some(node) {
-                    parent.as_mut().right = child;
-                }
-
-                Node::release(node);
+            if let Some(mut min_right) = min.as_ref().right {
+                let min_parent = min.as_ref().parent;
+                min_right.as_mut().parent = min_parent;
             }
-            _ => {
-                //我们用其右子树中的最小值替换掉 x
-                let right = node.as_ref().right;
-                let min = find_min(right);
-                NodeQuery::new(Some(node)).copy_entry(min.unwrap());
-
-                //右子树中的这一最小值“切掉”
-                delete(&min.unwrap().as_ref().key, right)
-            }
+            Node::release(min);
+            return root;
         }
-    });
+
+        if let Some(mut px) = x {
+            px.as_mut().parent = parent;
+        }
+
+        if let Some(mut parent) = parent {
+            if parent.as_ref().left == old_x {
+                parent.as_mut().left = x;
+            } else {
+                parent.as_mut().right = x;
+            }
+        } else {
+            root = x;
+        }
+
+        Node::release(old_x.unwrap());
+
+        root
+    } else {
+        root
+    }
 }
 
 /// is the tree rooted at x a BST with all keys strictly between min and max
