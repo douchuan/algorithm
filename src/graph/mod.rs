@@ -13,86 +13,15 @@
 //! | 软件       |     方法      |     调用关系     |
 //! | 社交网络    |     人       |     友谊关系      |
 
-#[macro_use]
-pub mod util;
-use crate::graph::mst::Edge;
-use crate::graph::shortest::DirectedEdge;
-use crate::ll::linked_list::Iter;
-
 pub mod directed;
 pub mod mst; // minimum spanning trees
 pub mod shortest; // shortest path
 pub mod undirected;
+pub mod util;
 
-pub trait IGraph {
-    /// number of vertices
-    #[allow(non_snake_case)]
-    fn V(&self) -> usize;
-
-    /// number of edges
-    #[allow(non_snake_case)]
-    fn E(&self) -> usize;
-
-    /// add edge v-w to this graph
-    fn add_edge(&mut self, v: usize, w: usize);
-
-    /// vertices adjacent to v
-    fn adj(&self, v: usize) -> Iter<'_, usize>;
-
-    /// directed graph op
-    fn reverse(&self) -> Box<dyn IGraph> {
-        panic!("No Support");
-    }
-}
-
-/// Edge weighted graph
-pub trait IEWGraph {
-    /// number of vertices
-    #[allow(non_snake_case)]
-    fn V(&self) -> usize;
-
-    /// number of edges
-    #[allow(non_snake_case)]
-    fn E(&self) -> usize;
-
-    /// Adds the undirected edge e to this edge-weighted graph
-    fn add_edge(&mut self, v: usize, w: usize, weight: f32);
-
-    /// Returns the edges incident on vertex v
-    fn adj(&self, v: usize) -> Iter<'_, Edge>;
-
-    /// Returns all edges in this edge-weighted graph
-    fn edges(&self) -> Vec<Edge>;
-
-    /// Returns the degree of vertex v
-    fn degree(&self, v: usize) -> usize;
-}
-
-/// Edge weighted graph
-pub trait IEWDigraph {
-    /// number of vertices
-    #[allow(non_snake_case)]
-    fn V(&self) -> usize;
-
-    /// number of edges
-    #[allow(non_snake_case)]
-    fn E(&self) -> usize;
-
-    /// Adds the directed edge e to this edge-weighted graph
-    fn add_edge(&mut self, v: usize, w: usize, weight: f32);
-
-    /// Returns the edges incident on vertex v
-    fn adj(&self, v: usize) -> Iter<'_, DirectedEdge>;
-
-    /// Returns all edges in this edge-weighted graph
-    fn edges(&self) -> Vec<DirectedEdge>;
-
-    /// Returns the degree of vertex v
-    fn out_degree(&self, v: usize) -> usize;
-
-    /// Returns the number of directed edges incident to vertex
-    fn in_degree(&self, v: usize) -> usize;
-}
+pub use mst::IEWGraph;
+pub use shortest::IEWDigraph;
+pub use undirected::IGraph;
 
 macro_rules! impl_to_string {
     ($G: ty) => {

@@ -48,3 +48,26 @@ pub trait MST {
     /// Returns the sum of the edge weights in a minimum spanning tree (or forest)
     fn weight(&self) -> f32;
 }
+
+/// Edge weighted graph
+pub trait IEWGraph {
+    /// number of vertices
+    #[allow(non_snake_case)]
+    fn V(&self) -> usize;
+
+    /// number of edges
+    #[allow(non_snake_case)]
+    fn E(&self) -> usize;
+
+    /// Adds the undirected edge e to this edge-weighted graph
+    fn add_edge(&mut self, v: usize, w: usize, weight: f32);
+
+    /// Returns the edges incident on vertex v
+    fn adj(&self, v: usize) -> Iter<'_, Edge>;
+
+    /// Returns all edges in this edge-weighted graph
+    fn edges(&self) -> Vec<Edge>;
+
+    /// Returns the degree of vertex v
+    fn degree(&self, v: usize) -> usize;
+}

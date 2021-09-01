@@ -26,3 +26,25 @@ mod cycle;
 mod dfs;
 mod dfs2;
 mod graph;
+
+use crate::ll::linked_list::Iter;
+pub trait IGraph {
+    /// number of vertices
+    #[allow(non_snake_case)]
+    fn V(&self) -> usize;
+
+    /// number of edges
+    #[allow(non_snake_case)]
+    fn E(&self) -> usize;
+
+    /// add edge v-w to this graph
+    fn add_edge(&mut self, v: usize, w: usize);
+
+    /// vertices adjacent to v
+    fn adj(&self, v: usize) -> Iter<'_, usize>;
+
+    /// directed graph op
+    fn reverse(&self) -> Box<dyn IGraph> {
+        panic!("No Support");
+    }
+}
