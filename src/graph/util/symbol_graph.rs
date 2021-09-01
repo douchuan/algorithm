@@ -67,7 +67,7 @@ impl<'a> SymbolGraph<'a> {
 
 impl<'a> SymbolGraph<'a> {
     /// build graph specified in i using delim to separate vertex names
-    pub fn new<F>(i: &'a str, sep: &str, graph_ctor: F) -> Self
+    pub fn new<F>(i: &'a str, sep: &str, ctor: F) -> Self
     where
         F: FnOnce(usize) -> Box<dyn IGraph>,
     {
@@ -94,17 +94,17 @@ impl<'a> SymbolGraph<'a> {
 
         // Second pass
         //   builds the graph
-        let mut graph = graph_ctor(st.len());
+        let mut g = ctor(st.len());
         for l in i.lines() {
             if let Ok((_, list)) = parse_list_str(l, sep) {
-                let v = *st.get(list[0]).unwrap();
+                let v = st.get(list[0]).unwrap();
                 for &s in &list[1..] {
-                    let w = *st.get(s).unwrap();
-                    graph.add_edge(v, w);
+                    let w = st.get(s).unwrap();
+                    g.add_edge(*v, *w);
                 }
             }
         }
 
-        Self { st, keys, graph }
+        Self { st, keys, graph: g }
     }
 }
