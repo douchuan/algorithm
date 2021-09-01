@@ -2,7 +2,6 @@ use algo::graph::undirected::{Bipartite, Cycle, DepthFirstSearch, Graph, NonRecu
 use algo::graph::util::{BreadthFirstPaths, DepthFirstPaths, Paths, SymbolGraph};
 use algo::graph::IGraph;
 use std::path::PathBuf;
-use std::str::FromStr;
 
 const TINY_G: &'static str = include_str!("../res/graph/tinyG.txt");
 const TINY_CG: &'static str = include_str!("../res/graph/tinyCG.txt");
@@ -17,7 +16,7 @@ fn parser() {
     //test parser
     let i = TINY_G;
     let i = i.strip_suffix("\n").unwrap_or(i);
-    let graph = Graph::from_str(i).unwrap();
+    let graph = Graph::from(i);
     assert_eq!(graph.V(), 13);
     assert_eq!(graph.E(), 13);
 
@@ -145,7 +144,7 @@ fn two_color() {
 #[test]
 fn symbol_graph() {
     let i = ROUTES;
-    let symbol = SymbolGraph::new(i, " ", |nv| Box::new(Graph::new(nv)));
+    let symbol = SymbolGraph::new(i, " ", |nv| Box::new(Graph::from(nv)));
     let graph = symbol.G();
     let mut expect = vec!["ORD", "ATL", "MCO"];
     expect.sort();
@@ -161,7 +160,7 @@ fn symbol_graph() {
 #[test]
 fn degree_of_separation() {
     let i = ROUTES;
-    let symbol = SymbolGraph::new(&i, " ", |nv| Box::new(Graph::new(nv)));
+    let symbol = SymbolGraph::new(&i, " ", |nv| Box::new(Graph::from(nv)));
     let graph = symbol.G();
     let source = "JFK";
     let sink = "LAS";
@@ -184,5 +183,5 @@ fn locate_file() {
 }
 
 fn create_graph(i: &str) -> Box<dyn IGraph> {
-    Box::new(Graph::from_str(i).unwrap())
+    Box::new(Graph::from(i))
 }

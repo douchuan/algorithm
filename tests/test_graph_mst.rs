@@ -3,7 +3,6 @@ extern crate approx;
 
 use algo::graph::mst::{EWGraph, KruskalMST, LazyPrimMST, PrimMST, MST};
 use algo::graph::IEWGraph;
-use std::str::FromStr;
 
 const TINY_EWG: &'static str = include_str!("../res/graph/tinyEWG.txt");
 
@@ -70,5 +69,5 @@ fn Kruskal_mst() {
 }
 
 fn create_graph(i: &str) -> Box<dyn IEWGraph> {
-    Box::new(EWGraph::from_str(i).unwrap())
+    Box::new(EWGraph::from(i))
 }

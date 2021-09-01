@@ -1,3 +1,4 @@
+use crate::graph::util::parser::GraphDataParser;
 use crate::graph::IGraph;
 use crate::ll::linked_list::Iter;
 use crate::ll::LinkedList;
@@ -30,7 +31,7 @@ impl IGraph for Digraph {
 
     /// reverse of this digraph
     fn reverse(&self) -> Box<dyn IGraph> {
-        let mut r = Digraph::new(self.nv);
+        let mut r = Digraph::from(self.nv);
         for v in 0..self.nv {
             for &w in self.adj(v) {
                 r.add_edge(w, v);
@@ -41,9 +42,9 @@ impl IGraph for Digraph {
     }
 }
 
-impl Digraph {
-    /// create a V-vertex graph with no edges
-    pub fn new(nv: usize) -> Self {
+/// create a V-vertex graph with no edges
+impl From<usize> for Digraph {
+    fn from(nv: usize) -> Self {
         let mut adj = Vec::with_capacity(nv);
         for _ in 0..nv {
             adj.push(LinkedList::default());
@@ -53,4 +54,14 @@ impl Digraph {
     }
 }
 
-graph_util!(Digraph);
+impl From<&str> for Digraph {
+    fn from(s: &str) -> Self {
+        let parser = GraphDataParser::parse(s, false).unwrap();
+        let mut g = Self::from(parser.get_v());
+        for (v, w) in parser.get_edges() {
+            g.add_edge(*v, *w);
+        }
+        debug_assert!(g.E() == parser.get_e());
+        g
+    }
+}

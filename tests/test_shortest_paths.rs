@@ -6,7 +6,6 @@ use algo::graph::shortest::{
     AcyclicLP, AcyclicSP, Arbitrage, BellmanFordSP, DijkstraAllPairsSP, DijkstraSP, EWDigraph, CPM,
 };
 use algo::graph::IEWDigraph;
-use std::str::FromStr;
 
 const TINY_EWD: &'static str = include_str!("../res/graph/tinyEWD.txt");
 const TINY_EWD_NEGATIVE: &'static str = include_str!("../res/graph/tinyEWDn.txt");
@@ -203,5 +202,5 @@ fn arbitrage() {
 }
 
 fn create_graph(i: &str) -> Box<dyn IEWDigraph> {
-    Box::new(EWDigraph::from_str(i).unwrap())
+    Box::new(EWDigraph::from(i))
 }

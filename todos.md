@@ -27,6 +27,8 @@
   a kind of algorithm, impl as a plugin, follow spec，amin engine
   can render it.
 
+  data format for Excel & Numbers & plotting libs & csv...
+
 - fix mod/struct/fn doc error to make doc work well, add more docs
 
 - The [Cheat Sheet](https://algs4.cs.princeton.edu/cheatsheet/) is comprehensive,

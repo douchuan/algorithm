@@ -78,7 +78,7 @@ impl std::convert::TryFrom<&str> for CPM {
         let sink = 2 * n + 1;
 
         // build network
-        let mut g = EWDigraph::new(2 * n + 2);
+        let mut g = EWDigraph::from(2 * n + 2);
         for i in 0..n {
             let s = lines.next().ok_or(())?;
             if let Ok((_, v)) = parser::parse_list_float(s) {

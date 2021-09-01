@@ -1,4 +1,5 @@
 use crate::graph::shortest::DirectedEdge;
+use crate::graph::util::parser::GraphDataParser;
 use crate::graph::IEWDigraph;
 use crate::ll::linked_list::Iter;
 use crate::ll::LinkedList;
@@ -49,8 +50,8 @@ impl IEWDigraph for EWDigraph {
     }
 }
 
-impl EWDigraph {
-    pub fn new(nv: usize) -> Self {
+impl From<usize> for EWDigraph {
+    fn from(nv: usize) -> Self {
         let mut adj = Vec::with_capacity(nv);
         for _ in 0..nv {
             adj.push(LinkedList::default());
@@ -65,4 +66,14 @@ impl EWDigraph {
     }
 }
 
-weighted_graph_util!(EWDigraph);
+impl From<&str> for EWDigraph {
+    fn from(s: &str) -> Self {
+        let parser = GraphDataParser::parse(s, true).unwrap();
+        let mut g = Self::from(parser.get_v());
+        for (v, w, weight) in parser.get_weighted_edges() {
+            g.add_edge(*v, *w, *weight);
+        }
+        debug_assert!(g.E() == parser.get_e());
+        g
+    }
+}

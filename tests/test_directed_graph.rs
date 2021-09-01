@@ -4,7 +4,6 @@ use algo::graph::directed::{
 };
 use algo::graph::util::{BreadthFirstPaths, DepthFirstPaths, Paths, SymbolGraph};
 use algo::graph::IGraph;
-use std::str::FromStr;
 
 const TINY_DG: &'static str = include_str!("../res/graph/tinyDG.txt");
 const TINY_DAG: &'static str = include_str!("../res/graph/tinyDAG.txt");
@@ -14,7 +13,7 @@ const JOBS: &'static str = include_str!("../res/graph/jobs.txt");
 fn parser() {
     //test parser
     let i = TINY_DG;
-    let graph = Digraph::from_str(i).unwrap();
+    let graph = Digraph::from(i);
     assert_eq!(graph.V(), 13);
     assert_eq!(graph.E(), 22);
 }
@@ -122,7 +121,7 @@ fn topological() {
     assert!(!cycle.has_order());
 
     let i = JOBS;
-    let symbol_graph = SymbolGraph::new(i, "/", |nv| Box::new(Digraph::new(nv)));
+    let symbol_graph = SymbolGraph::new(i, "/", |nv| Box::new(Digraph::from(nv)));
     let graph = symbol_graph.G();
     let cycle = Topological::from(graph);
     assert!(cycle.has_order());
@@ -168,5 +167,5 @@ fn transitive_closure() {
 }
 
 fn create_digraph(i: &str) -> Box<dyn IGraph> {
-    Box::new(Digraph::from_str(i).unwrap())
+    Box::new(Digraph::from(i))
 }

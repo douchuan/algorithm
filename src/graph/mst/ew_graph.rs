@@ -1,4 +1,5 @@
 use crate::graph::mst::Edge;
+use crate::graph::util::parser::GraphDataParser;
 use crate::graph::IEWGraph;
 use crate::ll::linked_list::Iter;
 use crate::ll::LinkedList;
@@ -68,8 +69,8 @@ impl IEWGraph for EWGraph {
     }
 }
 
-impl EWGraph {
-    pub fn new(nv: usize) -> Self {
+impl From<usize> for EWGraph {
+    fn from(nv: usize) -> Self {
         let mut adj = Vec::with_capacity(nv);
         for _ in 0..nv {
             adj.push(LinkedList::default());
@@ -79,4 +80,14 @@ impl EWGraph {
     }
 }
 
-weighted_graph_util!(EWGraph);
+impl From<&str> for EWGraph {
+    fn from(s: &str) -> Self {
+        let parser = GraphDataParser::parse(s, true).unwrap();
+        let mut g = Self::from(parser.get_v());
+        for (v, w, weight) in parser.get_weighted_edges() {
+            g.add_edge(*v, *w, *weight);
+        }
+        debug_assert!(g.E() == parser.get_e());
+        g
+    }
+}

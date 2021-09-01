@@ -36,6 +36,7 @@
 //!   both requirements for typical applications and is the one that we will use
 //!   throughout this chapter.
 
+use crate::graph::util::parser::GraphDataParser;
 use crate::graph::IGraph;
 use crate::ll::{linked_list::Iter, LinkedList};
 
@@ -69,16 +70,6 @@ impl IGraph for Graph {
 }
 
 impl Graph {
-    /// create a V-vertex graph with no edges
-    pub fn new(nv: usize) -> Self {
-        let mut adj = Vec::with_capacity(nv);
-        for _ in 0..nv {
-            adj.push(LinkedList::default());
-        }
-
-        Self { nv, ne: 0, adj }
-    }
-
     /// compute the degree of v
     pub fn degree(&self, v: usize) -> usize {
         self.adj(v).fold(0, |acc, _| acc + 1)
@@ -114,4 +105,26 @@ impl Graph {
     }
 }
 
-graph_util!(Graph);
+/// create a V-vertex graph with no edges
+impl From<usize> for Graph {
+    fn from(nv: usize) -> Self {
+        let mut adj = Vec::with_capacity(nv);
+        for _ in 0..nv {
+            adj.push(LinkedList::default());
+        }
+
+        Self { nv, ne: 0, adj }
+    }
+}
+
+impl From<&str> for Graph {
+    fn from(s: &str) -> Self {
+        let parser = GraphDataParser::parse(s, false).unwrap();
+        let mut g = Self::from(parser.get_v());
+        for (v, w) in parser.get_edges() {
+            g.add_edge(*v, *w);
+        }
+        debug_assert!(g.E() == parser.get_e());
+        g
+    }
+}

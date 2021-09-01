@@ -5,7 +5,76 @@ use nom::number::complete::float;
 use nom::sequence::tuple;
 use nom::IResult;
 use std::fmt::Debug;
+use std::slice::Iter;
 use std::str::FromStr;
+
+pub struct GraphDataParser {
+    nv: usize,
+    ne: usize,
+    edges: Vec<(usize, usize)>,
+    weighted_edges: Vec<(usize, usize, f32)>,
+}
+
+impl GraphDataParser {
+    pub fn parse(s: &str, is_weighted: bool) -> Result<Self, ()> {
+        let lines = s.lines();
+
+        let mut nv = 0;
+        let mut ne = 0;
+        let mut edges: Vec<(usize, usize)> = Vec::new();
+        let mut weighted_edges: Vec<(usize, usize, f32)> = Vec::new();
+        let mut sm = SM::V;
+        for s in lines {
+            if s.is_empty() {
+                continue;
+            }
+
+            match sm {
+                SM::V => {
+                    let (_, v) = parse_num(s).ok().ok_or(())?;
+                    nv = v;
+                }
+                SM::E => {
+                    let (_, v) = parse_num(s).ok().ok_or(())?;
+                    ne = v;
+                }
+                SM::Edge => {
+                    if is_weighted {
+                        let (_, v) = parse_list_float(s).ok().ok_or(())?;
+                        weighted_edges.push((v[0] as usize, v[1] as usize, v[2]));
+                    } else {
+                        let (_, v) = parse_list_num(s).ok().ok_or(())?;
+                        edges.push((v[0], v[1]));
+                    }
+                }
+            }
+            sm = sm.step();
+        }
+
+        Ok(Self {
+            nv,
+            ne,
+            edges,
+            weighted_edges,
+        })
+    }
+
+    pub fn get_v(&self) -> usize {
+        self.nv
+    }
+
+    pub fn get_e(&self) -> usize {
+        self.ne
+    }
+
+    pub fn get_edges(&self) -> Iter<'_, (usize, usize)> {
+        self.edges.iter()
+    }
+
+    pub fn get_weighted_edges(&self) -> Iter<'_, (usize, usize, f32)> {
+        self.weighted_edges.iter()
+    }
+}
 
 pub fn parse_num<K>(i: &str) -> IResult<&str, K>
 where
@@ -47,6 +116,22 @@ pub fn parse_list_rates(i: &str) -> IResult<&str, (&str, Vec<f32>)> {
     let (i, name) = take_till(|c| c == ' ')(i)?;
     let (i, rates) = parse_list_float(i)?;
     Ok((i, (name, rates)))
+}
+
+enum SM {
+    V,
+    E,
+    Edge,
+}
+
+impl SM {
+    fn step(self) -> Self {
+        match self {
+            SM::V => Self::E,
+            SM::E => Self::Edge,
+            SM::Edge => Self::Edge,
+        }
+    }
 }
 
 #[test]

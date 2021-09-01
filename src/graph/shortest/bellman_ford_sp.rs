@@ -77,7 +77,7 @@ impl BellmanFordSP {
     fn find_negative_cycle(&mut self) {
         let nv = self.edge_to.len();
         // spt: shortest path tree
-        let mut spt: Box<dyn IEWDigraph> = Box::new(EWDigraph::new(nv));
+        let mut spt: Box<dyn IEWDigraph> = Box::new(EWDigraph::from(nv));
         for v in 0..nv {
             if let Some(e) = self.edge_to[v] {
                 spt.add_edge(e.from(), e.to(), e.weight());

@@ -63,7 +63,7 @@ impl<'a> std::convert::TryFrom<&'a str> for Arbitrage<'a> {
         let s = lines.next().ok_or(())?;
         let (_, nv) = parser::parse_num::<usize>(s).ok().ok_or(())?;
 
-        let mut g: Box<dyn IEWDigraph> = Box::new(EWDigraph::new(nv));
+        let mut g: Box<dyn IEWDigraph> = Box::new(EWDigraph::from(nv));
         let mut names = Vec::with_capacity(nv);
         // line1...: rates
         for v in 0..nv {
