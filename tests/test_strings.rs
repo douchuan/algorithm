@@ -108,10 +108,10 @@ fn sorted_data() {
 
 #[test]
 fn trie_st() {
-    let mut trie_st = TrieST::default();
+    let mut st = TrieST::default();
     // test len & empty
-    assert!(trie_st.is_empty());
-    assert_eq!(0, trie_st.len());
+    assert!(st.is_empty());
+    assert_eq!(0, st.len());
 
     let i = SHELLS_ST;
     let mut hm = HashMap::new();
@@ -119,55 +119,55 @@ fn trie_st() {
     for (i, &s) in a.iter().enumerate() {
         hm.insert(s, i);
         // test put
-        trie_st.put(s, Some(i));
+        st.put(s, Some(i));
     }
 
     // test len & empty
-    assert!(!trie_st.is_empty());
-    assert_eq!(7, trie_st.len());
+    assert!(!st.is_empty());
+    assert_eq!(7, st.len());
 
     for (&k, v) in hm.iter() {
         // test get & contains
-        assert_eq!(trie_st.get(k), Some(v));
-        assert!(trie_st.contains(k));
+        assert_eq!(st.get(k), Some(v));
+        assert!(st.contains(k));
     }
 
     // test keys
     // TrieST keys contained in HashMap
-    let keys = trie_st.keys();
-    assert_eq!(hm.keys().len(), trie_st.len());
+    let keys = st.keys();
+    assert_eq!(hm.keys().len(), st.len());
     for k in keys.iter() {
         assert!(hm.contains_key(k.as_str()));
     }
     // HashMap keys contained in TrieST
     let keys = hm.keys();
     for &k in keys {
-        assert!(trie_st.contains(k));
+        assert!(st.contains(k));
     }
 
     // test keys_with_prefix
-    let mut matches = trie_st.keys_with_prefix("shor");
+    let mut matches = st.keys_with_prefix("shor");
     assert_eq!(Some("shore"), matches.dequeue().as_deref());
 
     // test keys_that_match
-    let mut matches = trie_st.keys_that_match(".he.l.");
+    let mut matches = st.keys_that_match(".he.l.");
     assert_eq!(Some("shells"), matches.dequeue().as_deref());
 
     // test longest_prefix_of
-    assert_eq!(Some("shells"), trie_st.longest_prefix_of("shellsort"));
-    assert_eq!(None, trie_st.longest_prefix_of("quicksort"));
+    assert_eq!(Some("shells"), st.longest_prefix_of("shellsort"));
+    assert_eq!(None, st.longest_prefix_of("quicksort"));
 
     // test delete
-    assert!(trie_st.contains("shells"));
-    trie_st.delete("shells");
-    assert_eq!(6, trie_st.len());
-    assert!(!trie_st.contains("shells"));
+    assert!(st.contains("shells"));
+    st.delete("shells");
+    assert_eq!(6, st.len());
+    assert!(!st.contains("shells"));
 
     // test put(xx, None) can delete too
-    assert!(trie_st.contains("shore"));
-    trie_st.put("shore", None);
-    assert_eq!(5, trie_st.len());
-    assert!(!trie_st.contains("shore"));
+    assert!(st.contains("shore"));
+    st.put("shore", None);
+    assert_eq!(5, st.len());
+    assert!(!st.contains("shore"));
 }
 
 #[test]
@@ -182,12 +182,12 @@ fn trie_st_drop() {
         }
     }
 
-    let mut trie_st = TrieST::default();
-    trie_st.put("aaa", Some(Elem));
-    trie_st.put("bbb", Some(Elem));
-    trie_st.put("ccc", Some(Elem));
-    trie_st.put("ddd", Some(Elem));
-    drop(trie_st);
+    let mut st = TrieST::default();
+    st.put("aaa", Some(Elem));
+    st.put("bbb", Some(Elem));
+    st.put("ccc", Some(Elem));
+    st.put("ddd", Some(Elem));
+    drop(st);
     assert_eq!(unsafe { DROPS }, 4);
 
     // test overwrite "aaa"
@@ -195,13 +195,13 @@ fn trie_st_drop() {
     unsafe {
         DROPS = 0;
     }
-    let mut trie_st = TrieST::default();
-    trie_st.put("aaa", Some(Elem));
-    trie_st.put("bbb", Some(Elem));
-    trie_st.put("ccc", Some(Elem));
-    trie_st.put("ddd", Some(Elem));
-    trie_st.put("aaa", Some(Elem)); // do overwrite
-    drop(trie_st);
+    let mut st = TrieST::default();
+    st.put("aaa", Some(Elem));
+    st.put("bbb", Some(Elem));
+    st.put("ccc", Some(Elem));
+    st.put("ddd", Some(Elem));
+    st.put("aaa", Some(Elem)); // do overwrite
+    drop(st);
     assert_eq!(unsafe { DROPS }, 5);
 }
 
@@ -217,17 +217,17 @@ fn trie_st_drop_with_delete() {
         }
     }
 
-    let mut trie_st = TrieST::default();
-    trie_st.put("aaa", Some(Elem));
-    trie_st.put("bbb", Some(Elem));
-    trie_st.put("ccc", Some(Elem));
-    trie_st.put("ddd", Some(Elem));
+    let mut st = TrieST::default();
+    st.put("aaa", Some(Elem));
+    st.put("bbb", Some(Elem));
+    st.put("ccc", Some(Elem));
+    st.put("ddd", Some(Elem));
 
-    trie_st.delete("aaa");
-    trie_st.delete("bbb");
+    st.delete("aaa");
+    st.delete("bbb");
     assert_eq!(unsafe { DROPS }, 2);
 
-    drop(trie_st);
+    drop(st);
     assert_eq!(unsafe { DROPS }, 4);
 }
 
@@ -243,26 +243,26 @@ fn trie_st_drop_with_put() {
         }
     }
 
-    let mut trie_st = TrieST::default();
-    trie_st.put("aaa", Some(Elem));
-    trie_st.put("bbb", Some(Elem));
-    trie_st.put("ccc", Some(Elem));
-    trie_st.put("ddd", Some(Elem));
+    let mut st = TrieST::default();
+    st.put("aaa", Some(Elem));
+    st.put("bbb", Some(Elem));
+    st.put("ccc", Some(Elem));
+    st.put("ddd", Some(Elem));
 
-    trie_st.put("aaa", None);
-    trie_st.put("bbb", None);
+    st.put("aaa", None);
+    st.put("bbb", None);
     assert_eq!(unsafe { DROPS }, 2);
 
-    drop(trie_st);
+    drop(st);
     assert_eq!(unsafe { DROPS }, 4);
 }
 
 #[test]
 fn tst() {
-    let mut tst = TST::default();
+    let mut st = TST::default();
     // test len & empty
-    assert!(tst.is_empty());
-    assert_eq!(0, tst.len());
+    assert!(st.is_empty());
+    assert_eq!(0, st.len());
 
     let i = SHELLS_ST;
     let mut hm = HashMap::new();
@@ -270,22 +270,22 @@ fn tst() {
     for (i, &s) in a.iter().enumerate() {
         hm.insert(s, i);
         // test put
-        tst.put(s, Some(i));
+        st.put(s, Some(i));
     }
 
     // test len & empty
-    assert!(!tst.is_empty());
-    assert_eq!(7, tst.len());
+    assert!(!st.is_empty());
+    assert_eq!(7, st.len());
 
     for (&k, v) in hm.iter() {
         // test get & contains
-        assert_eq!(tst.get(k), Some(v));
-        assert!(tst.contains(k));
+        assert_eq!(st.get(k), Some(v));
+        assert!(st.contains(k));
     }
 
     // test keys
     // TST keys contained in HashMap
-    let keys = tst.keys();
+    let keys = st.keys();
     assert_eq!(hm.keys().len(), keys.len());
     for k in keys.iter() {
         assert!(hm.contains_key(k.as_str()));
@@ -293,14 +293,14 @@ fn tst() {
     // HashMap keys contained in TST
     let keys = hm.keys();
     for &k in keys {
-        assert!(tst.contains(k));
+        assert!(st.contains(k));
     }
 
     // test delete
-    assert!(tst.contains("shells"));
-    tst.put("shells", None);
-    assert_eq!(6, tst.len());
-    assert!(!tst.contains("shells"));
+    assert!(st.contains("shells"));
+    st.put("shells", None);
+    assert_eq!(6, st.len());
+    assert!(!st.contains("shells"));
 }
 
 #[test]
@@ -315,13 +315,13 @@ fn tst_drop() {
         }
     }
 
-    let mut tst = TST::default();
-    tst.put("aaa", Some(Elem));
-    tst.put("bbb", Some(Elem));
-    tst.put("ccc", Some(Elem));
-    tst.put("ddd", Some(Elem));
+    let mut st = TST::default();
+    st.put("aaa", Some(Elem));
+    st.put("bbb", Some(Elem));
+    st.put("ccc", Some(Elem));
+    st.put("ddd", Some(Elem));
     // do drop
-    drop(tst);
+    drop(st);
     assert_eq!(unsafe { DROPS }, 4);
 }
 
@@ -338,21 +338,18 @@ fn tst_drop_with_put_none() {
     }
 
     // init
-    let mut tst = TST::default();
-    tst.put("aaa", Some(Elem));
-    tst.put("bbb", Some(Elem));
-    tst.put("ccc", Some(Elem));
-    tst.put("ddd", Some(Elem));
+    let mut st = TST::default();
+    st.put("aaa", Some(Elem));
+    st.put("bbb", Some(Elem));
+    st.put("ccc", Some(Elem));
 
     // do drops
-    tst.put("aaa", None);
+    st.put("aaa", None);
     assert_eq!(unsafe { DROPS }, 1);
-    tst.put("bbb", None);
+    st.put("bbb", None);
     assert_eq!(unsafe { DROPS }, 2);
-    tst.put("ccc", None);
+    st.put("ccc", None);
     assert_eq!(unsafe { DROPS }, 3);
-    tst.put("ddd", None);
-    assert_eq!(unsafe { DROPS }, 4);
 }
 
 fn extract_words(i: &str) -> Vec<&str> {
