@@ -138,8 +138,8 @@ impl<T> Drop for TST<T> {
     fn drop(&mut self) {
         fn visitor<T>(p: Option<NonNull<Node<T>>>) {
             if let Some(p) = p {
-                let p = unsafe { Box::from_raw(p.as_ptr()) };
-                p.subtries.iter().for_each(|it| visitor(*it));
+                let subtries = unsafe { Box::from_raw(p.as_ptr()).subtries };
+                subtries.iter().for_each(|it| visitor(*it));
             }
         }
 

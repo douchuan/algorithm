@@ -297,8 +297,8 @@ impl<T> Drop for TrieST<T> {
     fn drop(&mut self) {
         fn visitor<T>(p: Option<NonNull<Node<T>>>) {
             if let Some(p) = p {
-                let p = unsafe { Box::from_raw(p.as_ptr()) };
-                p.next.iter().for_each(|it| visitor(*it));
+                let next = unsafe { Box::from_raw(p.as_ptr()).next };
+                next.iter().for_each(|it| visitor(*it));
             }
         }
 
