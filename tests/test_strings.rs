@@ -299,6 +299,34 @@ fn tst() {
     for &k in keys {
         assert!(tst.contains(k));
     }
+
+    // test delete
+    assert!(tst.contains("shells"));
+    tst.put("shells", None);
+    assert_eq!(6, tst.len());
+    assert!(!tst.contains("shells"));
+}
+
+#[test]
+fn tst_drop() {
+    static mut DROPS: i32 = 0;
+    struct Elem;
+    impl Drop for Elem {
+        fn drop(&mut self) {
+            unsafe {
+                DROPS += 1;
+            }
+        }
+    }
+
+    let mut trie_st = TrieST::default();
+    trie_st.put("aaa", Some(Elem));
+    trie_st.put("bbb", Some(Elem));
+    trie_st.put("ccc", Some(Elem));
+    trie_st.put("ddd", Some(Elem));
+    drop(trie_st);
+
+    assert_eq!(unsafe { DROPS }, 4);
 }
 
 fn extract_words(i: &str) -> Vec<&str> {
