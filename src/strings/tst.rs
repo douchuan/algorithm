@@ -95,18 +95,18 @@ unsafe fn put_dth<T>(
                 x.as_mut().set_mid(p);
             } else {
                 x.as_mut().val = val;
-
-                // todo: test me
-                // x.val is None and subtries all None, just release x itself
-                if x.as_ref().is_empty() {
-                    let _ = Box::from_raw(x.as_ptr());
-                    return None;
-                }
             }
         }
     }
 
-    Some(x)
+    if x.as_ref().is_empty() {
+        // x.val is None and subtries all None, just release x itself
+        // println!("release x c = {}", x.as_ref().c as u8 as char);
+        let _ = Box::from_raw(x.as_ptr());
+        None
+    } else {
+        Some(x)
+    }
 }
 
 unsafe fn collect_prefix<T>(

@@ -188,7 +188,6 @@ fn trie_st_drop() {
     trie_st.put("ccc", Some(Elem));
     trie_st.put("ddd", Some(Elem));
     drop(trie_st);
-
     assert_eq!(unsafe { DROPS }, 4);
 
     // test overwrite "aaa"
@@ -203,7 +202,6 @@ fn trie_st_drop() {
     trie_st.put("ddd", Some(Elem));
     trie_st.put("aaa", Some(Elem)); // do overwrite
     drop(trie_st);
-
     assert_eq!(unsafe { DROPS }, 5);
 }
 
@@ -230,7 +228,6 @@ fn trie_st_drop_with_delete() {
     assert_eq!(unsafe { DROPS }, 2);
 
     drop(trie_st);
-
     assert_eq!(unsafe { DROPS }, 4);
 }
 
@@ -257,7 +254,6 @@ fn trie_st_drop_with_put() {
     assert_eq!(unsafe { DROPS }, 2);
 
     drop(trie_st);
-
     assert_eq!(unsafe { DROPS }, 4);
 }
 
@@ -324,8 +320,38 @@ fn tst_drop() {
     tst.put("bbb", Some(Elem));
     tst.put("ccc", Some(Elem));
     tst.put("ddd", Some(Elem));
+    // do drop
     drop(tst);
+    assert_eq!(unsafe { DROPS }, 4);
+}
 
+#[test]
+fn tst_drop_with_put_none() {
+    static mut DROPS: i32 = 0;
+    struct Elem;
+    impl Drop for Elem {
+        fn drop(&mut self) {
+            unsafe {
+                DROPS += 1;
+            }
+        }
+    }
+
+    // init
+    let mut tst = TST::default();
+    tst.put("aaa", Some(Elem));
+    tst.put("bbb", Some(Elem));
+    tst.put("ccc", Some(Elem));
+    tst.put("ddd", Some(Elem));
+
+    // do drops
+    tst.put("aaa", None);
+    assert_eq!(unsafe { DROPS }, 1);
+    tst.put("bbb", None);
+    assert_eq!(unsafe { DROPS }, 2);
+    tst.put("ccc", None);
+    assert_eq!(unsafe { DROPS }, 3);
+    tst.put("ddd", None);
     assert_eq!(unsafe { DROPS }, 4);
 }
 
