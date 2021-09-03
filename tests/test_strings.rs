@@ -319,12 +319,12 @@ fn tst_drop() {
         }
     }
 
-    let mut trie_st = TrieST::default();
-    trie_st.put("aaa", Some(Elem));
-    trie_st.put("bbb", Some(Elem));
-    trie_st.put("ccc", Some(Elem));
-    trie_st.put("ddd", Some(Elem));
-    drop(trie_st);
+    let mut tst = TST::default();
+    tst.put("aaa", Some(Elem));
+    tst.put("bbb", Some(Elem));
+    tst.put("ccc", Some(Elem));
+    tst.put("ddd", Some(Elem));
+    drop(tst);
 
     assert_eq!(unsafe { DROPS }, 4);
 }
