@@ -90,6 +90,7 @@ never worry about system crash.
 - Radix sort (LSD, MSD)
 - Three-way quicksort (Quick3String, Quick3Way)
 - Tries (TrieST)
+- Ternary search tries (TST)
 
 ### Running
 

@@ -1,3 +1,28 @@
+//!
+//! Proposition H.
+//! The average number of nodes examined for search miss in a trie
+//! built from N random keys over an alphabet of size R is ~ log(N, R).
+//!
+//! From a practical standpoint, the most important implication of this
+//! proposition is that search miss does not depend on the key length.
+//! For example, it says that unsuccessful search in a trie built with 1
+//! million random keys will require examining only three or four nodes,
+//! whether the keys are 7-digit license plates or 20-digit account numbers.
+//!
+//! Proposition I.
+//! The number of links in a trie is between R*N and R*N*w, where w is
+//! the average key length.
+//!
+//! It illustrates the following rules of thumb for tries:
+//!  - When keys are short, the number of links is close to R*N.
+//!  - When keys are long, the number of links is close to R*N*w.
+//!  - Therefore, decreasing R can save a huge amount of space.
+//!
+//! for large numbers of long keys taken from large alphabets,
+//! because it will require space proportional to R times the total
+//! number of key characters. Otherwise, if you can afford the space,
+//! trie performance is difficult to beat.
+
 use crate::common;
 use crate::common::Queue;
 use std::ptr::NonNull;
@@ -169,13 +194,13 @@ impl<T> TrieST<T> {
     }
 }
 
-fn get_dth<T>(p: Option<NonNull<Node<T>>>, key: &str, d: usize) -> Option<NonNull<Node<T>>> {
-    p.and_then(|p| {
+fn get_dth<T>(x: Option<NonNull<Node<T>>>, key: &str, d: usize) -> Option<NonNull<Node<T>>> {
+    x.and_then(|x| {
         if d == key.len() {
-            Some(p)
+            Some(x)
         } else {
             let i = common::util::byte_at(key, d) as usize;
-            let next = unsafe { p.as_ref().next[i] };
+            let next = unsafe { x.as_ref().next[i] };
             get_dth(next, key, d + 1)
         }
     })

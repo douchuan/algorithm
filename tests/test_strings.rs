@@ -1,6 +1,6 @@
 #![feature(is_sorted)]
 #![allow(non_snake_case)]
-use algo::strings::{Quick3String, Quick3Way, TrieST, LSD, MSD};
+use algo::strings::{Quick3String, Quick3Way, TrieST, LSD, MSD, TST};
 use std::collections::HashMap;
 
 const WORDS3: &'static str = include_str!("../res/strings/words3.txt");
@@ -109,14 +109,13 @@ fn sorted_data() {
 #[test]
 fn trie_st() {
     let mut trie_st = TrieST::default();
-    let i = SHELLS_ST;
-    let mut hm = HashMap::new();
-    let a = extract_words(i);
-
     // test len & empty
     assert!(trie_st.is_empty());
     assert_eq!(0, trie_st.len());
 
+    let i = SHELLS_ST;
+    let mut hm = HashMap::new();
+    let a = extract_words(i);
     for (i, &s) in a.iter().enumerate() {
         hm.insert(s, i);
         // test put
@@ -130,6 +129,19 @@ fn trie_st() {
     for (&k, v) in hm.iter() {
         // test get & contains
         assert_eq!(trie_st.get(k), Some(v));
+        assert!(trie_st.contains(k));
+    }
+
+    // test keys
+    // TrieST keys contained in HashMap
+    let keys = trie_st.keys();
+    assert_eq!(hm.keys().len(), trie_st.len());
+    for k in keys.iter() {
+        assert!(hm.contains_key(k.as_str()));
+    }
+    // HashMap keys contained in TrieST
+    let keys = hm.keys();
+    for &k in keys {
         assert!(trie_st.contains(k));
     }
 
@@ -247,6 +259,46 @@ fn trie_st_drop_with_put() {
     drop(trie_st);
 
     assert_eq!(unsafe { DROPS }, 4);
+}
+
+#[test]
+fn tst() {
+    let mut tst = TST::default();
+    // test len & empty
+    assert!(tst.is_empty());
+    assert_eq!(0, tst.len());
+
+    let i = SHELLS_ST;
+    let mut hm = HashMap::new();
+    let a = extract_words(i);
+    for (i, &s) in a.iter().enumerate() {
+        hm.insert(s, i);
+        // test put
+        tst.put(s, Some(i));
+    }
+
+    // test len & empty
+    assert!(!tst.is_empty());
+    assert_eq!(7, tst.len());
+
+    for (&k, v) in hm.iter() {
+        // test get & contains
+        assert_eq!(tst.get(k), Some(v));
+        assert!(tst.contains(k));
+    }
+
+    // test keys
+    // TST keys contained in HashMap
+    let keys = tst.keys();
+    assert_eq!(hm.keys().len(), keys.len());
+    for k in keys.iter() {
+        assert!(hm.contains_key(k.as_str()));
+    }
+    // HashMap keys contained in TST
+    let keys = hm.keys();
+    for &k in keys {
+        assert!(tst.contains(k));
+    }
 }
 
 fn extract_words(i: &str) -> Vec<&str> {
