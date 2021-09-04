@@ -23,10 +23,12 @@ impl<T> TST<T> {
         self.n == 0
     }
 
+    /// Does this symbol table contain the given key?
     pub fn contains(&self, key: &str) -> bool {
         self.get(key).is_some()
     }
 
+    /// Returns all keys in the symbol table as an Queue.
     pub fn keys(&self) -> Queue<String> {
         let mut queue = Queue::default();
         unsafe {
@@ -35,6 +37,7 @@ impl<T> TST<T> {
         queue
     }
 
+    /// Returns the value associated with the given key.
     pub fn get(&self, key: &str) -> Option<&T> {
         if key.is_empty() {
             None
@@ -43,6 +46,9 @@ impl<T> TST<T> {
         }
     }
 
+    /// Inserts the key-value pair into the symbol table, overwriting the old value
+    /// with the new value if the key is already in the symbol table.
+    /// If the value is None, this effectively deletes the key from the symbol table.
     pub fn put(&mut self, key: &str, val: Option<T>) {
         if !self.contains(key) {
             self.n += 1;
@@ -54,6 +60,7 @@ impl<T> TST<T> {
         }
     }
 
+    /// Returns all of the keys in the set that start with prefix.
     pub fn keys_with_prefix(&self, prefix: &str) -> Queue<String> {
         let mut queue = Queue::default();
         if !prefix.is_empty() {
@@ -71,6 +78,8 @@ impl<T> TST<T> {
         queue
     }
 
+    /// Returns the string in the symbol table that is the longest prefix of
+    /// query, or None, if no such string.
     pub fn longest_prefix_of<'a>(&self, query: &'a str) -> Option<&'a str> {
         let mut length = -1;
         let mut x = self.root;
@@ -99,6 +108,8 @@ impl<T> TST<T> {
         }
     }
 
+    /// Returns all of the keys in the symbol table that match pattern,
+    /// where the character '.' is interpreted as a wildcard character.
     pub fn keys_that_match(&self, pattern: &str) -> Queue<String> {
         let mut results = Queue::default();
         let mut prefix = String::new();
@@ -107,6 +118,7 @@ impl<T> TST<T> {
     }
 }
 
+// return subtrie corresponding to given key
 unsafe fn get_dth<T>(x: Option<NonNull<Node<T>>>, key: &str, d: usize) -> Option<NonNull<Node<T>>> {
     x.and_then(|x| {
         let c = common::util::byte_at(key, d) as usize;
@@ -241,18 +253,22 @@ impl<T> Node<T> {
         Box::leak(v).into()
     }
 
+    // test subtrie whether completely empty
     fn is_empty(&self) -> bool {
         self.val.is_none() && self.subtries.iter().all(|it| it.is_none())
     }
 
+    // left subtries
     fn left(&self) -> Option<NonNull<Node<T>>> {
         self.subtries[0]
     }
 
+    // middle subtries
     fn mid(&self) -> Option<NonNull<Node<T>>> {
         self.subtries[1]
     }
 
+    // right subtries
     fn right(&self) -> Option<NonNull<Node<T>>> {
         self.subtries[2]
     }
