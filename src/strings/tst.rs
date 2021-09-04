@@ -53,6 +53,21 @@ impl<T> TST<T> {
             self.root = put_dth(self.root, key, val, 0);
         }
     }
+
+    pub fn keys_with_prefix(&self, prefix: &str) -> Queue<String> {
+        let mut queue = Queue::default();
+        if !prefix.is_empty() {
+            unsafe {
+                if let Some(x) = get_dth(self.root, prefix, 0) {
+                    if x.as_ref().val.is_some() {
+                        queue.enqueue(prefix.to_string());
+                    }
+                    collect_prefix(x.as_ref().mid(), &mut prefix.to_string(), &mut queue);
+                }
+            }
+        }
+        queue
+    }
 }
 
 unsafe fn get_dth<T>(x: Option<NonNull<Node<T>>>, key: &str, d: usize) -> Option<NonNull<Node<T>>> {

@@ -147,6 +147,7 @@ fn trie_st() {
 
     // test keys_with_prefix
     let mut matches = st.keys_with_prefix("shor");
+    assert_eq!(1, matches.len());
     assert_eq!(Some("shore"), matches.dequeue().as_deref());
 
     // test keys_that_match
@@ -295,6 +296,11 @@ fn tst() {
     for &k in keys {
         assert!(st.contains(k));
     }
+
+    // test keys_with_prefix
+    let mut matches = st.keys_with_prefix("shor");
+    assert_eq!(1, matches.len());
+    assert_eq!(Some("shore"), matches.dequeue().as_deref());
 
     // test delete
     assert!(st.contains("shells"));
