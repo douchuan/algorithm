@@ -1,20 +1,21 @@
 //! Used by unit test to verify no memory leak.
 
-use std::sync::{Arc, Mutex};
+use std::sync::atomic::{AtomicUsize, Ordering};
+use std::sync::Arc;
 
 // record how many Drop::drop called
 // tests run in concurrent, DROPS should be thread_local
 thread_local! {
-    static DROPS: Arc<Mutex<usize>> = Arc::new(Mutex::new(0));
+    static DROPS: Arc<AtomicUsize> = Arc::new(AtomicUsize::new(0));
 }
 
 pub struct Elem {
-    drops: Arc<Mutex<usize>>,
+    drops: Arc<AtomicUsize>,
 }
 
 // wrapper for DROPS
 pub struct Ctx {
-    drops: Arc<Mutex<usize>>,
+    drops: Arc<AtomicUsize>,
 }
 
 impl Default for Elem {
@@ -26,15 +27,14 @@ impl Default for Elem {
 
 impl Drop for Elem {
     fn drop(&mut self) {
-        let mut drops = self.drops.lock().unwrap();
-        *drops += 1;
+        self.drops.fetch_add(1, Ordering::SeqCst);
     }
 }
 
 impl Ctx {
     /// count of Drop::drop called
     pub fn get(&self) -> usize {
-        *self.drops.lock().unwrap()
+        self.drops.load(Ordering::SeqCst)
     }
 }
 
@@ -44,7 +44,7 @@ where
 {
     DROPS.with(|drops| {
         // reset DROPS to 0
-        *drops.lock().unwrap() = 0;
+        drops.store(0, Ordering::SeqCst);
         let ctx = Ctx {
             drops: drops.clone(),
         };
