@@ -173,89 +173,65 @@ fn trie_st() {
 
 #[test]
 fn trie_st_drop() {
-    static mut DROPS: i32 = 0;
-    struct Elem;
-    impl Drop for Elem {
-        fn drop(&mut self) {
-            unsafe {
-                DROPS += 1;
-            }
-        }
-    }
+    use algo::common::drop::{self, Elem};
 
     let mut st = TrieST::default();
-    st.put("aaa", Some(Elem));
-    st.put("bbb", Some(Elem));
-    st.put("ccc", Some(Elem));
-    st.put("ddd", Some(Elem));
+    drop::start();
+    st.put("aaa", Some(Elem::default()));
+    st.put("bbb", Some(Elem::default()));
+    st.put("ccc", Some(Elem::default()));
+    st.put("ddd", Some(Elem::default()));
     drop(st);
-    assert_eq!(unsafe { DROPS }, 4);
+    assert_eq!(4, drop::end());
 
     // test overwrite "aaa"
-    // reset DROPS
-    unsafe {
-        DROPS = 0;
-    }
     let mut st = TrieST::default();
-    st.put("aaa", Some(Elem));
-    st.put("bbb", Some(Elem));
-    st.put("ccc", Some(Elem));
-    st.put("ddd", Some(Elem));
-    st.put("aaa", Some(Elem)); // do overwrite
+    drop::start();
+    st.put("aaa", Some(Elem::default()));
+    st.put("bbb", Some(Elem::default()));
+    st.put("ccc", Some(Elem::default()));
+    st.put("ddd", Some(Elem::default()));
+    st.put("aaa", Some(Elem::default())); // do overwrite
     drop(st);
-    assert_eq!(unsafe { DROPS }, 5);
+    assert_eq!(5, drop::end());
 }
 
 #[test]
 fn trie_st_drop_with_delete() {
-    static mut DROPS: i32 = 0;
-    struct Elem;
-    impl Drop for Elem {
-        fn drop(&mut self) {
-            unsafe {
-                DROPS += 1;
-            }
-        }
-    }
+    use algo::common::drop::{self, Elem};
 
     let mut st = TrieST::default();
-    st.put("aaa", Some(Elem));
-    st.put("bbb", Some(Elem));
-    st.put("ccc", Some(Elem));
-    st.put("ddd", Some(Elem));
+    drop::start();
+    st.put("aaa", Some(Elem::default()));
+    st.put("bbb", Some(Elem::default()));
+    st.put("ccc", Some(Elem::default()));
+    st.put("ddd", Some(Elem::default()));
 
     st.delete("aaa");
     st.delete("bbb");
-    assert_eq!(unsafe { DROPS }, 2);
+    assert_eq!(2, drop::peek());
 
     drop(st);
-    assert_eq!(unsafe { DROPS }, 4);
+    assert_eq!(4, drop::end());
 }
 
 #[test]
 fn trie_st_drop_with_put() {
-    static mut DROPS: i32 = 0;
-    struct Elem;
-    impl Drop for Elem {
-        fn drop(&mut self) {
-            unsafe {
-                DROPS += 1;
-            }
-        }
-    }
+    use algo::common::drop::{self, Elem};
 
     let mut st = TrieST::default();
-    st.put("aaa", Some(Elem));
-    st.put("bbb", Some(Elem));
-    st.put("ccc", Some(Elem));
-    st.put("ddd", Some(Elem));
+    drop::start();
+    st.put("aaa", Some(Elem::default()));
+    st.put("bbb", Some(Elem::default()));
+    st.put("ccc", Some(Elem::default()));
+    st.put("ddd", Some(Elem::default()));
 
     st.put("aaa", None);
     st.put("bbb", None);
-    assert_eq!(unsafe { DROPS }, 2);
+    assert_eq!(2, drop::peek());
 
     drop(st);
-    assert_eq!(unsafe { DROPS }, 4);
+    assert_eq!(4, drop::end());
 }
 
 #[test]
@@ -311,51 +287,37 @@ fn tst() {
 
 #[test]
 fn tst_drop() {
-    static mut DROPS: i32 = 0;
-    struct Elem;
-    impl Drop for Elem {
-        fn drop(&mut self) {
-            unsafe {
-                DROPS += 1;
-            }
-        }
-    }
+    use algo::common::drop::{self, Elem};
 
     let mut st = TST::default();
-    st.put("aaa", Some(Elem));
-    st.put("bbb", Some(Elem));
-    st.put("ccc", Some(Elem));
-    st.put("ddd", Some(Elem));
+    drop::start();
+    st.put("aaa", Some(Elem::default()));
+    st.put("bbb", Some(Elem::default()));
+    st.put("ccc", Some(Elem::default()));
+    st.put("ddd", Some(Elem::default()));
     // do drop
     drop(st);
-    assert_eq!(unsafe { DROPS }, 4);
+    assert_eq!(4, drop::end());
 }
 
 #[test]
 fn tst_drop_with_put_none() {
-    static mut DROPS: i32 = 0;
-    struct Elem;
-    impl Drop for Elem {
-        fn drop(&mut self) {
-            unsafe {
-                DROPS += 1;
-            }
-        }
-    }
+    use algo::common::drop::{self, Elem};
 
     // init
     let mut st = TST::default();
-    st.put("aaa", Some(Elem));
-    st.put("bbb", Some(Elem));
-    st.put("ccc", Some(Elem));
+    drop::start();
+    st.put("aaa", Some(Elem::default()));
+    st.put("bbb", Some(Elem::default()));
+    st.put("ccc", Some(Elem::default()));
 
     // do drops
     st.put("aaa", None);
-    assert_eq!(unsafe { DROPS }, 1);
+    assert_eq!(1, drop::peek());
     st.put("bbb", None);
-    assert_eq!(unsafe { DROPS }, 2);
+    assert_eq!(2, drop::peek());
     st.put("ccc", None);
-    assert_eq!(unsafe { DROPS }, 3);
+    assert_eq!(3, drop::peek());
 }
 
 fn extract_words(i: &str) -> Vec<&str> {
