@@ -52,6 +52,8 @@ The table index [follow](https://algs4.cs.princeton.edu/code/).
 | -   | Quick3Way            | quicksort with 3-way partitioning |
 | 2.6 | PQ::new_max_pq       | max heap priority queue          |
 | -   | PQ::new_min_pq       | min heap priority queue          |
+| -   | IndexPQ::new_min_pq  | index min heap priority queue    |
+| -   | IndexPQ::new_max_pq  | index max heap priority queue    |
 | -   | TopM                 | Find the largest M elements      |
 | 2.7 | floyd.rs             | heapsort                         |
 | 3   | SEARCHING            |                                  |

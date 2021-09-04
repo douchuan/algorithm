@@ -58,15 +58,45 @@ impl<T> TST<T> {
         let mut queue = Queue::default();
         if !prefix.is_empty() {
             unsafe {
-                if let Some(x) = get_dth(self.root, prefix, 0) {
+                let x = get_dth(self.root, prefix, 0);
+                if let Some(x) = x {
+                    let mut prefix = prefix.to_string();
                     if x.as_ref().val.is_some() {
-                        queue.enqueue(prefix.to_string());
+                        queue.enqueue(prefix.clone());
                     }
-                    collect_prefix(x.as_ref().mid(), &mut prefix.to_string(), &mut queue);
+                    collect_prefix(x.as_ref().mid(), &mut prefix, &mut queue);
                 }
             }
         }
         queue
+    }
+
+    pub fn longest_prefix_of<'a>(&self, query: &'a str) -> Option<&'a str> {
+        let mut length = -1;
+        let mut x = self.root;
+        let mut i = 0;
+        while x.is_some() && i < query.len() {
+            let p = x.unwrap();
+            let c = common::util::byte_at(query, i) as usize;
+            x = unsafe {
+                match c.cmp(&p.as_ref().c) {
+                    Ordering::Less => p.as_ref().left(),
+                    Ordering::Greater => p.as_ref().right(),
+                    Ordering::Equal => {
+                        i += 1;
+                        if p.as_ref().val.is_some() {
+                            length = i as i32;
+                        }
+                        p.as_ref().mid()
+                    }
+                }
+            };
+        }
+        if length == -1 {
+            None
+        } else {
+            query.get(0..length as usize)
+        }
     }
 }
 

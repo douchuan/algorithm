@@ -156,6 +156,7 @@ fn trie_st() {
 
     // test longest_prefix_of
     assert_eq!(Some("shells"), st.longest_prefix_of("shellsort"));
+    assert_eq!(Some("she"), st.longest_prefix_of("shell"));
     assert_eq!(None, st.longest_prefix_of("quicksort"));
 
     // test delete
@@ -169,6 +170,62 @@ fn trie_st() {
     st.put("shore", None);
     assert_eq!(5, st.len());
     assert!(!st.contains("shore"));
+}
+
+#[test]
+fn tst() {
+    let mut st = TST::default();
+    // test len & empty
+    assert!(st.is_empty());
+    assert_eq!(0, st.len());
+
+    let i = SHELLS_ST;
+    let mut hm = HashMap::new();
+    let a = extract_words(i);
+    for (i, &s) in a.iter().enumerate() {
+        hm.insert(s, i);
+        // test put
+        st.put(s, Some(i));
+    }
+
+    // test len & empty
+    assert!(!st.is_empty());
+    assert_eq!(7, st.len());
+
+    for (&k, v) in hm.iter() {
+        // test get & contains
+        assert_eq!(st.get(k), Some(v));
+        assert!(st.contains(k));
+    }
+
+    // test keys
+    // TST keys contained in HashMap
+    let keys = st.keys();
+    assert_eq!(hm.keys().len(), keys.len());
+    for k in keys.iter() {
+        assert!(hm.contains_key(k.as_str()));
+    }
+    // HashMap keys contained in TST
+    let keys = hm.keys();
+    for &k in keys {
+        assert!(st.contains(k));
+    }
+
+    // test keys_with_prefix
+    let mut matches = st.keys_with_prefix("shor");
+    assert_eq!(1, matches.len());
+    assert_eq!(Some("shore"), matches.dequeue().as_deref());
+
+    // test longest_prefix_of
+    assert_eq!(Some("shells"), st.longest_prefix_of("shellsort"));
+    assert_eq!(Some("she"), st.longest_prefix_of("shell"));
+    assert_eq!(None, st.longest_prefix_of("quicksort"));
+
+    // test delete
+    assert!(st.contains("shells"));
+    st.put("shells", None);
+    assert_eq!(6, st.len());
+    assert!(!st.contains("shells"));
 }
 
 #[test]
@@ -238,57 +295,6 @@ fn trie_st_drop_with_put() {
         drop(st);
         assert_eq!(4, ctx.get());
     });
-}
-
-#[test]
-fn tst() {
-    let mut st = TST::default();
-    // test len & empty
-    assert!(st.is_empty());
-    assert_eq!(0, st.len());
-
-    let i = SHELLS_ST;
-    let mut hm = HashMap::new();
-    let a = extract_words(i);
-    for (i, &s) in a.iter().enumerate() {
-        hm.insert(s, i);
-        // test put
-        st.put(s, Some(i));
-    }
-
-    // test len & empty
-    assert!(!st.is_empty());
-    assert_eq!(7, st.len());
-
-    for (&k, v) in hm.iter() {
-        // test get & contains
-        assert_eq!(st.get(k), Some(v));
-        assert!(st.contains(k));
-    }
-
-    // test keys
-    // TST keys contained in HashMap
-    let keys = st.keys();
-    assert_eq!(hm.keys().len(), keys.len());
-    for k in keys.iter() {
-        assert!(hm.contains_key(k.as_str()));
-    }
-    // HashMap keys contained in TST
-    let keys = hm.keys();
-    for &k in keys {
-        assert!(st.contains(k));
-    }
-
-    // test keys_with_prefix
-    let mut matches = st.keys_with_prefix("shor");
-    assert_eq!(1, matches.len());
-    assert_eq!(Some("shore"), matches.dequeue().as_deref());
-
-    // test delete
-    assert!(st.contains("shells"));
-    st.put("shells", None);
-    assert_eq!(6, st.len());
-    assert!(!st.contains("shells"));
 }
 
 #[test]
