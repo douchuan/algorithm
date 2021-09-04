@@ -32,65 +32,70 @@ never worry about system crash.
 
 ### Index
 
-#### Fundamentals 
+The table index [follow](https://algs4.cs.princeton.edu/code/).
 
-- Find the largest M elements (TopM)
-- Priority queue (PQ)
-- Union find (UF)
-- LinkedList
-- Queue
-- Stack
+| 1   | FUNDAMENTALS         |                                  |
+|-----|----------------------|----------------------------------|
+| 1.2 | Stack                | LIFO stack                       |
+| 1.3 | Queue                | FIFO queue                       |
+| 1.4 | LinkedList           | multiset (linked list)           |
+| 1.5 | QuickFindUF          | quick find                       |
+| -   | QuickUnionUF         | quick union                      |
+| -   | WeightedQuickUnionUF | weighted quick union             |
+| -   | UF                   | union-by-rank with path halving  |
+| 2   | SORTING              |                                  |
+| 2.1 | insert.rs            | insertion sort                   |
+| 2.2 | selection.rs         | selection sort                   |
+| 2.3 | shell.rs             | shellsort                        |
+| 2.4 | merge.rs             | Merge Sort                       |
+| 2.5 | quick.rs             | quicksort                        |
+| -   | Quick3Way            | quicksort with 3-way partitioning |
+| 2.6 | PQ::new_max_pq       | max heap priority queue          |
+| -   | PQ::new_min_pq       | min heap priority queue          |
+| -   | TopM                 | Find the largest M elements      |
+| 2.7 | floyd.rs             | heapsort                         |
+| 3   | SEARCHING            |                                  |
+| 3.4 | rb2.rs               | red-black tree                   |
+| 3.6 | SparseVector         | sparse vector                    |
+| 4   | GRAPHS               |                                  |
+| -   | Graph                | undirected graph                 |
+| -   | DepthFirstSearch     | depth-first search in a graph    | 
+| -   | NonRecursiveDFS      | DFS in a graph (nonrecursive)    |
+| 4.1 | DepthFirstPaths      | paths in a graph (DFS)           |
+| 4.2 | BreadthFirstPaths    | paths in a graph (BFS)           |
+| 4.3 | CC                   | connected components of a graph  |
+| -   | Bipartite            | bipartite or odd cycle (DFS)     |
+| -   | Cycle                | cycle in a graph                 |
+| -   | SymbolGraph          | symbol graph                     |
+| -   | Digraph              | directed graph                   |
+| 4.4 | DepthFirstPaths      | paths in a digraph (DFS)         |
+| -   | BreadthFirstPaths    | paths in a digraph (BFS)         |
+| -   | DirectedCycle        | cycle in a digraph               |
+| 4.5 | Topological          | topological order in a DAG       |
+| -   | TransitiveClosure    | transitive closure               |
+| 4.6 | KosarajuSCC          | strong components (Kosaraju–Sharir) |
+| -   | EWGraph              | edge-weighted graph              |
+| -   | LazyPrimMST          | MST (lazy Prim)                  |
+| 4.7 | PrimMST              | MST (Prim)                       |
+| 4.8 | KruskalMST           | MST (Kruskal)                    |
+| -   | EdgeWeightedDigraphCycle | edge-weighted digraph        |
+| 4.9 | DijkstraSP           | shortest paths (Dijkstra)        |
+| -   | DijkstraAllPairsSP   | all-pairs shortest paths         |
+| 4.10 | AcyclicSP           | shortest paths in a DAG          |
+| -    | AcyclicLP           | longest paths in a DAG           |
+| -   | CPM                  | critical path method             |
+| 4.11 | BellmanFordSP       | shortest paths (Bellman–Ford)    |
+| -   | Arbitrage            | arbitrage detection              |
+| 5   | STRINGS              |                                  |
+| -   | Alphabet             | alphabet                         |
+| -   | count.rs             | alphabet client                  |
+| 5.1 | LSD                  | LSD radix sort                   |
+| 5.2 | MSD                  | MSD radix sort                   |
+| 5.3 | Quick3String         | 3-way string quicksort           |
+| 5.4 | TrieST               | multiway trie symbol table       |
+| 5.5 | TST                  | ternary search trie              |
 
-#### Graphs
 
-- Directed graph
-  - Cycle detection (DirectedCycle, EdgeWeightedDigraphCycle)
-  - Strong connectivity in digraphs (KosarajuSCC)
-  - Topological sort (Topological)
-  - Transitive closure (TransitiveClosure)
-  - Finding paths (DepthFirstPaths, BreadthFirstPaths)
-- Minimum spanning trees 
-  - Lazy version of Prim’s MST algorithm (LazyPrimMST)
-  - Prim’s algorithm (PrimMST)
-  - Kruskal’s algorithm (KruskalMST)
-- Shortest paths
-  - Arbitrage problem (Arbitrage)
-  - Acyclic edge-weighted digraphs (AcyclicSP, AcyclicLP)
-  - Critical path method for parallel precedence-constrained job scheduling (CPM)
-  - Dijkstra’s algorithm (DijkstraSP, DijkstraAllPairsSP)
-  - Bellman-Ford algorithm (BellmanFordSP) 
-- Undirected graph
-  - Bipartite (Bipartite)
-  - Connected components (CC)
-  - Cycle detection (Cycle)
-  - Depth first search (DepthFirstSearch, NonRecursiveDFS)
-  - Finding paths (DepthFirstPaths, BreadthFirstPaths)
-  - Symbol graphs (SymbolGraph)
-
-#### Searching
-
-- Binary Search (binary.rs)
-- Binary Search Tree (bst.rs)
-- Red black (rb2.rs)
-
-#### Sorting
-
-- Bubble Sort (bubble.rs)
-- Insertion Sort (insert.rs)
-- Merge Sort (merge.rs)
-- Quick Sort (quick.rs)
-- Robert. W. Floyd Heap sort (floyd.rs)
-- Selection Sort (selection.rs)
-- Shell's Sort (shell.rs)
-- Tournament Tree Sort (tree_selection.rs)
-
-#### Strings
-
-- Character indexed arrays (Alphabet, count.rs)
-- Radix sort (LSD, MSD)
-- Three-way quicksort (Quick3String, Quick3Way)
-- Tries (TrieST)
-- Ternary search tries (TST)
 
 ### Running
 

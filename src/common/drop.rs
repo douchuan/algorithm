@@ -1,5 +1,8 @@
+//! Used by unit test to verify no memory leak.
+
 use std::sync::{Arc, Mutex};
 
+// record how many Drop::drop called
 // tests run in concurrent, DROPS should be thread_local
 thread_local! {
     static DROPS: Arc<Mutex<usize>> = Arc::new(Mutex::new(0));
@@ -9,6 +12,7 @@ pub struct Elem {
     drops: Arc<Mutex<usize>>,
 }
 
+// wrapper for DROPS
 pub struct Ctx {
     drops: Arc<Mutex<usize>>,
 }
@@ -28,6 +32,7 @@ impl Drop for Elem {
 }
 
 impl Ctx {
+    /// count of Drop::drop called
     pub fn get(&self) -> usize {
         *self.drops.lock().unwrap()
     }
@@ -38,6 +43,7 @@ where
     F: FnOnce(Ctx),
 {
     DROPS.with(|drops| {
+        // reset DROPS to 0
         *drops.lock().unwrap() = 0;
         let ctx = Ctx {
             drops: drops.clone(),
