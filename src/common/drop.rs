@@ -9,6 +9,10 @@ pub struct Elem {
     drops: Arc<Mutex<usize>>,
 }
 
+pub struct Ctx {
+    drops: Arc<Mutex<usize>>,
+}
+
 impl Default for Elem {
     fn default() -> Self {
         let drops = DROPS.with(|drops| drops.clone());
@@ -23,14 +27,21 @@ impl Drop for Elem {
     }
 }
 
-pub fn start() {
-    DROPS.with(|drops| *drops.lock().unwrap() = 0)
+impl Ctx {
+    pub fn get(&self) -> usize {
+        *self.drops.lock().unwrap()
+    }
 }
 
-pub fn peek() -> usize {
-    DROPS.with(|drops| *drops.lock().unwrap())
-}
-
-pub fn end() -> usize {
-    DROPS.with(|drops| *drops.lock().unwrap())
+pub fn with<F>(f: F)
+where
+    F: FnOnce(Ctx),
+{
+    DROPS.with(|drops| {
+        *drops.lock().unwrap() = 0;
+        let ctx = Ctx {
+            drops: drops.clone(),
+        };
+        f(ctx)
+    });
 }

@@ -176,24 +176,28 @@ fn trie_st_drop() {
     use algo::common::drop::{self, Elem};
 
     let mut st = TrieST::default();
-    drop::start();
-    st.put("aaa", Some(Elem::default()));
-    st.put("bbb", Some(Elem::default()));
-    st.put("ccc", Some(Elem::default()));
-    st.put("ddd", Some(Elem::default()));
-    drop(st);
-    assert_eq!(4, drop::end());
+    drop::with(|ctx| {
+        st.put("aaa", Some(Elem::default()));
+        st.put("bbb", Some(Elem::default()));
+        st.put("ccc", Some(Elem::default()));
+        st.put("ddd", Some(Elem::default()));
+        drop(st);
+        assert_eq!(4, ctx.get());
+    });
 
     // test overwrite "aaa"
     let mut st = TrieST::default();
-    drop::start();
-    st.put("aaa", Some(Elem::default()));
-    st.put("bbb", Some(Elem::default()));
-    st.put("ccc", Some(Elem::default()));
-    st.put("ddd", Some(Elem::default()));
-    st.put("aaa", Some(Elem::default())); // do overwrite
-    drop(st);
-    assert_eq!(5, drop::end());
+    drop::with(|ctx| {
+        st.put("aaa", Some(Elem::default()));
+        st.put("bbb", Some(Elem::default()));
+        st.put("ccc", Some(Elem::default()));
+        st.put("ddd", Some(Elem::default()));
+        assert_eq!(0, ctx.get());
+        st.put("aaa", Some(Elem::default())); // do overwrite
+        assert_eq!(1, ctx.get());
+        drop(st);
+        assert_eq!(5, ctx.get());
+    });
 }
 
 #[test]
@@ -201,18 +205,19 @@ fn trie_st_drop_with_delete() {
     use algo::common::drop::{self, Elem};
 
     let mut st = TrieST::default();
-    drop::start();
-    st.put("aaa", Some(Elem::default()));
-    st.put("bbb", Some(Elem::default()));
-    st.put("ccc", Some(Elem::default()));
-    st.put("ddd", Some(Elem::default()));
+    drop::with(|ctx| {
+        st.put("aaa", Some(Elem::default()));
+        st.put("bbb", Some(Elem::default()));
+        st.put("ccc", Some(Elem::default()));
+        st.put("ddd", Some(Elem::default()));
 
-    st.delete("aaa");
-    st.delete("bbb");
-    assert_eq!(2, drop::peek());
+        st.delete("aaa");
+        st.delete("bbb");
+        assert_eq!(2, ctx.get());
 
-    drop(st);
-    assert_eq!(4, drop::end());
+        drop(st);
+        assert_eq!(4, ctx.get());
+    });
 }
 
 #[test]
@@ -220,18 +225,19 @@ fn trie_st_drop_with_put() {
     use algo::common::drop::{self, Elem};
 
     let mut st = TrieST::default();
-    drop::start();
-    st.put("aaa", Some(Elem::default()));
-    st.put("bbb", Some(Elem::default()));
-    st.put("ccc", Some(Elem::default()));
-    st.put("ddd", Some(Elem::default()));
+    drop::with(|ctx| {
+        st.put("aaa", Some(Elem::default()));
+        st.put("bbb", Some(Elem::default()));
+        st.put("ccc", Some(Elem::default()));
+        st.put("ddd", Some(Elem::default()));
 
-    st.put("aaa", None);
-    st.put("bbb", None);
-    assert_eq!(2, drop::peek());
+        st.put("aaa", None);
+        st.put("bbb", None);
+        assert_eq!(2, ctx.get());
 
-    drop(st);
-    assert_eq!(4, drop::end());
+        drop(st);
+        assert_eq!(4, ctx.get());
+    });
 }
 
 #[test]
@@ -290,14 +296,16 @@ fn tst_drop() {
     use algo::common::drop::{self, Elem};
 
     let mut st = TST::default();
-    drop::start();
-    st.put("aaa", Some(Elem::default()));
-    st.put("bbb", Some(Elem::default()));
-    st.put("ccc", Some(Elem::default()));
-    st.put("ddd", Some(Elem::default()));
-    // do drop
-    drop(st);
-    assert_eq!(4, drop::end());
+    drop::with(|ctx| {
+        st.put("aaa", Some(Elem::default()));
+        st.put("bbb", Some(Elem::default()));
+        st.put("ccc", Some(Elem::default()));
+        st.put("ddd", Some(Elem::default()));
+        // do drop
+        drop(st);
+
+        assert_eq!(4, ctx.get());
+    });
 }
 
 #[test]
@@ -306,18 +314,19 @@ fn tst_drop_with_put_none() {
 
     // init
     let mut st = TST::default();
-    drop::start();
-    st.put("aaa", Some(Elem::default()));
-    st.put("bbb", Some(Elem::default()));
-    st.put("ccc", Some(Elem::default()));
+    drop::with(|ctx| {
+        st.put("aaa", Some(Elem::default()));
+        st.put("bbb", Some(Elem::default()));
+        st.put("ccc", Some(Elem::default()));
 
-    // do drops
-    st.put("aaa", None);
-    assert_eq!(1, drop::peek());
-    st.put("bbb", None);
-    assert_eq!(2, drop::peek());
-    st.put("ccc", None);
-    assert_eq!(3, drop::peek());
+        // do drops
+        st.put("aaa", None);
+        assert_eq!(1, ctx.get());
+        st.put("bbb", None);
+        assert_eq!(2, ctx.get());
+        st.put("ccc", None);
+        assert_eq!(3, ctx.get());
+    });
 }
 
 fn extract_words(i: &str) -> Vec<&str> {
