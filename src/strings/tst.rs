@@ -98,6 +98,13 @@ impl<T> TST<T> {
             query.get(0..length as usize)
         }
     }
+
+    pub fn keys_that_match(&self, pattern: &str) -> Queue<String> {
+        let mut results = Queue::default();
+        let mut prefix = String::new();
+        unsafe { collect_match(self.root, &mut prefix, 0, pattern, &mut results) };
+        results
+    }
 }
 
 unsafe fn get_dth<T>(x: Option<NonNull<Node<T>>>, key: &str, d: usize) -> Option<NonNull<Node<T>>> {
@@ -170,6 +177,36 @@ unsafe fn collect_prefix<T>(
         collect_prefix(x.as_ref().mid(), prefix, results);
         let _ = prefix.pop();
         collect_prefix(x.as_ref().right(), prefix, results);
+    }
+}
+
+unsafe fn collect_match<T>(
+    x: Option<NonNull<Node<T>>>,
+    prefix: &mut String,
+    i: usize,
+    pattern: &str,
+    results: &mut Queue<String>,
+) {
+    if let Some(x) = x {
+        let c = common::util::byte_at(pattern, i) as usize;
+        if c == b'.' as usize || c < x.as_ref().c {
+            collect_match(x.as_ref().left(), prefix, i, pattern, results);
+        }
+        if c == b'.' as usize || c == x.as_ref().c {
+            if i == pattern.len() - 1 && x.as_ref().val.is_some() {
+                prefix.push(x.as_ref().c as u8 as char);
+                results.enqueue(prefix.clone());
+                let _ = prefix.pop();
+            }
+            if i < pattern.len() - 1 {
+                prefix.push(x.as_ref().c as u8 as char);
+                collect_match(x.as_ref().mid(), prefix, i + 1, pattern, results);
+                let _ = prefix.pop();
+            }
+        }
+        if c == b'.' as usize || c > x.as_ref().c {
+            collect_match(x.as_ref().right(), prefix, i, pattern, results);
+        }
     }
 }
 

@@ -216,6 +216,10 @@ fn tst() {
     assert_eq!(1, matches.len());
     assert_eq!(Some("shore"), matches.dequeue().as_deref());
 
+    // test keys_that_match
+    let mut matches = st.keys_that_match(".he.l.");
+    assert_eq!(Some("shells"), matches.dequeue().as_deref());
+
     // test longest_prefix_of
     assert_eq!(Some("shells"), st.longest_prefix_of("shellsort"));
     assert_eq!(Some("she"), st.longest_prefix_of("shell"));
