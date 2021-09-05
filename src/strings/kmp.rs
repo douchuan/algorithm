@@ -1,5 +1,14 @@
 #![allow(non_snake_case)]
 
+//! worst case for brute force search
+//! compare with KMP:
+//!
+//! let pat = "AAAAAAAAAB";
+//! let txt = "A".repeat(10000);
+//!
+//! test sub_search_brute_force ... bench:      68,616 ns/iter (+/- 9,302)
+//! test sub_search_kmp         ... bench:      17,805 ns/iter (+/- 2,240)
+
 use crate::common::util::byte_at;
 
 pub struct KMP {
