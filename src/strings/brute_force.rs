@@ -1,6 +1,7 @@
 #![allow(non_snake_case)]
 use crate::common;
 
+#[deprecated(note = "brute force search v1 used by benchmark, use KMP in production")]
 pub fn search1(pat: &str, txt: &str) -> Option<usize> {
     let M = pat.len();
     let N = txt.len();
@@ -22,6 +23,7 @@ pub fn search1(pat: &str, txt: &str) -> Option<usize> {
     None
 }
 
+#[deprecated(note = "brute force search v2 used by benchmark, use KMP in production")]
 pub fn search2(pat: &str, txt: &str) -> Option<usize> {
     let M = pat.len();
     let N = txt.len();
