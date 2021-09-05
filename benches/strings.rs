@@ -1,14 +1,14 @@
 #![feature(test)]
+#![allow(non_snake_case)]
 extern crate test;
 
 use algo::common;
-use algo::strings::{Quick3String, LSD, MSD};
+use algo::strings::{brute_force, Quick3String, KMP, LSD, MSD};
 use test::Bencher;
 
 const WORDS3: &'static str = include_str!("../res/strings/words3.txt");
 const SHELLS: &'static str = include_str!("../res/strings/shells.txt");
 
-#[allow(non_snake_case)]
 #[bench]
 fn sort_str_std_Vec(b: &mut Bencher) {
     let i = WORDS3;
@@ -18,7 +18,6 @@ fn sort_str_std_Vec(b: &mut Bencher) {
     });
 }
 
-#[allow(non_snake_case)]
 #[bench]
 fn sort_i32_std_Vec(b: &mut Bencher) {
     let mut nums: Vec<i32> = (0..1000).rev().collect();
@@ -27,7 +26,6 @@ fn sort_i32_std_Vec(b: &mut Bencher) {
     });
 }
 
-#[allow(non_snake_case)]
 #[bench]
 fn sort_str_LSD_radix(b: &mut Bencher) {
     let i = WORDS3;
@@ -38,7 +36,6 @@ fn sort_str_LSD_radix(b: &mut Bencher) {
     });
 }
 
-#[allow(non_snake_case)]
 #[bench]
 fn sort_i32_LSD_radix(b: &mut Bencher) {
     let mut nums: Vec<i32> = (0..1000).rev().collect();
@@ -47,7 +44,6 @@ fn sort_i32_LSD_radix(b: &mut Bencher) {
     });
 }
 
-#[allow(non_snake_case)]
 #[bench]
 fn sort_str_MSD_radix(b: &mut Bencher) {
     let i = SHELLS;
@@ -57,7 +53,6 @@ fn sort_str_MSD_radix(b: &mut Bencher) {
     });
 }
 
-#[allow(non_snake_case)]
 #[bench]
 fn sort_str_quick3strings(b: &mut Bencher) {
     let i = SHELLS;
@@ -67,7 +62,6 @@ fn sort_str_quick3strings(b: &mut Bencher) {
     });
 }
 
-#[allow(non_snake_case)]
 #[bench]
 fn MSD_worst_case(b: &mut Bencher) {
     // examines just 1 char to distinguish among the keys
@@ -77,7 +71,6 @@ fn MSD_worst_case(b: &mut Bencher) {
     });
 }
 
-#[allow(non_snake_case)]
 #[bench]
 fn MSD_best_case(b: &mut Bencher) {
     // all strings equal, need check all chars
@@ -86,6 +79,21 @@ fn MSD_best_case(b: &mut Bencher) {
     b.iter(|| {
         MSD::sort(&mut words);
     });
+}
+
+#[bench]
+fn sub_search_kmp(b: &mut Bencher) {
+    let pat = "rabrabracad";
+    let txt = "abacadabrabracabracadabrabrabracad";
+    let kmp = KMP::from(pat);
+    b.iter(|| kmp.search(txt));
+}
+
+#[bench]
+fn sub_search_brute_force(b: &mut Bencher) {
+    let pat = "rabrabracad";
+    let txt = "abacadabrabracabracadabrabrabracad";
+    b.iter(|| brute_force::search1(pat, txt));
 }
 
 fn extract_words(i: &str) -> Vec<&str> {

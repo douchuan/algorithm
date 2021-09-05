@@ -1,6 +1,6 @@
 #![feature(is_sorted)]
 #![allow(non_snake_case)]
-use algo::strings::{brute_force, Quick3String, Quick3Way, TrieST, LSD, MSD, TST};
+use algo::strings::{brute_force, Quick3String, Quick3Way, TrieST, KMP, LSD, MSD, TST};
 use std::collections::HashMap;
 
 const WORDS3: &'static str = include_str!("../res/strings/words3.txt");
@@ -345,6 +345,15 @@ fn brute_force_search() {
     for (pat, txt, pos) in data {
         assert_eq!(pos, brute_force::search1(pat, txt));
         assert_eq!(pos, brute_force::search2(pat, txt));
+    }
+}
+
+#[test]
+fn kmp() {
+    let data = substr_data();
+    for (pat, txt, pos) in data {
+        let kmp = KMP::from(pat);
+        assert_eq!(pos, kmp.search(txt));
     }
 }
 

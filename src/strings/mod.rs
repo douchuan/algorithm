@@ -10,6 +10,7 @@ mod tst;
 
 pub use alphabet::Alphabet;
 pub use count::Count;
+pub use kmp::KMP;
 pub use lsd::LSD;
 pub use msd::MSD;
 pub use quick3::{Quick3String, Quick3Way};

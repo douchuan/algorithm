@@ -96,6 +96,7 @@ The table index [follow](https://algs4.cs.princeton.edu/code/).
 | 5.3 | Quick3String         | 3-way string quicksort           |
 | 5.4 | TrieST               | multiway trie symbol table       |
 | 5.5 | TST                  | ternary search trie              |
+| 5.6 | KMP                  | substring search (Knuth–Morris–Pratt) |
 
 
 
