@@ -83,17 +83,18 @@ fn MSD_best_case(b: &mut Bencher) {
 
 #[bench]
 fn sub_search_kmp(b: &mut Bencher) {
-    let pat = "rabrabracad";
-    let txt = "abacadabrabracabracadabrabrabracad";
+    let pat = "AAAAAAAAAB";
+    let txt = "A".repeat(10000);
     let kmp = KMP::from(pat);
-    b.iter(|| kmp.search(txt));
+    b.iter(|| kmp.search(txt.as_str()));
 }
 
 #[bench]
 fn sub_search_brute_force(b: &mut Bencher) {
-    let pat = "rabrabracad";
-    let txt = "abacadabrabracabracadabrabrabracad";
-    b.iter(|| brute_force::search1(pat, txt));
+    // worst case for brute force search
+    let pat = "AAAAAAAAAB";
+    let txt = "A".repeat(10000);
+    b.iter(|| brute_force::search1(pat, txt.as_str()));
 }
 
 fn extract_words(i: &str) -> Vec<&str> {
