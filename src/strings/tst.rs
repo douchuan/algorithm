@@ -31,8 +31,9 @@ impl<T> TST<T> {
     /// Returns all keys in the symbol table as an Queue.
     pub fn keys(&self) -> Queue<String> {
         let mut queue = Queue::default();
+        let mut prefix = String::new();
         unsafe {
-            collect_prefix(self.root, &mut String::new(), &mut queue);
+            collect_prefix(self.root, &mut prefix, &mut queue);
         }
         queue
     }

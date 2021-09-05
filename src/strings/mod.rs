@@ -1,5 +1,7 @@
 pub mod alphabet;
+pub mod brute_force;
 mod count;
+mod kmp;
 pub mod lsd;
 pub mod msd;
 pub mod quick3;

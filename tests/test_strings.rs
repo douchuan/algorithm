@@ -1,6 +1,6 @@
 #![feature(is_sorted)]
 #![allow(non_snake_case)]
-use algo::strings::{Quick3String, Quick3Way, TrieST, LSD, MSD, TST};
+use algo::strings::{brute_force, Quick3String, Quick3Way, TrieST, LSD, MSD, TST};
 use std::collections::HashMap;
 
 const WORDS3: &'static str = include_str!("../res/strings/words3.txt");
@@ -339,6 +339,32 @@ fn tst_drop_with_put_none() {
     });
 }
 
+#[test]
+fn brute_force_search() {
+    let data = substr_data();
+    for (pat, txt, pos) in data {
+        assert_eq!(pos, brute_force::search(pat, txt))
+    }
+}
+
 fn extract_words(i: &str) -> Vec<&str> {
     i.split_whitespace().collect()
+}
+
+fn substr_data() -> Vec<(&'static str, &'static str, Option<usize>)> {
+    vec![
+        (
+            "abracadabra",
+            "abacadabrabracabracadabrabrabracad",
+            Some(14),
+        ),
+        ("rab", "abacadabrabracabracadabrabrabracad", Some(8)),
+        ("bcara", "abacadabrabracabracadabrabrabracad", None),
+        (
+            "rabrabracad",
+            "abacadabrabracabracadabrabrabracad",
+            Some(23),
+        ),
+        ("abacad", "abacadabrabracabracadabrabrabracad", Some(0)),
+    ]
 }
