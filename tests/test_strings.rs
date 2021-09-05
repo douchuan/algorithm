@@ -343,7 +343,8 @@ fn tst_drop_with_put_none() {
 fn brute_force_search() {
     let data = substr_data();
     for (pat, txt, pos) in data {
-        assert_eq!(pos, brute_force::search(pat, txt))
+        assert_eq!(pos, brute_force::search1(pat, txt));
+        assert_eq!(pos, brute_force::search2(pat, txt));
     }
 }
 
