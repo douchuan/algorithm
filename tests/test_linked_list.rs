@@ -61,74 +61,51 @@ fn find_kth2tail() {
 
 #[test]
 fn drop_clear() {
-    static mut DROPS: i32 = 0;
-    struct Elem;
-    impl Drop for Elem {
-        fn drop(&mut self) {
-            unsafe {
-                DROPS += 1;
-            }
-        }
-    }
-
-    let mut ll = LinkedList::default();
-    ll.push_back(Elem);
-    ll.push_front(Elem);
-    ll.push_back(Elem);
-    ll.push_front(Elem);
-    drop(ll);
-
-    assert_eq!(unsafe { DROPS }, 4);
+    use algo::common::drop::{self, Elem};
+    drop::with(|ctx| {
+        let mut ll = LinkedList::default();
+        ll.push_back(Elem);
+        ll.push_front(Elem);
+        ll.push_back(Elem);
+        ll.push_front(Elem);
+        drop(ll);
+        assert_eq!(4, ctx.get());
+    });
 }
 
 #[test]
 fn drop_clear_with_reverse() {
-    static mut DROPS: i32 = 0;
-    struct Elem;
-    impl Drop for Elem {
-        fn drop(&mut self) {
-            unsafe {
-                DROPS += 1;
-            }
-        }
-    }
-
-    let mut ll = LinkedList::default();
-    ll.push_back(Elem);
-    ll.push_front(Elem);
-    ll.push_back(Elem);
-    ll.push_front(Elem);
-    ll.reverse(); // do reverse
-    drop(ll);
-
-    assert_eq!(unsafe { DROPS }, 4);
+    use algo::common::drop::{self, Elem};
+    drop::with(|ctx| {
+        let mut ll = LinkedList::default();
+        ll.push_back(Elem);
+        ll.push_front(Elem);
+        ll.push_back(Elem);
+        ll.push_front(Elem);
+        ll.reverse(); // do reverse
+        drop(ll);
+        assert_eq!(4, ctx.get());
+    })
 }
 
 #[test]
 fn drop_with_pop() {
-    static mut DROPS: i32 = 0;
-    struct Elem;
-    impl Drop for Elem {
-        fn drop(&mut self) {
-            unsafe {
-                DROPS += 1;
-            }
-        }
-    }
+    use algo::common::drop::{self, Elem};
+    drop::with(|ctx| {
+        let mut ll = LinkedList::default();
+        ll.push_back(Elem);
+        ll.push_front(Elem);
+        ll.push_back(Elem);
+        ll.push_front(Elem);
 
-    let mut ll = LinkedList::default();
-    ll.push_back(Elem);
-    ll.push_front(Elem);
-    ll.push_back(Elem);
-    ll.push_front(Elem);
+        // do pop, and drop Elem
+        drop(ll.pop_front());
+        drop(ll.pop_front());
+        assert_eq!(2, ctx.get());
 
-    // do pop, and drop Elem
-    drop(ll.pop_front());
-    drop(ll.pop_front());
-    assert_eq!(unsafe { DROPS }, 2);
-
-    drop(ll);
-    assert_eq!(unsafe { DROPS }, 4);
+        drop(ll);
+        assert_eq!(4, ctx.get());
+    });
 }
 
 fn create_ll<T>(data: &[T]) -> LinkedList<T>

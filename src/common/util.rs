@@ -18,13 +18,19 @@ pub fn vec_alphabet(n: usize) -> Vec<String> {
 }
 
 /// return d-th character of s, -1 if d = length of string
-pub fn byte_at(s: &str, d: usize) -> i32 {
-    let len = s.as_bytes().len();
-    if d >= len {
-        -1
+#[inline(always)]
+pub fn byte_at_checked(s: &str, d: usize) -> i32 {
+    if let Some(v) = s.as_bytes().get(d) {
+        *v as i32
     } else {
-        s.as_bytes()[d] as i32
+        -1
     }
+}
+
+/// uncheck version of byte_at
+#[inline(always)]
+pub fn byte_at(s: &str, d: usize) -> usize {
+    s.as_bytes()[d] as usize
 }
 
 #[test]
@@ -38,8 +44,8 @@ fn t_vec_alphabet() {
 
 #[test]
 fn t_char_at() {
-    assert_eq!(b'a' as i32, byte_at("abc", 0));
-    assert_eq!(b'b' as i32, byte_at("abc", 1));
-    assert_eq!(b'c' as i32, byte_at("abc", 2));
-    assert_eq!(-1, byte_at("abc", 3));
+    assert_eq!(b'a' as i32, byte_at_checked("abc", 0));
+    assert_eq!(b'b' as i32, byte_at_checked("abc", 1));
+    assert_eq!(b'c' as i32, byte_at_checked("abc", 2));
+    assert_eq!(-1, byte_at_checked("abc", 3));
 }

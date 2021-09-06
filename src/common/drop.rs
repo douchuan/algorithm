@@ -9,32 +9,21 @@ thread_local! {
     static DROPS: Arc<AtomicUsize> = Arc::new(AtomicUsize::new(0));
 }
 
-pub struct Elem {
-    drops: Arc<AtomicUsize>,
-}
-
+pub struct Elem;
 // wrapper for DROPS
-pub struct Ctx {
-    drops: Arc<AtomicUsize>,
-}
+pub struct Ctx;
 
-impl Default for Elem {
-    fn default() -> Self {
-        let drops = DROPS.with(|drops| drops.clone());
-        Self { drops }
-    }
-}
-
+// drops counter +1
 impl Drop for Elem {
     fn drop(&mut self) {
-        self.drops.fetch_add(1, Ordering::SeqCst);
+        DROPS.with(|drops| drops.fetch_add(1, Ordering::SeqCst));
     }
 }
 
 impl Ctx {
     /// count of Drop::drop called
     pub fn get(&self) -> usize {
-        self.drops.load(Ordering::SeqCst)
+        DROPS.with(|drops| drops.load(Ordering::SeqCst))
     }
 }
 
@@ -45,9 +34,6 @@ where
     DROPS.with(|drops| {
         // reset DROPS to 0
         drops.store(0, Ordering::SeqCst);
-        let ctx = Ctx {
-            drops: drops.clone(),
-        };
-        f(ctx)
+        f(Ctx)
     });
 }

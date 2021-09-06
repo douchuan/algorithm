@@ -106,7 +106,7 @@ where
         // compute frequency counts
         let mut count = [0; R + 2];
         for it in a.iter().take(hi + 1).skip(lo) {
-            let c = common::util::byte_at(it.as_ref(), d);
+            let c = common::util::byte_at_checked(it.as_ref(), d);
             count[(c + 2) as usize] += 1;
         }
 
@@ -117,7 +117,7 @@ where
 
         // distribute
         for it in a.iter().take(hi + 1).skip(lo) {
-            let c = common::util::byte_at(it.as_ref(), d);
+            let c = common::util::byte_at_checked(it.as_ref(), d);
             aux[count[(c + 1) as usize]] = *it;
             count[(c + 1) as usize] += 1;
         }

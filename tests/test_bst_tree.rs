@@ -123,48 +123,32 @@ fn delete_right_left_deviation() {
 
 #[test]
 fn drop_clear() {
-    static mut DROPS: i32 = 0;
-    struct Elem;
-    impl Drop for Elem {
-        fn drop(&mut self) {
-            unsafe {
-                DROPS += 1;
-            }
+    use algo::common::drop::{self, Elem};
+    drop::with(|ctx| {
+        let mut tree = Tree::default();
+        for v in 0..100 {
+            tree.insert(v, Elem);
         }
-    }
-
-    let mut tree = Tree::default();
-    for v in 0..100 {
-        tree.insert(v, Elem);
-    }
-
-    drop(tree);
-
-    assert_eq!(unsafe { DROPS }, 100);
+        drop(tree);
+        assert_eq!(100, ctx.get());
+    });
 }
 
 #[test]
 fn drop_with_delete() {
-    static mut DROPS: i32 = 0;
-    struct Elem;
-    impl Drop for Elem {
-        fn drop(&mut self) {
-            unsafe {
-                DROPS += 1;
-            }
+    use algo::common::drop::{self, Elem};
+    drop::with(|ctx| {
+        let mut tree = Tree::default();
+        for v in 0..100 {
+            tree.insert(v, Elem);
         }
-    }
 
-    let mut tree = Tree::default();
-    for v in 0..100 {
-        tree.insert(v, Elem);
-    }
+        for v in 0..10 {
+            tree.delete(&v);
+        }
+        assert_eq!(10, ctx.get());
 
-    for v in 0..10 {
-        tree.delete(&v);
-    }
-    assert_eq!(10, unsafe { DROPS });
-
-    drop(tree);
-    assert_eq!(100, unsafe { DROPS });
+        drop(tree);
+        assert_eq!(100, ctx.get());
+    });
 }

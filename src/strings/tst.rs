@@ -87,7 +87,7 @@ impl<T> TST<T> {
         let mut i = 0;
         while x.is_some() && i < query.len() {
             let p = x.unwrap();
-            let c = common::util::byte_at(query, i) as usize;
+            let c = common::util::byte_at(query, i);
             x = unsafe {
                 match c.cmp(&p.as_ref().c) {
                     Ordering::Less => p.as_ref().left(),
@@ -122,7 +122,7 @@ impl<T> TST<T> {
 // return subtrie corresponding to given key
 unsafe fn get_dth<T>(x: Option<NonNull<Node<T>>>, key: &str, d: usize) -> Option<NonNull<Node<T>>> {
     x.and_then(|x| {
-        let c = common::util::byte_at(key, d) as usize;
+        let c = common::util::byte_at(key, d);
         match c.cmp(&x.as_ref().c) {
             Ordering::Less => get_dth(x.as_ref().left(), key, d),
             Ordering::Greater => get_dth(x.as_ref().right(), key, d),
@@ -143,7 +143,7 @@ unsafe fn put_dth<T>(
     val: Option<T>,
     d: usize,
 ) -> Option<NonNull<Node<T>>> {
-    let c = common::util::byte_at(key, d) as usize;
+    let c = common::util::byte_at(key, d);
     let mut x = x.unwrap_or_else(|| Node::new(c));
     match c.cmp(&x.as_ref().c) {
         Ordering::Less => {
@@ -201,7 +201,7 @@ unsafe fn collect_match<T>(
     results: &mut Queue<String>,
 ) {
     if let Some(x) = x {
-        let c = common::util::byte_at(pattern, i) as usize;
+        let c = common::util::byte_at(pattern, i);
         if c == b'.' as usize || c < x.as_ref().c {
             collect_match(x.as_ref().left(), prefix, i, pattern, results);
         }

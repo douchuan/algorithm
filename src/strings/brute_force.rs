@@ -8,8 +8,8 @@ pub fn search1(pat: &str, txt: &str) -> Option<usize> {
     for i in 0..=(N - M) {
         let mut j = 0;
         while j < M {
-            let ic = common::util::byte_at(txt, i + j) as usize;
-            let jc = common::util::byte_at(pat, j) as usize;
+            let ic = common::util::byte_at(txt, i + j);
+            let jc = common::util::byte_at(pat, j);
             if ic != jc {
                 break;
             }
@@ -30,8 +30,8 @@ pub fn search2(pat: &str, txt: &str) -> Option<usize> {
     let mut i = 0;
     let mut j = 0;
     while i < N && j < M {
-        let ic = common::util::byte_at(txt, i) as usize;
-        let jc = common::util::byte_at(pat, j) as usize;
+        let ic = common::util::byte_at(txt, i);
+        let jc = common::util::byte_at(pat, j);
         if ic == jc {
             j += 1;
         } else {

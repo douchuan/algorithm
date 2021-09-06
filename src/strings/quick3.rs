@@ -71,9 +71,9 @@ where
         }
 
         let (mut lt, mut gt, mut i) = (lo, hi, lo + 1);
-        let v = common::util::byte_at(a[lo].as_ref(), d);
+        let v = common::util::byte_at_checked(a[lo].as_ref(), d);
         while i <= gt {
-            let t = common::util::byte_at(a[i].as_ref(), d);
+            let t = common::util::byte_at_checked(a[i].as_ref(), d);
             match t.cmp(&v) {
                 Ordering::Less => {
                     a.swap(lt, i);

@@ -117,15 +117,6 @@ impl<K, V> Node<K, V> {
     }
 }
 
-impl<K, V> Node<K, V>
-where
-    K: std::str::FromStr,
-{
-    pub fn from_str(v: &str) -> Option<NonNull<Node<K, V>>> {
-        v.parse().ok().map(Self::new_key)
-    }
-}
-
 /// Node proxy, like jQuery
 #[derive(Copy, Clone)]
 pub struct NodeQuery<K, V> {
@@ -192,18 +183,18 @@ impl<'a, K: 'a, V: 'a> NodeQuery<K, V> {
         }
     }
 
+    pub fn set_color(&mut self, v: Color) {
+        if let Some(mut node) = self.node {
+            unsafe { node.as_mut().color = v }
+        }
+    }
+
     pub fn copy_entry(&mut self, src: NonNull<Node<K, V>>) {
         if let Some(mut node) = self.node {
             unsafe {
                 ptr::copy_nonoverlapping(&src.as_ref().key, &mut node.as_mut().key, 1);
                 ptr::copy_nonoverlapping(&src.as_ref().val, &mut node.as_mut().val, 1);
             }
-        }
-    }
-
-    pub fn set_color(&mut self, v: Color) {
-        if let Some(mut node) = self.node {
-            unsafe { node.as_mut().color = v }
         }
     }
 

@@ -12,22 +12,25 @@
 use crate::common::util::byte_at;
 
 pub struct KMP {
-    m: usize,             // length of pattern
-    dfa: Vec<Vec<usize>>, // the KMP automoton
+    M: usize,             // length of pattern
+    dfa: Vec<Vec<usize>>, // the KMP automaton
 }
 
 impl KMP {
+    /// Returns the index of the first occurrence of the pattern string
+    /// in the text string.
     pub fn search(&self, txt: &str) -> Option<usize> {
-        let n = txt.len();
-        let m = self.m;
+        let dfa = self.dfa.as_slice();
+        let M = self.M;
+        let N = txt.len();
         let mut i = 0;
         let mut j = 0;
-        while i < n && j < m {
-            j = self.dfa[byte_at(txt, i) as usize][j];
+        while i < N && j < M {
+            j = dfa[byte_at(txt, i)][j];
             i += 1;
         }
-        if j == m {
-            Some(i - m)
+        if j == M {
+            Some(i - M)
         } else {
             None
         }
@@ -37,20 +40,23 @@ impl KMP {
 impl From<&str> for KMP {
     fn from(pat: &str) -> Self {
         let R = 256;
-        let m = pat.len();
+        let M = pat.len();
 
         // build DFA from pattern
-        let mut dfa = vec![vec![0; m]; R];
-        dfa[byte_at(pat, 0) as usize][0] = 1;
+        let mut dfa = vec![vec![0; M]; R];
+        dfa[byte_at(pat, 0)][0] = 1;
         let mut x = 0;
-        for j in 1..m {
+        for j in 1..M {
+            // allow 'clippy::needless_range_loop' here,
+            // 'for' style makes sense
+            #[allow(clippy::needless_range_loop)]
             for c in 0..R {
                 dfa[c][j] = dfa[c][x]; // Copy mismatch cases.
             }
-            dfa[byte_at(pat, j) as usize][j] = j + 1; // Set match case.
-            x = dfa[byte_at(pat, j) as usize][x]; // Update restart state.
+            dfa[byte_at(pat, j)][j] = j + 1; // Set match case.
+            x = dfa[byte_at(pat, j)][x]; // Update restart state.
         }
 
-        Self { m, dfa }
+        Self { M, dfa }
     }
 }

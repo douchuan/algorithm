@@ -28,7 +28,7 @@ fn build<K, V>(vec: &[&str]) -> Tree<K, V>
 where
     K: std::str::FromStr,
 {
-    let mut tokens = LinkedList::new();
+    let mut tokens: LinkedList<&str> = LinkedList::new();
     tokens.extend(vec.iter());
 
     let mut tree = Tree::default();
@@ -38,7 +38,7 @@ where
 
     // println!("tokens = {:?}", tokens);
     while let Some(value) = tokens.pop_front() {
-        let cur = Node::from_str(value);
+        let cur = value.parse().ok().map(Node::new_key);
         // println!("parent = {:?}, cur = {}", parent, value);
 
         match (parent, cur) {
@@ -79,6 +79,9 @@ where
 
         nt = nt.next();
     }
+
+    // assert!(records.iter().all(|it| it.is_none()));
+    // assert!(tokens.is_empty());
 
     tree
 }

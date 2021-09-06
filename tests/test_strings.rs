@@ -238,10 +238,10 @@ fn trie_st_drop() {
 
     let mut st = TrieST::default();
     drop::with(|ctx| {
-        st.put("aaa", Some(Elem::default()));
-        st.put("bbb", Some(Elem::default()));
-        st.put("ccc", Some(Elem::default()));
-        st.put("ddd", Some(Elem::default()));
+        st.put("aaa", Some(Elem));
+        st.put("bbb", Some(Elem));
+        st.put("ccc", Some(Elem));
+        st.put("ddd", Some(Elem));
         drop(st);
         assert_eq!(4, ctx.get());
     });
@@ -249,12 +249,12 @@ fn trie_st_drop() {
     // test overwrite "aaa"
     let mut st = TrieST::default();
     drop::with(|ctx| {
-        st.put("aaa", Some(Elem::default()));
-        st.put("bbb", Some(Elem::default()));
-        st.put("ccc", Some(Elem::default()));
-        st.put("ddd", Some(Elem::default()));
+        st.put("aaa", Some(Elem));
+        st.put("bbb", Some(Elem));
+        st.put("ccc", Some(Elem));
+        st.put("ddd", Some(Elem));
         assert_eq!(0, ctx.get());
-        st.put("aaa", Some(Elem::default())); // do overwrite
+        st.put("aaa", Some(Elem)); // do overwrite
         assert_eq!(1, ctx.get());
         drop(st);
         assert_eq!(5, ctx.get());
@@ -267,10 +267,10 @@ fn trie_st_drop_with_delete() {
 
     let mut st = TrieST::default();
     drop::with(|ctx| {
-        st.put("aaa", Some(Elem::default()));
-        st.put("bbb", Some(Elem::default()));
-        st.put("ccc", Some(Elem::default()));
-        st.put("ddd", Some(Elem::default()));
+        st.put("aaa", Some(Elem));
+        st.put("bbb", Some(Elem));
+        st.put("ccc", Some(Elem));
+        st.put("ddd", Some(Elem));
 
         st.delete("aaa");
         st.delete("bbb");
@@ -287,10 +287,10 @@ fn trie_st_drop_with_put() {
 
     let mut st = TrieST::default();
     drop::with(|ctx| {
-        st.put("aaa", Some(Elem::default()));
-        st.put("bbb", Some(Elem::default()));
-        st.put("ccc", Some(Elem::default()));
-        st.put("ddd", Some(Elem::default()));
+        st.put("aaa", Some(Elem));
+        st.put("bbb", Some(Elem));
+        st.put("ccc", Some(Elem));
+        st.put("ddd", Some(Elem));
 
         st.put("aaa", None);
         st.put("bbb", None);
@@ -307,10 +307,10 @@ fn tst_drop() {
 
     let mut st = TST::default();
     drop::with(|ctx| {
-        st.put("aaa", Some(Elem::default()));
-        st.put("bbb", Some(Elem::default()));
-        st.put("ccc", Some(Elem::default()));
-        st.put("ddd", Some(Elem::default()));
+        st.put("aaa", Some(Elem));
+        st.put("bbb", Some(Elem));
+        st.put("ccc", Some(Elem));
+        st.put("ddd", Some(Elem));
         // do drop
         drop(st);
 
@@ -325,9 +325,9 @@ fn tst_drop_with_put_none() {
     // init
     let mut st = TST::default();
     drop::with(|ctx| {
-        st.put("aaa", Some(Elem::default()));
-        st.put("bbb", Some(Elem::default()));
-        st.put("ccc", Some(Elem::default()));
+        st.put("aaa", Some(Elem));
+        st.put("bbb", Some(Elem));
+        st.put("ccc", Some(Elem));
 
         // do drops
         st.put("aaa", None);

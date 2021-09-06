@@ -152,7 +152,7 @@ impl<T> TrieST<T> {
             }
             x.as_mut().val = val;
         } else {
-            let i = common::util::byte_at(key, d) as usize;
+            let i = common::util::byte_at(key, d);
             let next = x.as_ref().next[i];
             x.as_mut().next[i] = self.put_dth(next, key, val, d + 1);
         }
@@ -173,7 +173,7 @@ impl<T> TrieST<T> {
                     self.n -= 1;
                 }
             } else {
-                let i = common::util::byte_at(key, d) as usize;
+                let i = common::util::byte_at(key, d);
                 let next = x.as_ref().next[i];
                 x.as_mut().next[i] = self.delete_dth(next, key, d + 1);
             }
@@ -199,7 +199,7 @@ fn get_dth<T>(x: Option<NonNull<Node<T>>>, key: &str, d: usize) -> Option<NonNul
         if d == key.len() {
             Some(x)
         } else {
-            let i = common::util::byte_at(key, d) as usize;
+            let i = common::util::byte_at(key, d);
             let next = unsafe { x.as_ref().next[i] };
             get_dth(next, key, d + 1)
         }
@@ -237,7 +237,7 @@ unsafe fn collect_match<T>(
         if d == pattern.len() {
             return;
         }
-        let i = common::util::byte_at(pattern, d) as usize;
+        let i = common::util::byte_at(pattern, d);
         if i == b'.' as usize {
             for ch in 0..R {
                 prefix.push(ch as u8 as char);
@@ -269,7 +269,7 @@ unsafe fn longest_prefix_of_dth<T>(
         if d == query.len() {
             return length;
         }
-        let i = common::util::byte_at(query, d) as usize;
+        let i = common::util::byte_at(query, d);
         let next = x.as_ref().next[i];
         longest_prefix_of_dth(next, query, d + 1, length)
     } else {
