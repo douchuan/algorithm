@@ -26,6 +26,7 @@ fn build<K: std::str::FromStr, V>(vec: &[&str]) -> Tree<K, V> {
     let tokens = expand_sharp(vec);
     let mut tree = Tree::default();
     let mut tree_size = 0;
+    // record Complete Binary Tree node in array
     let mut aux: Vec<Option<NonNull<Node<K, V>>>> = Vec::new();
     for (i, &token) in tokens.iter().enumerate() {
         let node = token.parse().map(Node::new_key).ok();
@@ -40,8 +41,8 @@ fn build<K: std::str::FromStr, V>(vec: &[&str]) -> Tree<K, V> {
             continue;
         }
 
-        match node {
-            Some(mut node) => unsafe {
+        if let Some(mut node) = node {
+            unsafe {
                 let parent_i = ((i + 1) >> 1) - 1;
                 let left_i = (parent_i << 1) + 1;
                 let mut parent_node = aux[parent_i].unwrap();
@@ -51,8 +52,7 @@ fn build<K: std::str::FromStr, V>(vec: &[&str]) -> Tree<K, V> {
                 } else {
                     parent_node.as_mut().right = Some(node);
                 }
-            },
-            None => {}
+            }
         }
     }
 
