@@ -11,24 +11,7 @@
 //!
 //! 顶部保存最小元素的堆为最小堆，顶部保存最大元素的堆为最大堆
 
-// 索引从 0 开始
-macro_rules! left {
-    ($i:expr) => {
-        ($i << 1) + 1
-    };
-}
-
-macro_rules! right {
-    ($i:expr) => {
-        ($i + 1) << 1
-    };
-}
-
-macro_rules! parent {
-    ($i:expr) => {
-        (($i + 1) >> 1) - 1
-    };
-}
+use crate::common::binary_tree;
 
 /// 用数组实现隐式二叉堆 (最大堆)
 pub struct BinaryHeap<K> {
@@ -89,8 +72,8 @@ where
 {
     let n = keys.len();
     loop {
-        let l = left!(i);
-        let r = right!(i);
+        let l = binary_tree::left(i);
+        let r = binary_tree::right(i);
         let mut m = i;
 
         if let Some(v) = keys.get(l) {
@@ -139,7 +122,7 @@ where
     K: Ord,
 {
     while i > 0 {
-        let parent = parent!(i);
+        let parent = binary_tree::parent(i);
         if keys[i] >= keys[parent] {
             keys.swap(i, parent);
             i = parent;

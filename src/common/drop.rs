@@ -1,12 +1,11 @@
 //! Used by unit test to verify no memory leak.
 
 use std::sync::atomic::{AtomicUsize, Ordering};
-use std::sync::Arc;
 
 // record how many Drop::drop called
 // tests run in concurrent, DROPS should be thread_local
 thread_local! {
-    static DROPS: Arc<AtomicUsize> = Arc::new(AtomicUsize::new(0));
+    static DROPS: AtomicUsize = AtomicUsize::new(0);
 }
 
 pub struct Elem;

@@ -1,3 +1,4 @@
+pub mod binary_tree;
 pub mod drop;
 pub mod max_heap;
 mod priority_queue;

@@ -6,6 +6,7 @@
 //!     /
 //!    3
 
+use crate::common::binary_tree;
 use crate::tree::binary::builder::TreeBuilder;
 use crate::tree::binary::node::Node;
 use crate::tree::binary::tree::Tree;
@@ -26,7 +27,7 @@ fn build<K: std::str::FromStr, V>(vec: &[&str]) -> Tree<K, V> {
     let tokens = expand_sharp(vec);
     let mut tree = Tree::default();
     let mut tree_size = 0;
-    // record Complete Binary Tree node in array
+    // Binary Tree in array
     let mut aux: Vec<Option<NonNull<Node<K, V>>>> = Vec::new();
     for (i, &token) in tokens.iter().enumerate() {
         let node = token.parse().map(Node::new_key).ok();
@@ -43,11 +44,10 @@ fn build<K: std::str::FromStr, V>(vec: &[&str]) -> Tree<K, V> {
 
         if let Some(mut node) = node {
             unsafe {
-                let parent_i = ((i + 1) >> 1) - 1;
-                let left_i = (parent_i << 1) + 1;
-                let mut parent_node = aux[parent_i].unwrap();
+                let parent = binary_tree::parent(i);
+                let mut parent_node = aux[parent].unwrap();
                 node.as_mut().parent = Some(parent_node);
-                if left_i == i {
+                if binary_tree::left(parent) == i {
                     parent_node.as_mut().left = Some(node);
                 } else {
                     parent_node.as_mut().right = Some(node);
@@ -80,10 +80,10 @@ fn expand_sharp<'a>(vec: &[&'a str]) -> Vec<&'a str> {
             loop {
                 // new child idx
                 let idx = results.len();
-                let parent_idx = ((idx + 1) >> 1) - 1;
-                let parent = results[parent_idx];
-                if results[parent_idx] == "#" {
-                    // if parent is "#", push "#"
+                let parent = results[binary_tree::parent(idx)];
+                if parent == "#" {
+                    // if parent is "#", children are "#",
+                    // so just push "#"
                     results.push(parent);
                 } else {
                     results.push(v);
@@ -98,11 +98,13 @@ fn expand_sharp<'a>(vec: &[&'a str]) -> Vec<&'a str> {
 
 #[test]
 fn t_expand_sharp() {
-    let vec = vec!["1", "#", "2", "3"];
-    let results = vec!["1", "#", "2", "#", "#", "3"];
-    assert_eq!(results, expand_sharp(vec.as_slice()));
-
-    let vec = vec!["1", "2", "#", "3", "4", "#", "#", "5"];
-    let results = vec!["1", "2", "#", "3", "4", "#", "#", "5"];
-    assert_eq!(results, expand_sharp(vec.as_slice()));
+    for (tokens, expect) in vec![
+        (vec!["1", "#", "2", "3"], vec!["1", "#", "2", "#", "#", "3"]),
+        (
+            vec!["1", "2", "#", "3", "4", "#", "#", "5"],
+            vec!["1", "2", "#", "3", "4", "#", "#", "5"],
+        ),
+    ] {
+        assert_eq!(expect, expand_sharp(tokens.as_slice()));
+    }
 }
