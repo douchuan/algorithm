@@ -24,7 +24,7 @@
 use crate::common::util::byte_at;
 
 pub struct KMP {
-    M: usize,             // length of pattern
+    M: usize, // length of pattern
     // dfa is R rows, pat.len() columns
     dfa: Vec<Vec<usize>>, // the KMP automaton
 }

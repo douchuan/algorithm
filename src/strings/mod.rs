@@ -4,6 +4,7 @@ mod count;
 mod kmp;
 pub mod lsd;
 pub mod msd;
+pub mod palindrome;
 pub mod quick3;
 mod tries;
 mod tst;

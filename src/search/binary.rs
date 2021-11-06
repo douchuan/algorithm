@@ -2,19 +2,19 @@
 
 use std::cmp::Ordering;
 
-pub fn search<K>(xs: &[K], k: K) -> Option<usize>
+pub fn search<K>(arr: &[K], k: K) -> Option<usize>
 where
     K: Ord,
 {
-    let mut l = 0;
-    let mut u = xs.len();
+    let mut left = 0;
+    let mut right = arr.len();
 
-    while l < u {
-        let m = (l + u) / 2;
-        match xs[m].cmp(&k) {
-            Ordering::Equal => return Some(m),
-            Ordering::Less => l = m + 1,
-            Ordering::Greater => u = m,
+    while left < right {
+        let mid = (left + right) >> 1;
+        match arr[mid].cmp(&k) {
+            Ordering::Less => left = mid + 1,
+            Ordering::Equal => return Some(mid),
+            Ordering::Greater => right = mid,
         }
     }
 

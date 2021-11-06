@@ -15,6 +15,7 @@ fn vec_random_access() {
 
     // 扩充
     x.reserve(4);
+    let x_ptr = x.as_mut_ptr();
     unsafe {
         for v in 4..8 {
             *x_ptr.add(v) = v;

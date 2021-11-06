@@ -1,5 +1,6 @@
 #![feature(is_sorted)]
 #![allow(non_snake_case)]
+use algo::strings::palindrome;
 use algo::strings::{brute_force, Quick3String, Quick3Way, TrieST, KMP, LSD, MSD, TST};
 use std::collections::HashMap;
 
@@ -355,6 +356,16 @@ fn kmp() {
         let kmp = KMP::from(pat);
         assert_eq!(pos, kmp.search(txt));
     }
+}
+
+#[test]
+fn palindrome() {
+    assert!(palindrome::is_palindrome(""));
+    assert!(palindrome::is_palindrome("a"));
+    assert!(palindrome::is_palindrome("aba"));
+    assert!(palindrome::is_palindrome("abba"));
+    assert!(!palindrome::is_palindrome("abc"));
+    assert!(!palindrome::is_palindrome("abab"));
 }
 
 fn extract_words(i: &str) -> Vec<&str> {
