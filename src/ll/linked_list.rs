@@ -47,12 +47,12 @@ impl<T> LinkedList<T> {
         let mut node = Node::new(element);
         unsafe {
             node.as_mut().next = None;
+        }
 
             match self.tail {
-                Some(mut tail) => tail.as_mut().next = Some(node),
+                Some(mut tail) => unsafe { tail.as_mut().next = Some(node) }, 
                 None => self.head = Some(node),
             }
-        }
 
         self.tail = Some(node);
         self.len += 1;
@@ -133,9 +133,9 @@ impl<'a, T> Iterator for Iter<'a, T> {
         if self.len == 0 {
             None
         } else {
-            self.head.map(|node| unsafe {
+            self.head.map(|node| {
                 // Need an unbound lifetime to get 'a
-                let node = &*node.as_ptr();
+                let node = unsafe { &*node.as_ptr() };
                 self.len -= 1;
                 self.head = node.next;
                 &node.element

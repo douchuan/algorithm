@@ -43,9 +43,9 @@ fn build<K: std::str::FromStr, V>(vec: &[&str]) -> Tree<K, V> {
         }
 
         if let Some(mut node) = node {
+            let parent = binary_tree::parent(i);
+            let mut parent_node = aux[parent].unwrap();
             unsafe {
-                let parent = binary_tree::parent(i);
-                let mut parent_node = aux[parent].unwrap();
                 node.as_mut().parent = Some(parent_node);
                 if binary_tree::left(parent) == i {
                     parent_node.as_mut().left = Some(node);
