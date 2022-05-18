@@ -47,9 +47,9 @@ impl<K, V> Drop for Tree<K, V> {
 }
 
 fn height<K, V>(node: Option<NonNull<Node<K, V>>>) -> usize {
-    node.map_or(0, |node| unsafe {
-        let lh = height(node.as_ref().left);
-        let rh = height(node.as_ref().right);
+    node.map_or(0, |node| {
+        let lh = height(unsafe { node.as_ref().left });
+        let rh = height(unsafe { node.as_ref().right });
         1 + std::cmp::max(lh, rh)
     })
 }

@@ -134,27 +134,27 @@ impl<'a, K: 'a, V: 'a> NodeQuery<K, V> {
     }
 
     pub fn set_left(&mut self, node: Option<NonNull<Node<K, V>>>) {
-        unsafe {
+       
             if let Some(mut p) = self.node {
-                p.as_mut().left = node;
+                unsafe { p.as_mut().left = node };
             }
 
             if let Some(mut p) = node {
-                p.as_mut().parent = self.node;
+                unsafe { p.as_mut().parent = self.node };
             }
-        }
+        
     }
 
     pub fn set_right(&mut self, node: Option<NonNull<Node<K, V>>>) {
-        unsafe {
+        
             if let Some(mut p) = self.node {
-                p.as_mut().right = node;
+                unsafe { p.as_mut().right = node };
             }
 
             if let Some(mut p) = node {
-                p.as_mut().parent = self.node;
+                unsafe { p.as_mut().parent = self.node };
             }
-        }
+        
     }
 
     pub fn set_children(&mut self, l: Option<NonNull<Node<K, V>>>, r: Option<NonNull<Node<K, V>>>) {
