@@ -1,4 +1,3 @@
-#![feature(is_sorted)]
 #![allow(non_snake_case)]
 use algo::strings::palindrome;
 use algo::strings::{brute_force, Quick3String, Quick3Way, TrieST, KMP, LSD, MSD, TST};

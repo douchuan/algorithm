@@ -1,4 +1,3 @@
-#![feature(is_sorted)]
 
 use algo::common;
 use algo::sort;
